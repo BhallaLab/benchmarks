@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 SWCFILES=`find . -type f -name "*.swc"`
-echo "num_segments,tot_time,filepath" | tee benchmark.csv
+if [ ! -f ./benchmark.csv ]; then
+    echo "num_segments,tot_time,filepath" | tee benchmark.csv
+fi
 for file in $SWCFILES; do
     echo "Running model $file"
     output=`python ./timeCA1Pyr.py $file`
