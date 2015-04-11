@@ -20,12 +20,12 @@ def main():
     modelName = "./Generated.net.xml"
     nml.loadNeuroML_L123(modelName)
     moose.delete('/library')
-    print("Total comps: %s" % len(moose.wildcardFind('/##[TYPE=Compartment]')))
+    print(("Total comps: %s" % len(moose.wildcardFind('/##[TYPE=Compartment]'))))
     moose.reinit()
     t1 = time.time()
     moose.start(2)
     runT = time.time() - t1
-    print("Time taken by MOOSE: %s sec" % runT)
+    print(("Time taken by MOOSE: %s sec" % runT))
 
 
 if __name__ == '__main__':

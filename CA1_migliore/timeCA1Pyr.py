@@ -23,7 +23,7 @@ def makePlot( cell ):
     compts = cell.compartments
     epos = cell.electrotonicDistanceFromSoma
     gpos = cell.geometricalDistanceFromSoma
-    combo = zip( gpos, compts )
+    combo = list(zip( gpos, compts ))
     #combo.sort( key=lambda c:c[1].x)
     combo.sort( key= lambda c:c[0] )
     for i in chans:
@@ -88,8 +88,9 @@ def loadModel(filename):
     compts[0].inject = inject
     startt = time.time()
     moose.start(1)
-    print 'tot time = ', time.time() - startt
+    print('tot time = {}'.format(time.time() - startt))
     sys.exit()
+
     makePlot( cell[0] )
 
     # Now we set up the display
@@ -124,7 +125,7 @@ def loadModel(filename):
     print "Na placed in ", len( Na ), len( Na2 ),  " out of ", len( compts ), " compts."
     '''
     compts[0].inject = inject
-    ecomptPath = map( lambda x : x.path, compts )
+    ecomptPath = [x.path for x in compts]
 
     # Graphics stuff here.
     app = QtGui.QApplication(sys.argv)
@@ -135,7 +136,7 @@ def loadModel(filename):
     viewer = moogli.DynamicMorphologyViewerWidget(morphology)
     def callback( morphology, viewer ):
         moose.start( frameRunTime )
-        Vm = map( lambda x: moose.element( x ).Vm, compts )
+        Vm = [moose.element( x ).Vm for x in compts]
         morphology.set_color( "group_all", Vm )
         currTime = moose.element( '/clock' ).currentTime
         #print currTime, compts[0].Vm
@@ -158,14 +159,12 @@ def loadModel(filename):
     p3.legend()
     plt.show()
 
-def main():
-    if ( len( sys.argv ) < 2 ):
-        print "Usage: ", sys.argv[0], " filename"
-        return
-
-    # filename = "./Bhavika_swcplusnmlfiles/preliminarily corrected nmlfiles/ascoli+buzsaki/valid/" + sys.argv[1]
-    filename = sys.argv[1]
+def main(filename):
     loadModel(filename)
 
 if __name__ == '__main__':
-    main()
+    if ( len( sys.argv ) < 2 ):
+        print("Usage: %s filename" % sys.argv[0])
+        sys.exit()
+    filename = sys.argv[1]
+    main(filename)
