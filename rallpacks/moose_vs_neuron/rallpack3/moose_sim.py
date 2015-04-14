@@ -261,7 +261,7 @@ def main(args):
     table0 = utils.recordAt( '/table0', cable[0], 'vm')
     table1 = utils.recordAt( '/table1', cable[-1], 'vm')
     st = simulate( args['run_time'], dt )
-    profile.insert( simulator='moose'
+    _profile.insert( simulator='moose'
             , no_of_compartment=args['ncomp']
             , coretime=st
             )
