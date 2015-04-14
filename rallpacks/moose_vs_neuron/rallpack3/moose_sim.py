@@ -24,7 +24,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import profile
+import _profile
 
 EREST_ACT = -65e-3
 per_ms = 1e3
