@@ -265,7 +265,7 @@ def main(args):
             , no_of_compartment=args['ncomp']
             , coretime=st
             )
-    utils.saveRecords({ 'table0' : table0, 'table1' : table1 })
+    #utils.saveRecords({ 'table0' : table0, 'table1' : table1 })
 
 if __name__ == '__main__':
     import argparse

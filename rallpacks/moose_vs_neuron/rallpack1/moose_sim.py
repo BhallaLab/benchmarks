@@ -193,7 +193,7 @@ def main( args ):
     #utils.plotRecords(records)
     mooseEnds = time.time() - mooseBegin
 
-    utils.saveRecords(records, outfile="data/moose.dat")
+    #utils.saveRecords(records, outfile="data/moose.dat")
     _profile.insert(simulator = 'moose'
             , no_of_compartment=args['ncomp']
             , coretime = st

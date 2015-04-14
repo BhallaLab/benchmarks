@@ -40,10 +40,11 @@ def plotBenchmark(d):
         time, compt = zip(*vals)
         pylab.plot(compt, time, '.', label=k)
         pylab.legend(loc='best', framealpha=0.4)
-        pylab.xlabel("No of compartment")
+        pylab.xlabel("No of compartments")
         pylab.ylabel("Time taken (sec)")
+        pylab.title("%s" % tableName)
 
-    filename = "{}_benchmark.png".format(d)
+    filename = os.path.join(d, "_benchmark.png")
     print("Saving benchmark to %s" % filename)
     pylab.savefig(filename)
 
