@@ -1,6 +1,6 @@
 dia = 1.0
-len = 2.0
-incompts = 500
+len = 0.0285714285714
+incompts = 35000
 entire_len = incompts * len
 runtime = 250.0
 
@@ -37,10 +37,10 @@ proc run() { local io
 	io = 0
 	wopen("cable.out")
 	fstim(1) fstim(0, 0, 0, 250.0, .100)
-        fprint("%g %g %g\n", t, v(0.001), v(0.999))
+        fprint("%g %g %g\n", t, v(1.42857142857e-05), v(0.999985714286))
 	while (t < runtime) {
 	    fadvance()
-            /*fprint("%g %g %g\n", t, v(0.001), v(0.999))
+            /*fprint("%g %g %g\n", t, v(1.42857142857e-05), v(0.999985714286))
             */
 	}
 	wopen()
