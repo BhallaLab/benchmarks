@@ -42,12 +42,12 @@ def makePlot( cell ):
         pylab.legend()
         pylab.show()
 
-def loadModel(args):
+def loadModel(filename, args):
     """Load the model and insert channels """
     moose.Neutral( '/model' )
     # Load in the swc file.
-    filename = args.model_file
-    modelName = filename.split('/')[-1].replace('.')
+    modelName = filename.split('/')[-1]
+    print("Opening model file: %s" % modelName)
     cell = moose.loadModel( filename, '/model/{}'.format(modelName))
 
     for i in moose.wildcardFind( '/library/##' ):

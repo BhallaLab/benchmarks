@@ -14,11 +14,12 @@ __status__           = "Development"
 
 def main(args):
     """Main function. """
+    print args
     if args.simulator == 'moose':
         import loader_moose as l
     elif args.simulator == 'neuron':
         import loader_neuron as l
-    model = l.loadModel(args.swc_file)
+    model = l.loadModel(args.swc_file, args)
 
 if __name__ == '__main__':
     import argparse
@@ -39,18 +40,30 @@ if __name__ == '__main__':
         )
 
     parser.add_argument('--sim_time', '-t'
-        , required = True
+        , required = False
         , type = float
         , default = 1.0
         , help = 'Simulation time'
         )
-    parser.add_argument('--save_data', '-s'
-        , required = True
+    parser.add_argument('--sim_dt', '-dt'
+        , required = False
+        , default = 5e-5
+        , type = float
+        , help = 'Help'
+        )
+    parser.add_argument('--plots', '-o'
+        , required = False
         , default = False
-        , help = 'Save data?'
+        , help = 'Save data\?'
+        )
+    parser.add_argument('--insert_channels', '-c'
+        , required = False
+        , default = False
+        , help = 'Help'
         )
     
     class Args: pass 
     args = Args()
+
     parser.parse_args(namespace=args)
     main(args)
