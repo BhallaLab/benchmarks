@@ -142,6 +142,3 @@ def loadModel(args):
     moose.start(args.sim_time)
     print('tot time = {}'.format(time.time() - startt))
     sys.exit()
-
-
-
