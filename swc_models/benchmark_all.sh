@@ -5,7 +5,7 @@ if [ ! -f ./benchmark.csv ]; then
 fi
 for file in $SWCFILES; do
     echo "Running model $file"
-    output=`python ./timeCA1Pyr.py $file`
+    output=`python ./swc_loader.py -f $file -sim moose`
     numsegs=`expr match "$output" ".*NumSegs = \([0-9]\+\)"`
     totTime=`expr match "$output" ".*tot time = \([0-9.]\+\)"`
     echo $numsegs,$totTime,$file | tee -a benchmark.csv
