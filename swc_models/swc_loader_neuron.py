@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """swc_loader_neuron.py: 
 
     Load an SWC file in neuron.
@@ -13,7 +14,7 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-from neuron import h
+from neuron import h, gui
 import sys
 
 
@@ -38,9 +39,14 @@ def instantiate_swc(filename):
     # use of the GUI's features
     i3d = h.Import3d_GUI(cell, 0)
     i3d.instantiate(None)
+    return i3d
 
 def main(filename):
-    instantiate_swc(filename)
+    network = instantiate_swc(filename)
+    for sec in network.allsec():
+        print sec
+    from IPython import embed
+    embed()
 
 if __name__ == '__main__':
     filename = sys.argv[1]
