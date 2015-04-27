@@ -12,7 +12,6 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-import loader_moose
 import loader_neuron
 import sys
 import logging
@@ -20,9 +19,11 @@ import logging
 def main(args):
     """Main function. """
     if args.simulator == 'moose':
+        import loader_moose
         logging.info("Loading into MOOSE")
         model = loader_moose.loadModel(args.swc_file, args)
     elif args.simulator == 'neuron':
+        import loader_neuron
         logging.info("Loading into NEURON")
         model = loader_neuron.loadModel(args.swc_file, args)
     else:
