@@ -41,13 +41,24 @@ def instantiate_swc(filename):
     i3d.instantiate(None)
     return i3d
 
-def main(filename):
+##
+# @brief This fuction should be called from ./swc_loader.py file.
+#
+# @param filename
+# @param args Command line arguments.
+#
+# @return 
+def loadModel(filename, args):
+    print("[INFO] Loading %s into NEURON" % filename)
     network = instantiate_swc(filename)
     for sec in network.allsec():
         print sec
-    from IPython import embed
-    embed()
+
 
 if __name__ == '__main__':
+
+    def main(filename):
+        loadModel(filename, args)
+
     filename = sys.argv[1]
     main(filename)
