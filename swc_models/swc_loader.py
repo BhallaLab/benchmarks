@@ -12,14 +12,22 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
+import loader_moose
+import loader_neuron
+import sys
+import logging
+
 def main(args):
     """Main function. """
-    print args
     if args.simulator == 'moose':
-        import loader_moose as l
+        logging.info("Loading into MOOSE")
+        model = loader_moose.loadModel(args.swc_file, args)
     elif args.simulator == 'neuron':
-        import loader_neuron as l
-    model = l.loadModel(args.swc_file, args)
+        logging.info("Loading into NEURON")
+        model = loader_neuron.loadModel(args.swc_file, args)
+    else:
+        print("[WARN] Unsupported simulator %s" % args.simulator)
+        sys.exit()
 
 if __name__ == '__main__':
     import argparse
