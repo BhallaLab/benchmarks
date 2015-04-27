@@ -15,7 +15,9 @@ __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
 from neuron import h, gui
+from collections import Counter, defaultdict
 import sys
+import re
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -36,9 +38,17 @@ def instantiate_swc(filename):
 def loadModel(filename, args=None):
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
-    print cell
-    for sec in cell.allsec():
-        print sec
+
+    secType = list()
+    segDict = defaultdict(list)
+    for seg in cell.allsec():
+        hname = re.sub('\[\d*\]', '', seg.hname())
+        print seg
+        for i in seg.allseg():
+            segDict[seg.hname()].append(i)
+
+    print segDict
+        
 
 
 if __name__ == '__main__':
