@@ -65,8 +65,9 @@ if __name__ == '__main__':
         , help = 'Save data\?'
         )
     parser.add_argument('--insert_channels', '-c'
+        , action = 'append'
         , required = False
-        , default = None
+        , default = []
         , help = 'Help'
         )
     

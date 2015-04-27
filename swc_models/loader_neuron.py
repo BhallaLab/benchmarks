@@ -18,6 +18,7 @@ from neuron import h, gui
 from collections import Counter, defaultdict
 import sys
 import re
+import numpy as np
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -27,6 +28,26 @@ def instantiate_swc(filename):
     i3d = h.Import3d_GUI(cell, 0)
     i3d.instantiate(None)
     return i3d
+
+def computeR(seg):
+    """Compute the distance from soma
+    Assuming soma is at (0,0,0)
+    """
+    xpoints = ypoints = zpoints = np.zeros(h.n3d(seg))
+    for i in range(len(xpoints)):
+        xpoints[i] = h.x3d(i, seg)
+        ypoints[i] = h.y3d(i, seg)
+        zpoints[i] = h.z3d(i, seg)
+    r =  np.sqrt(np.mean(
+        np.array([xpoints.mean(), ypoints.mean(), zpoints.mean()])**2)
+        )
+    return r
+
+def insertChannels(segments, exprs):
+    """Insert channels in segments given by expr"""
+    assert type(segments) == dict
+    assert type(exprs) == defaultdict
+
 
 ##
 # @brief This fuction should be called from ./swc_loader.py file.
@@ -39,17 +60,18 @@ def loadModel(filename, args=None):
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
 
-    secType = list()
-    segDict = defaultdict(list)
-    for seg in cell.allsec():
-        hname = re.sub('\[\d*\]', '', seg.hname())
-        print seg
-        for i in seg.allseg():
-            segDict[seg.hname()].append(i)
+    segDict = {}
+    for sec in cell.allsec():
+        for i in sec.allseg(): segDict[sec.hname()] = i
 
-    print segDict
-        
+    channelExprDict = defaultdict(list)
+    if args.insert_channels:
+        for p in args.insert_channels:
+            channelName, segPat, expr = p.split(',')
+            for seg in segPat.split(":"):
+                channelExprDict[seg].append((channelName, expr))
 
+    insertChannels(segDict, channelExprDict)
 
 if __name__ == '__main__':
     def main(filename):
