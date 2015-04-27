@@ -16,6 +16,7 @@ PI = 3.14159265359
 frameRunTime = 0.001
 inject = 25e-10
 FaradayConst = 96845.34
+modelName = None
 
 def makePlot( cell ):
     fig = plt.figure( figsize = ( 10, 12 ) )
@@ -44,16 +45,18 @@ def makePlot( cell ):
 
 def loadModel(filename, args):
     """Load the model and insert channels """
+    global modelName
     moose.Neutral( '/model' )
     # Load in the swc file.
     modelName = filename.split('/')[-1]
-    print("Opening model file: %s" % modelName)
+    print("[INFO] Opening model file: %s" % modelName)
     cell = moose.loadModel( filename, '/model/{}'.format(modelName))
 
     for i in moose.wildcardFind( '/library/##' ):
         i.tick = -1
 
     if args.insert_channels:
+        print("[INFO] Adding channels")
         cm = ChannelML( {'temperature': 32 })
         cm.readChannelMLFromFile( 'hd.xml' )
         cm.readChannelMLFromFile( 'kap.xml' )
@@ -83,11 +86,12 @@ def loadModel(filename, args):
         cell[0].parseChanDistrib()
 
     if args.plots:
+        print("[INFO] Plotting is ON")
         makePlot( cell[0] )
         # Now we set up the display
-        moose.le( '/model/ca1/soma' )
-        soma = moose.element( '/model/ca1/soma' )
-        kap = moose.element( '/model/ca1/soma/kap' )
+        moose.le( '/model/%s/soma'%modelName )
+        soma = moose.element( '/model/%s/soma'%modelName )
+        kap = moose.element( '/model/%s/soma/kap'%modelName )
 
         graphs = moose.Neutral( '/graphs' )
         vtab = moose.Table( '/graphs/vtab' )
@@ -95,26 +99,7 @@ def loadModel(filename, args):
         kaptab = moose.Table( '/graphs/kaptab' )
         moose.connect( kaptab, 'requestOut', kap, 'getGk' )
 
-        compts = moose.wildcardFind( "/model/ca1/#[ISA=CompartmentBase]" )
-        '''
-        for i in compts:
-            if moose.exists( i.path + '/Na' ):
-                print i.path, moose.element( i.path + '/Na' ).Gbar, \
-                    moose.element( i.path + '/K_DR' ).Gbar, \
-                    i.Rm, i.Ra, i.Cm
-        '''
-        '''
-        Na = moose.wildcardFind( '/model/ca1/#/Na#' )
-        print Na
-        Na2 = []
-        for i in compts:
-            if ( moose.exists( i.path + '/NaF2' ) ):
-                Na2.append(  moose.element( i.path + '/NaF2' ) )
-            if ( moose.exists( i.path + '/NaPF_SS' ) ):
-                Na2.append(  moose.element( i.path + '/NaPF_SS' ) )
-        ecomptPath = map( lambda x : x.path, compts )
-        print "Na placed in ", len( Na ), len( Na2 ),  " out of ", len( compts ), " compts."
-        '''
+        compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
         compts[0].inject = inject
         ecomptPath = [x.path for x in compts]
 
@@ -136,7 +121,7 @@ def loadModel(filename, args):
     hsolve.dt = args.sim_dt
     hsolve.target = '/model/%s/soma' % modelName
     moose.reinit()
-    compts = moose.wildcardFind( "/model/ca1/#[ISA=CompartmentBase]" )
+    compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]" % modelName )
     compts[0].inject = inject
     startt = time.time()
     moose.start(args.sim_time)

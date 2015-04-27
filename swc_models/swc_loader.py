@@ -58,7 +58,7 @@ if __name__ == '__main__':
         )
     parser.add_argument('--insert_channels', '-c'
         , required = False
-        , default = False
+        , default = None
         , help = 'Help'
         )
     
