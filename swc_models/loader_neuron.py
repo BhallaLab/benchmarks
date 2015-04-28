@@ -14,7 +14,7 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-from neuron import h, gui
+from neuron import h
 from collections import Counter, defaultdict
 import sys
 import re
@@ -26,6 +26,7 @@ topology = nx.DiGraph()
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
+    h.load_file('stdgui.hoc')
     h.load_file('import3d.hoc')
     cell = h.Import3d_SWC_read()
     cell.input(filename)
@@ -70,7 +71,11 @@ def cluster(segDict):
 def insertChannels(exprs):
     """Insert channels in segments given by expr"""
     assert type(exprs) == defaultdict
-    print exprs
+    for k in exprs:
+        expr = k.replace('*', '.*')
+        typePat = re.compile(r'%s'%expr)
+        print exprs[k]
+
 
 def addNode(sec):
     """Add a node to topolgoy"""
