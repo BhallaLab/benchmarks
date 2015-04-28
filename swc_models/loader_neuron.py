@@ -19,6 +19,10 @@ from collections import Counter, defaultdict
 import sys
 import re
 import numpy as np
+import pylab
+import networkx as nx
+
+topology = nx.DiGraph()
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -29,7 +33,7 @@ def instantiate_swc(filename):
     i3d.instantiate(None)
     return i3d
 
-def computeR(seg):
+def computeCenter(seg):
     """Compute the distance from soma
     Assuming soma is at (0,0,0)
     """
@@ -43,11 +47,37 @@ def computeR(seg):
         )
     return r
 
+def cluster(segDict):
+    pat = re.compile(r'(?P<name>\w+)\[(?P<index>\d+)\]')
+    sortedKeys = sorted(segDict)
+    sortedDict = {}
+    for k in sortedKeys:
+        sortedDict[k] = segDict[k]
+        
+    clusterDict = defaultdict(list)
+    for k in sortedDict:
+        m = pat.match(k)
+        name, index = m.group('name'), m.group('index')
+        clusterDict[name].append(sortedDict[k])
+    for n in clusterDict:
+        print n
+
+
 def insertChannels(segments, exprs):
     """Insert channels in segments given by expr"""
     assert type(segments) == dict
     assert type(exprs) == defaultdict
+    #segmentCluster = cluster(segments)
 
+def addNode(sec):
+    """Add a node to topolgoy"""
+    global topolgoy
+    topology.add_node(sec
+            , label="%s" % sec.hname()
+            , segs = sec.allseg()
+            , type=sec.hname()
+            , shape = 'rect'
+            )
 
 ##
 # @brief This fuction should be called from ./swc_loader.py file.
@@ -60,18 +90,23 @@ def loadModel(filename, args=None):
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
 
-    segDict = {}
     for sec in cell.allsec():
-        for i in sec.allseg(): segDict[sec.hname()] = i
+        addNode(sec)
+        for child in sec.children():
+            addNode(child)
+            topology.add_edge(sec, child)
 
-    channelExprDict = defaultdict(list)
-    if args.insert_channels:
-        for p in args.insert_channels:
-            channelName, segPat, expr = p.split(',')
-            for seg in segPat.split(":"):
-                channelExprDict[seg].append((channelName, expr))
+    nx.draw(topology)
+    nx.write_dot(topology, 'topology.dot')
 
-    insertChannels(segDict, channelExprDict)
+    #channelExprDict = defaultdict(list)
+    #if args.insert_channels:
+        #for p in args.insert_channels:
+            #channelName, segPat, expr = p.split(',')
+            #for seg in segPat.split(":"):
+                #channelExprDict[seg].append((channelName, expr))
+
+    #insertChannels(segDict, channelExprDict)
 
 if __name__ == '__main__':
     def main(filename):
