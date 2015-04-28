@@ -37,6 +37,8 @@ def computeCenter(seg):
     """Compute the distance from soma
     Assuming soma is at (0,0,0)
     """
+
+    # n3d returns the number of 3d points in a segment. 
     xpoints = ypoints = zpoints = np.zeros(h.n3d(seg))
     for i in range(len(xpoints)):
         xpoints[i] = h.x3d(i, seg)
@@ -46,6 +48,10 @@ def computeCenter(seg):
         np.array([xpoints.mean(), ypoints.mean(), zpoints.mean()])**2)
         )
     return r
+
+def computeSectionLength(sec):
+    return sec.L
+
 
 def cluster(segDict):
     pat = re.compile(r'(?P<name>\w+)\[(?P<index>\d+)\]')
@@ -59,8 +65,6 @@ def cluster(segDict):
         m = pat.match(k)
         name, index = m.group('name'), m.group('index')
         clusterDict[name].append(sortedDict[k])
-    for n in clusterDict:
-        print n
 
 
 def insertChannels(segments, exprs):
@@ -72,11 +76,24 @@ def insertChannels(segments, exprs):
 def addNode(sec):
     """Add a node to topolgoy"""
     global topolgoy
+    label = sec.hname()
+    nodeType = 'box'
+    if "soma" in label.lower():
+        nodeType = 'circle'
+        color = 'red'
+    elif 'dend' in label.lower():
+        color = 'blue'
+    else:
+        color = 'green'
+
     topology.add_node(sec
-            , label="%s" % sec.hname()
+            , label= label
             , segs = sec.allseg()
             , type=sec.hname()
-            , shape = 'rect'
+            , shape = nodeType
+            , length = sec.L
+            , color = color
+            , r = None
             )
 
 ##
@@ -94,7 +111,14 @@ def loadModel(filename, args=None):
         addNode(sec)
         for child in sec.children():
             addNode(child)
-            topology.add_edge(sec, child)
+            scaleLength = 50
+            topology.add_edge(sec, child
+                    , label='%.1f'%(child.L)
+                    , len=child.L/scaleLength
+                    , minlen=child.L/scaleLength
+                    )
+
+    # Do a BFS and compute the length of edges.
 
     nx.draw(topology)
     nx.write_dot(topology, 'topology.dot')

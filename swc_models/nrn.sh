@@ -20,7 +20,7 @@ for file in $SWCFILES; do
     break
 done
 
-echo "Turning topology to png file"
-dot -Teps ./topology.dot > topology.eps
+echo "Turning topology to eps file"
+fdp -Teps ./topology.dot > topology.eps
 echo "All done"
 
