@@ -67,11 +67,10 @@ def cluster(segDict):
         clusterDict[name].append(sortedDict[k])
 
 
-def insertChannels(segments, exprs):
+def insertChannels(exprs):
     """Insert channels in segments given by expr"""
-    assert type(segments) == dict
     assert type(exprs) == defaultdict
-    #segmentCluster = cluster(segments)
+    print exprs
 
 def addNode(sec):
     """Add a node to topolgoy"""
@@ -131,20 +130,18 @@ def loadModel(filename, args=None):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
 
-    nx.draw(topology)
-    nx.write_dot(topology, 'topology.dot')
-
-    #channelExprDict = defaultdict(list)
-    #if args.insert_channels:
-        #for p in args.insert_channels:
-            #channelName, segPat, expr = p.split(',')
-            #for seg in segPat.split(":"):
-                #channelExprDict[seg].append((channelName, expr))
-
-    #insertChannels(segDict, channelExprDict)
+    channelExprDict = defaultdict(list)
+    if args.insert_channels:
+        for p in args.insert_channels:
+            channelName, secPat, expr = p.split(',')
+            for sec in secPat.split(":"):
+                channelExprDict[sec].append((channelName, expr))
+    insertChannels(channelExprDict)
 
 if __name__ == '__main__':
     def main(filename):
         loadModel(filename, args)
     filename = sys.argv[1]
     loadModel(filename)
+    nx.draw(topology)
+    nx.write_dot(topology, 'topology.dot')
