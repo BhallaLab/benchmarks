@@ -83,8 +83,10 @@ def addNode(sec):
         color = 'red'
     elif 'dend' in label.lower():
         color = 'blue'
+    elif 'axon' in label.lower():
+        color = 'yellow'
     else:
-        color = 'green'
+        color = 'blue'
 
     topology.add_node(sec
             , label= label
@@ -93,7 +95,7 @@ def addNode(sec):
             , shape = nodeType
             , length = sec.L
             , color = color
-            , r = None
+            , r = 0.0
             )
 
 ##
@@ -119,6 +121,15 @@ def loadModel(filename, args=None):
                     )
 
     # Do a BFS and compute the length of edges.
+    # Get the source node. This node has no parents and it should be only 1.
+    sourceNode = None
+    for n in topology.nodes():
+        if topology.in_degree(n) == 0:
+            sourceNode = n
+            break
+    for e in nx.bfs_edges(topology, sourceNode):
+        src, tgt = e
+        topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
 
     nx.draw(topology)
     nx.write_dot(topology, 'topology.dot')
