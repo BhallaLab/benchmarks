@@ -1,7 +1,7 @@
 
-?  This is a NEURON mod file generated from a ChannelML file
+    //  This is a NEURON mod file generated from a ChannelML file
 
-?  Unit system of original ChannelML file: Physiological Units
+    //  Unit system of original ChannelML file: Physiological Units
 
 COMMENT
     ChannelML file containing a single Channel description
@@ -30,7 +30,7 @@ UNITS {
 NEURON {
 
     SUFFIX pas
-    ? A non specific current is present
+        // A non specific current is present
     RANGE e
     NONSPECIFIC_CURRENT i
     
@@ -40,9 +40,9 @@ NEURON {
 
 PARAMETER { 
 
-    gmax = 3.57143e-05 (S/cm2)  ? default value, should be overwritten when conductance placed on cell
+    gmax = 3.57143e-05 (S/cm2)  // default value, should be overwritten when conductance placed on cell
     
-    e = -58 (mV) ? default value, should be overwritten when conductance placed on cell
+    e = -58 (mV) // default value, should be overwritten when conductance placed on cell
     
 }
 

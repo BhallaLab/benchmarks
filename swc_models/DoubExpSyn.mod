@@ -1,13 +1,13 @@
 
-?  This is a NEURON mod file generated from a ChannelML file
+    //  This is a NEURON mod file generated from a ChannelML file
 
-?  Unit system of original ChannelML file: Physiological Units
+    //  Unit system of original ChannelML file: Physiological Units
 
 COMMENT
     ChannelML file describing a single synaptic mechanism
 ENDCOMMENT
 
-? Creating synaptic mechanism, based on NEURON source impl of Exp2Syn
+        // Creating synaptic mechanism, based on NEURON source impl of Exp2Syn
     
 
 TITLE Channel: DoubExpSyn
@@ -83,6 +83,7 @@ BREAKPOINT {
     SOLVE state METHOD cnexp
     g = gmax * (B - A)
     i = g*(v - e)
+    
     
 }
 

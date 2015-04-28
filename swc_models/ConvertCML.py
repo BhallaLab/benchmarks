@@ -17,7 +17,7 @@ import sys, os
 # The -xsl command line option overrides this 
 
 defaultXSLfile = 'http://www.morphml.org:8080/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1_NEURONmod.xsl'
-#defaultXSLfile = 'ChannelML_v1.8.1_NEURONmod.xsl'    # or use local copy
+defaultXSLfile = 'ChannelML_v1.8.1_NEURONmod.xsl'    # or use local copy
 
 
 # Preferred suffix for generated files

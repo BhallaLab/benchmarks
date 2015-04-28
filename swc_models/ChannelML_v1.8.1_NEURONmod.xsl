@@ -48,9 +48,9 @@
 <!--Main template-->
 
 <xsl:template match="/cml:channelml">
-?  This is a NEURON mod file generated from a ChannelML file
+    //  This is a NEURON mod file generated from a ChannelML file
 
-?  Unit system of original ChannelML file: <xsl:value-of select="$xmlFileUnitSystem"/><xsl:text>
+    //  Unit system of original ChannelML file: <xsl:value-of select="$xmlFileUnitSystem"/><xsl:text>
 </xsl:text>
 
 <xsl:if test="count(/cml:channelml/cml:channel_type/cml:ks_gate) &gt; 0">
@@ -120,16 +120,16 @@ NEURON {
     <xsl:for-each select="/cml:channelml/cml:ion[@name!='non_specific']">
         <xsl:choose>
             <xsl:when test ="@role='PermeatedSubstanceFixedRevPot'">
-    USEION <xsl:value-of select="@name"/> WRITE i<xsl:value-of select="@name"/> VALENCE <xsl:value-of select="@charge"/> ? reversal potential of ion is **NOT READ**, outgoing current is written
+                USEION <xsl:value-of select="@name"/> WRITE i<xsl:value-of select="@name"/> VALENCE <xsl:value-of select="@charge"/> // reversal potential of ion is **NOT READ**, outgoing current is written
             </xsl:when>
             <xsl:when test ="@role='ModulatingSubstance'">
-    USEION <xsl:value-of select="@name"/> READ <xsl:value-of select="@name"/>i VALENCE <xsl:value-of select="@charge"/> ? internal concentration of ion is read
+                USEION <xsl:value-of select="@name"/> READ <xsl:value-of select="@name"/>i VALENCE <xsl:value-of select="@charge"/> // internal concentration of ion is read
             </xsl:when>
             <xsl:when test ="@role='SignallingSubstance'">
-    USEION <xsl:value-of select="@name"/> READ i<xsl:value-of select="@name"/> WRITE <xsl:value-of select="@name"/>i VALENCE <xsl:value-of select="@charge"/> ? outgoing current of ion is read, internal concentration is written
+                USEION <xsl:value-of select="@name"/> READ i<xsl:value-of select="@name"/> WRITE <xsl:value-of select="@name"/>i VALENCE <xsl:value-of select="@charge"/> // outgoing current of ion is read, internal concentration is written
             </xsl:when>
             <xsl:otherwise>
-    USEION <xsl:value-of select="@name"/> READ e<xsl:value-of select="@name"/> WRITE i<xsl:value-of select="@name"/> VALENCE <xsl:value-of select="@charge"/> ? reversal potential of ion is read, outgoing current is written
+                USEION <xsl:value-of select="@name"/> READ e<xsl:value-of select="@name"/> WRITE i<xsl:value-of select="@name"/> VALENCE <xsl:value-of select="@charge"/> // reversal potential of ion is read, outgoing current is written
             </xsl:otherwise>
         </xsl:choose>
     </xsl:for-each>
@@ -137,26 +137,26 @@ NEURON {
         <xsl:if test="string($nonSpecificCurrent)='no'">
             <xsl:variable name="charge"><xsl:choose><xsl:when test="count(../@charge) &gt; 0"> VALENCE <xsl:value-of select="../@charge"></xsl:value-of></xsl:when>
             <xsl:otherwise> VALENCE 1 </xsl:otherwise></xsl:choose></xsl:variable>
-    USEION <xsl:value-of select="."/> <xsl:if test="count(../@fixed_erev) = 0 or string(../@fixed_erev)='no'"> READ e<xsl:value-of select="."/> </xsl:if> WRITE i<xsl:value-of select="."/> <xsl:value-of select="$charge"/> ? <xsl:if test="count(../@fixed_erev) = 0 or string(../@fixed_erev)='no'">reversal potential of ion is read,</xsl:if> outgoing current is written
+    USEION <xsl:value-of select="."/> <xsl:if test="count(../@fixed_erev) = 0 or string(../@fixed_erev)='no'"> READ e<xsl:value-of select="."/> </xsl:if> WRITE i<xsl:value-of select="."/> <xsl:value-of select="$charge"/> // <xsl:if test="count(../@fixed_erev) = 0 or string(../@fixed_erev)='no'">reversal potential of ion is read,</xsl:if> outgoing current is written
            
         </xsl:if>
     </xsl:for-each>
     <xsl:for-each select="cml:current_voltage_relation/cml:conc_dependence">
         <xsl:variable name="charge"><xsl:choose><xsl:when test="count(@charge) &gt; 0"> VALENCE <xsl:value-of select="@charge"></xsl:value-of></xsl:when>
             <xsl:otherwise> VALENCE 1 </xsl:otherwise></xsl:choose></xsl:variable>
-    USEION <xsl:value-of select="@ion"/> READ <xsl:value-of select="@ion"/>i<xsl:value-of select="$charge"/> ? internal concentration of ion is read
+    USEION <xsl:value-of select="@ion"/> READ <xsl:value-of select="@ion"/>i<xsl:value-of select="$charge"/> // internal concentration of ion is read
 
     </xsl:for-each>
     <xsl:for-each select="cml:current_voltage_relation/cml:conc_factor">
         <xsl:variable name="charge"><xsl:choose><xsl:when test="count(@charge) &gt; 0"> VALENCE <xsl:value-of select="@charge"></xsl:value-of></xsl:when>
             <xsl:otherwise> VALENCE 1 </xsl:otherwise></xsl:choose></xsl:variable>
-    USEION <xsl:value-of select="@ion"/> READ <xsl:value-of select="@ion"/>i<xsl:value-of select="$charge"/> ? internal concentration of ion is read
+    USEION <xsl:value-of select="@ion"/> READ <xsl:value-of select="@ion"/>i<xsl:value-of select="$charge"/> // internal concentration of ion is read
 
     </xsl:for-each>
     
     
     <xsl:if test="string($nonSpecificCurrent)='yes'">
-    ? A non specific current is present
+        // A non specific current is present
     RANGE e
     NONSPECIFIC_CURRENT i
     </xsl:if>
@@ -178,8 +178,8 @@ NEURON {
     </xsl:for-each>
 </xsl:when>
 <xsl:when test="count(cml:current_voltage_relation/cml:integrate_and_fire) &gt; 0">  <!-- i.e. I&F-->
-    ? Note this implementation is based on that used in the COBA based I and F model as used in Brette et al (2006)
-    ? and the NEURON script files from http://senselab.med.yale.edu/SenseLab/ModelDB/ShowModel.asp?model=83319
+    // Note this implementation is based on that used in the COBA based I and F model as used in Brette et al (2006)
+    // and the NEURON script files from http://senselab.med.yale.edu/SenseLab/ModelDB/ShowModel.asp?model=83319
     
     POINT_PROCESS <xsl:value-of select="@name"/>
     GLOBAL thresh, t_refrac, v_reset, g_refrac
@@ -194,12 +194,12 @@ PARAMETER {
     gmax = <xsl:call-template name="convert">
             <xsl:with-param name="value" select="cml:current_voltage_relation/cml:ohmic/cml:conductance/@default_gmax"/>
             <xsl:with-param name="quantity">Conductance Density</xsl:with-param>
-          </xsl:call-template> (S/cm2) ? default value, should be overwritten when conductance placed on cell
+        </xsl:call-template> (S/cm2) // default value, should be overwritten when conductance placed on cell
     <xsl:if test="string($nonSpecificCurrent)='yes'">
     e = <xsl:call-template name="convert">
             <xsl:with-param name="value" select="/cml:channelml/cml:ion[@name='non_specific']/@default_erev"/>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
-            </xsl:call-template> (mV) ? default value, should be overwritten when conductance placed on cell
+        </xsl:call-template> (mV) // default value, should be overwritten when conductance placed on cell
     </xsl:if>
     <xsl:if test="$favourPublicParameters = 1">
     <xsl:for-each select="cml:hh_gate/cml:transition/cml:voltage_gate/*/cml:parameterised_hh">
@@ -214,12 +214,12 @@ PARAMETER {
     gmax = <xsl:call-template name="convert">
             <xsl:with-param name="value" select="cml:current_voltage_relation/@default_gmax"/>
             <xsl:with-param name="quantity">Conductance Density</xsl:with-param>
-          </xsl:call-template> (S/cm2)  ? default value, should be overwritten when conductance placed on cell
+        </xsl:call-template> (S/cm2)  // default value, should be overwritten when conductance placed on cell
     <xsl:if test="string($nonSpecificCurrent)='yes'">
     e = <xsl:call-template name="convert">
             <xsl:with-param name="value" select="cml:current_voltage_relation/@default_erev"/>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
-            </xsl:call-template> (mV) ? default value, should be overwritten when conductance placed on cell
+        </xsl:call-template> (mV) // default value, should be overwritten when conductance placed on cell
     </xsl:if>
 </xsl:when>
 <xsl:when test="count(cml:current_voltage_relation/cml:integrate_and_fire) &gt; 0">  <!-- i.e. I&F-->
@@ -261,34 +261,34 @@ ASSIGNED {
     <xsl:for-each select="/cml:channelml/cml:ion[@name!='non_specific']">
         <xsl:choose>
             <xsl:when test ="@role='ModulatingSubstance'">
-    ? The internal concentration of ion: <xsl:value-of select="@name"/> is used in the rate equations...
+                // The internal concentration of ion: <xsl:value-of select="@name"/> is used in the rate equations...
     <xsl:value-of select="@name"/>i (mM)           
             </xsl:when>
             <xsl:when test ="@role='SignallingSubstance'">
-            ? Error!! ion: <xsl:value-of select="@name"/> with role="SignallingSubstance" shouldn't be in a channel_type...
+                // Error!! ion: <xsl:value-of select="@name"/> with role="SignallingSubstance" shouldn't be in a channel_type...
             </xsl:when>
             <xsl:otherwise>
-    ? Reversal potential of <xsl:value-of select="@name"/>
+                // Reversal potential of <xsl:value-of select="@name"/>
     e<xsl:value-of select="@name"/> (mV)
-    ? The outward flow of ion: <xsl:value-of select="@name"/> calculated by rate equations...
+    // The outward flow of ion: <xsl:value-of select="@name"/> calculated by rate equations...
     i<xsl:value-of select="@name"/> (mA/cm2)
             </xsl:otherwise>
         </xsl:choose>
     </xsl:for-each>
     
     <xsl:for-each select="cml:current_voltage_relation/@ion">  <!-- post v1.7.3 -->
-    ? Reversal potential of <xsl:value-of select="."/>
+        // Reversal potential of <xsl:value-of select="."/>
     e<xsl:value-of select="."/> (mV)
-    ? The outward flow of ion: <xsl:value-of select="."/> calculated by rate equations...
+    // The outward flow of ion: <xsl:value-of select="."/> calculated by rate equations...
     i<xsl:value-of select="."/> (mA/cm2)
     </xsl:for-each>
     
     <xsl:for-each select="cml:current_voltage_relation/cml:conc_dependence">  <!-- post v1.7.3 -->
-    ? The internal concentration of ion: <xsl:value-of select="@ion"/> is used in the rate equations...
+        // The internal concentration of ion: <xsl:value-of select="@ion"/> is used in the rate equations...
     <xsl:value-of select="@ion"/>i (mM)   
     </xsl:for-each>
     <xsl:for-each select="cml:current_voltage_relation/cml:conc_factor">  <!-- post v1.7.3 -->
-    ? The internal concentration of ion: <xsl:value-of select="@ion"/> is used in the rate equations...
+        // The internal concentration of ion: <xsl:value-of select="@ion"/> is used in the rate equations...
     <xsl:value-of select="@ion"/>i (mM)   
     </xsl:for-each>
     
@@ -487,7 +487,7 @@ DERIVATIVE states {
         <xsl:otherwise>PROCEDURE rates(v(mV)) { </xsl:otherwise>
     </xsl:choose> 
     
-    ? Note: not all of these may be used, depending on the form of rate equations
+    // Note: not all of these may be used, depending on the form of rate equations
     LOCAL  alpha, beta, tau, inf, gamma, zeta<xsl:for-each select='cml:hh_gate/cml:transition/cml:voltage_conc_gate/cml:conc_dependence'
     >, <xsl:value-of select="@variable_name"/>
         </xsl:for-each><xsl:for-each select='cml:current_voltage_relation/cml:conc_dependence'
@@ -562,7 +562,7 @@ DERIVATIVE states {
     <xsl:choose>
         <xsl:when test="count(cml:current_voltage_relation/cml:ohmic/cml:conductance/cml:rate_adjustments/cml:q10_settings) &gt; 0 or
                         count(cml:current_voltage_relation/cml:q10_settings) &gt; 0">
-    ? There is a Q10 factor which will alter the tau of the gates 
+                        // There is a Q10 factor which will alter the tau of the gates 
             <xsl:for-each select="cml:current_voltage_relation/cml:ohmic/cml:conductance/cml:rate_adjustments/cml:q10_settings |
                                   cml:current_voltage_relation/cml:q10_settings">
                 <xsl:choose>
@@ -609,7 +609,7 @@ DERIVATIVE states {
                   count(cml:current_voltage_relation/cml:offset) &gt; 0">
         <xsl:variable name="offset"><xsl:value-of select="cml:current_voltage_relation/cml:ohmic/cml:conductance/cml:rate_adjustments/cml:offset/@value"/><xsl:value-of select="cml:current_voltage_relation/cml:offset/@value"/></xsl:variable>
     
-    ? There is a voltage offset of <xsl:value-of select="$offset"/>. This will shift the dependency of the rate equations 
+        // There is a voltage offset of <xsl:value-of select="$offset"/>. This will shift the dependency of the rate equations 
     v = v - (<xsl:call-template name="convert">
             <xsl:with-param name="value" select="$offset"/>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
@@ -625,12 +625,12 @@ DERIVATIVE states {
         <xsl:for-each select='../../../../cml:hh_gate[@state=$stateName]'>
                 
         <xsl:for-each select='cml:transition/cml:voltage_conc_gate/cml:conc_dependence'>
-    ? Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
+            // Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
     </xsl:text>   
-    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i ? In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
+    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i // In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
     </xsl:for-each>
         
-    ?      ***  Adding rate equations for gate: <xsl:value-of select="$stateName"/>  ***<xsl:text>
+    //      ***  Adding rate equations for gate: <xsl:value-of select="$stateName"/>  ***<xsl:text>
         </xsl:text>   
     <xsl:for-each select='cml:transition/cml:voltage_gate/* | 
                           cml:transition/cml:voltage_conc_gate/*'>
@@ -638,7 +638,7 @@ DERIVATIVE states {
         <xsl:if  test="name()!='conc_dependence'">
             <xsl:choose>
                 <xsl:when  test="count(cml:parameterised_hh) &gt; 0">
-    ? Found a parameterised form of rate equation for <xsl:value-of select="name()"/>, using expression: <xsl:choose>
+                    // Found a parameterised form of rate equation for <xsl:value-of select="name()"/>, using expression: <xsl:choose>
                                         <xsl:when test="cml:parameterised_hh/@type='linoid'" >A*(k*(v-d)) / (1 - exp(-(k*(v-d))))</xsl:when>
                                         <xsl:when test="cml:parameterised_hh/@type='exponential'" >A*exp(k*(v-d))</xsl:when>
                                         <xsl:when test="cml:parameterised_hh/@type='sigmoid'" >A / (1 + exp(k*(v-d)))</xsl:when>
@@ -656,33 +656,33 @@ DERIVATIVE states {
                     </xsl:for-each>
     
                     <xsl:if test="$xmlFileUnitSystem  = 'SI Units'">
-    ? Unit system in ChannelML file is SI units, therefore need to 
-    ? convert these to NEURON quanities...
+                        // Unit system in ChannelML file is SI units, therefore need to 
+                        // convert these to NEURON quanities...
                         <xsl:choose>
                             <xsl:when test="string(name()) = 'alpha' or string(name()) = 'beta'">
     <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/> * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">InvTime</xsl:with-param>
-            </xsl:call-template>   ? 1/ms
+            </xsl:call-template>   // 1/ms
     </xsl:when>
                             <xsl:when test="string(name()) = 'tau'">
     <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">Time</xsl:with-param>
-        </xsl:call-template>   ? ms
+        </xsl:call-template>   // ms
     </xsl:when>
                             <xsl:when test="string(name()) = 'inf'">
-    <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/>   ? Dimensionless
+                                <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/>   // Dimensionless
     </xsl:when>
                         </xsl:choose>
     <xsl:value-of select="$k_name"/> = <xsl:value-of select="$k_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">InvVoltage</xsl:with-param>
-          </xsl:call-template>   ? mV
+        </xsl:call-template>   // mV
     <xsl:value-of select="$d_name"/> = <xsl:value-of select="$d_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
-          </xsl:call-template>   ? mV
+        </xsl:call-template>   // mV
           
                     </xsl:if>
     <!--B = 1/<xsl:value-of select="$k_name"/>--><xsl:text> 
@@ -710,21 +710,21 @@ DERIVATIVE states {
                 </xsl:when>
                 <xsl:when test="count(cml:generic_equation_hh) &gt; 0 or count(cml:generic) &gt; 0">
                     <xsl:variable name="expr"><xsl:value-of select="cml:generic_equation_hh/@expr" /><xsl:value-of select="cml:generic/@expr" /></xsl:variable> <!--Will be one or the other-->
-    ? Found a generic form of the rate equation for <xsl:value-of select="name()"/>, using expression: <xsl:value-of select="$expr" /><xsl:text>
+                    // Found a generic form of the rate equation for <xsl:value-of select="name()"/>, using expression: <xsl:value-of select="$expr" /><xsl:text>
                     </xsl:text>  
                     <xsl:if test="string($xmlFileUnitSystem) = 'SI Units'">
-    ? Note: Equation (and all ChannelML file values) in <xsl:value-of select="$xmlFileUnitSystem"/> so need to convert v first...<xsl:text>
+                        // Note: Equation (and all ChannelML file values) in <xsl:value-of select="$xmlFileUnitSystem"/> so need to convert v first...<xsl:text>
     </xsl:text>
     v = v * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">InvVoltage</xsl:with-param>
-            </xsl:call-template>   ? temporarily set v to units of equation...<xsl:text>
+                </xsl:call-template>   // temporarily set v to units of equation...<xsl:text>
             
     </xsl:text>
                         <xsl:if test="(name()='tau' or name()='inf') and 
                       (contains(string($expr), 'alpha') or
                        contains(string($expr), 'beta'))">
-    ? Equation depends on alpha/beta, so converting them too...
+                       // Equation depends on alpha/beta, so converting them too...
     alpha = alpha * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Time</xsl:with-param>
@@ -737,8 +737,8 @@ DERIVATIVE states {
                       
                     </xsl:if>
                     <xsl:if test="string($xmlFileUnitSystem) = 'Physiological Units' and $voltConcDependence='yes'">
-    ? Equations can depend on concentration. NEURON uses 'SI Units' internally for concentration, 
-    ? but ChannelML file is in Physiological Units...
+                        // Equations can depend on concentration. NEURON uses 'SI Units' internally for concentration, 
+                        // but ChannelML file is in Physiological Units...
     <xsl:value-of select="../cml:conc_dependence/@variable_name"/> = <xsl:value-of select="../cml:conc_dependence/@variable_name"/> / <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Concentration</xsl:with-param>
@@ -757,7 +757,7 @@ DERIVATIVE states {
     <xsl:if test="string($xmlFileUnitSystem) = 'SI Units'">
         
         <xsl:if test="name()='alpha' or name()='beta'">
-    ? Set correct units of <xsl:value-of select="name()"/> for NEURON<xsl:text>
+            // Set correct units of <xsl:value-of select="name()"/> for NEURON<xsl:text>
     </xsl:text>    
     <xsl:value-of select="name()"/> = <xsl:value-of select="name()"/> * <xsl:call-template name="convert">
                             <xsl:with-param name="value">1</xsl:with-param>
@@ -766,7 +766,7 @@ DERIVATIVE states {
         </xsl:if>  
                                       
         <xsl:if test="name()='tau'">
-    ? Set correct units of <xsl:value-of select="name()"/> for NEURON<xsl:text>
+            // Set correct units of <xsl:value-of select="name()"/> for NEURON<xsl:text>
     </xsl:text>
     <xsl:value-of select="name()"/> = <xsl:value-of select="name()"/> * <xsl:call-template name="convert">
                     <xsl:with-param name="value">1</xsl:with-param>
@@ -777,22 +777,22 @@ DERIVATIVE states {
     v = v * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">Voltage</xsl:with-param>
-            </xsl:call-template>   ? reset v
+            </xsl:call-template>   // reset v
         <xsl:if test="(name()='tau' or name()='inf') and 
                       (contains(string($expr), 'alpha') or
                        contains(string($expr), 'beta'))">
     alpha = alpha * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">InvTime</xsl:with-param>
-                    </xsl:call-template>  ? resetting alpha
+                    </xsl:call-template>  // resetting alpha
     beta = beta * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">InvTime</xsl:with-param>   
-                    </xsl:call-template>  ? resetting beta
+                    </xsl:call-template>  // resetting beta
         </xsl:if>
     </xsl:if>
                     <xsl:if test="string($xmlFileUnitSystem) = 'Physiological Units' and $voltConcDependence='yes'">
-    ? Resetting concentration...
+                        // Resetting concentration...
     <xsl:value-of select="../cml:conc_dependence/@variable_name"/> = <xsl:value-of select="../cml:conc_dependence/@variable_name"/> * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Concentration</xsl:with-param>
@@ -803,7 +803,7 @@ DERIVATIVE states {
            
             </xsl:when>
             <xsl:otherwise>
-    ? ERROR: Unrecognised form of the rate equation for <xsl:value-of select="name()"/>
+                // ERROR: Unrecognised form of the rate equation for <xsl:value-of select="name()"/>
             
             </xsl:otherwise>
         </xsl:choose>
@@ -834,7 +834,7 @@ DERIVATIVE states {
        </xsl:if>      
        
     
-    ?     *** Finished rate equations for gate: <xsl:value-of select="$stateName"/> ***
+       //     *** Finished rate equations for gate: <xsl:value-of select="$stateName"/> ***
     
         </xsl:for-each>  <!-- <xsl:for-each select='../../../../cml:hh_gate[@state=$stateName]'>-->
 
@@ -845,9 +845,9 @@ DERIVATIVE states {
                    <!-- post v1.7.3 format -->
                    
     <xsl:for-each select='cml:current_voltage_relation/cml:conc_dependence'>
-    ? Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
+        // Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
     </xsl:text>   
-    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i ? In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
+    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i // In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
     </xsl:for-each>
     
     <xsl:for-each select="cml:current_voltage_relation/cml:gate">  
@@ -856,12 +856,12 @@ DERIVATIVE states {
             
                 
        <!-- <xsl:for-each select='cml:conc_dependence'>
-    ? Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
+    // Gate depends on the concentration of <xsl:value-of select="@ion"/><xsl:text>
     </xsl:text>   
-    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i ? In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
+    <xsl:value-of select="@variable_name"/> = <xsl:value-of select="@ion"/>i // In NEURON, the variable for the concentration  of <xsl:value-of select="@ion"/> is <xsl:value-of select="@ion"/>i
     </xsl:for-each>-->
         
-    ?      ***  Adding rate equations for gate: <xsl:value-of select="$gateName"/>  ***<xsl:text>
+    //      ***  Adding rate equations for gate: <xsl:value-of select="$gateName"/>  ***<xsl:text>
         </xsl:text>   
         
     <xsl:if test="count(cml:open_state) =1 and count(cml:closed_state) =1"> <!-- Classical HH -->
@@ -870,7 +870,7 @@ DERIVATIVE states {
         <xsl:if  test="name()!='conc_dependence'">
             <xsl:choose>
                 <xsl:when  test="@expr_form != 'generic'">
-    ? Found a parameterised form of rate equation for <xsl:value-of select="@name"/>, using expression: <xsl:choose>
+                    // Found a parameterised form of rate equation for <xsl:value-of select="@name"/>, using expression: <xsl:choose>
                                         <xsl:when test="@expr_form='exp_linear'" >A*((v-Vhalf)/B) / (1 - exp(-((v-Vhalf)/B)))</xsl:when>
                                         <xsl:when test="@expr_form='exponential'" >A*exp((v-Vhalf)/B)</xsl:when>
                                         <xsl:when test="@expr_form='sigmoid'" >A / (1 + exp((v-Vhalf)/B))</xsl:when>
@@ -895,33 +895,33 @@ DERIVATIVE states {
     
                     <xsl:if test="$xmlFileUnitSystem  = 'SI Units'">   
     
-    ? Unit system in ChannelML file is SI units, therefore need to convert these to NEURON quanities...
+                        // Unit system in ChannelML file is SI units, therefore need to convert these to NEURON quanities...
     
     <xsl:choose>
                             <xsl:when test="string(name()) = 'transition'">
    <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/> * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">InvTime</xsl:with-param>
-            </xsl:call-template>   ? 1/ms
+            </xsl:call-template>   // 1/ms
     </xsl:when>
                             <xsl:when test="string(name()) = 'time_course'">
     <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">Time</xsl:with-param>
-        </xsl:call-template>   ? ms
+        </xsl:call-template>   // ms
     </xsl:when>
                             <xsl:when test="string(name()) = 'steady_state'">
-    <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/>   ? Dimensionless
+                                <xsl:value-of select="$A_name"/> = <xsl:value-of select="$A_name"/>   // Dimensionless
     </xsl:when>
     </xsl:choose>
     <xsl:value-of select="$B_name"/> = <xsl:value-of select="$B_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
-          </xsl:call-template>   ? mV
+        </xsl:call-template>   // mV
     <xsl:value-of select="$Vhalf_name"/> = <xsl:value-of select="$Vhalf_name"/> * <xsl:call-template name="convert">
             <xsl:with-param name="value">1</xsl:with-param>
             <xsl:with-param name="quantity">Voltage</xsl:with-param>
-          </xsl:call-template>   ? mV
+        </xsl:call-template>   // mV
           
                     </xsl:if>
     <xsl:text> 
@@ -948,21 +948,21 @@ DERIVATIVE states {
                 </xsl:when>
                 <xsl:when test="@expr_form = 'generic'">
                     <xsl:variable name="expr"><xsl:value-of select="@expr" /></xsl:variable> 
-    ? Found a generic form of the rate equation for <xsl:value-of select="@name"/>, using expression: <xsl:value-of select="$expr" /><xsl:text>
+                    // Found a generic form of the rate equation for <xsl:value-of select="@name"/>, using expression: <xsl:value-of select="$expr" /><xsl:text>
     </xsl:text>  
                     <xsl:if test="string($xmlFileUnitSystem) = 'SI Units'">
-    ? Note: Equation (and all ChannelML file values) in <xsl:value-of select="$xmlFileUnitSystem"/> so need to convert v first...<xsl:text>
+                        // Note: Equation (and all ChannelML file values) in <xsl:value-of select="$xmlFileUnitSystem"/> so need to convert v first...<xsl:text>
     </xsl:text>
     v = v * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">InvVoltage</xsl:with-param>
-            </xsl:call-template>   ? temporarily set v to units of equation...<xsl:text>
+                </xsl:call-template>   // temporarily set v to units of equation...<xsl:text>
             
     </xsl:text>
                         <xsl:if test="(name()='time_course' or name()='steady_state') and 
                       (contains(string($expr), 'alpha') or
                        contains(string($expr), 'beta'))">
-    ? Equation depends on alpha/beta, so converting them too...
+                       // Equation depends on alpha/beta, so converting them too...
     alpha = alpha * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Time</xsl:with-param>
@@ -975,8 +975,8 @@ DERIVATIVE states {
                       
                     </xsl:if>
                     <xsl:if test="string($xmlFileUnitSystem) = 'Physiological Units' and $voltConcDependence='yes'">
-    ? Equations can depend on concentration. NEURON uses 'SI Units' internally for concentration, 
-    ? but the ChannelML file is in Physiological Units...
+                        // Equations can depend on concentration. NEURON uses 'SI Units' internally for concentration, 
+                        // but the ChannelML file is in Physiological Units...
     <xsl:value-of select="../../cml:conc_dependence/@variable_name"/> = <xsl:value-of select="../../cml:conc_dependence/@variable_name"/> / <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Concentration</xsl:with-param>
@@ -995,7 +995,7 @@ DERIVATIVE states {
     <xsl:if test="string($xmlFileUnitSystem) = 'SI Units'">
         
         <xsl:if test="name()='transition'">
-    ? Set correct units of <xsl:value-of select="@name"/> for NEURON<xsl:text>
+            // Set correct units of <xsl:value-of select="@name"/> for NEURON<xsl:text>
     </xsl:text>    
     <xsl:value-of select="@name"/> = <xsl:value-of select="@name"/> * <xsl:call-template name="convert">
                             <xsl:with-param name="value">1</xsl:with-param>
@@ -1004,7 +1004,7 @@ DERIVATIVE states {
         </xsl:if>  
                                       
         <xsl:if test="name()='time_course'">
-    ? Set correct units of <xsl:value-of select="@name"/> for NEURON<xsl:text>
+            // Set correct units of <xsl:value-of select="@name"/> for NEURON<xsl:text>
     </xsl:text>
     <xsl:value-of select="@name"/> = <xsl:value-of select="@name"/> * <xsl:call-template name="convert">
                     <xsl:with-param name="value">1</xsl:with-param>
@@ -1015,22 +1015,22 @@ DERIVATIVE states {
     v = v * <xsl:call-template name="convert">
                 <xsl:with-param name="value">1</xsl:with-param>
                 <xsl:with-param name="quantity">Voltage</xsl:with-param>
-            </xsl:call-template>   ? reset v
+            </xsl:call-template>   // reset v
         <xsl:if test="(name()='transition' or name()='steady_state') and 
                       (contains(string($expr), 'alpha') or
                        contains(string($expr), 'beta'))">
     alpha = alpha * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">InvTime</xsl:with-param>
-                    </xsl:call-template>  ? resetting alpha
+                    </xsl:call-template>  // resetting alpha
     beta = beta * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">InvTime</xsl:with-param>   
-                    </xsl:call-template>  ? resetting beta
+                    </xsl:call-template>  // resetting beta
         </xsl:if>
     </xsl:if>
                     <xsl:if test="string($xmlFileUnitSystem) = 'Physiological Units' and $voltConcDependence='yes'">
-    ? Resetting concentration...
+                        // Resetting concentration...
     <xsl:value-of select="../../cml:conc_dependence/@variable_name"/> = <xsl:value-of select="../../cml:conc_dependence/@variable_name"/> * <xsl:call-template name="convert">
                         <xsl:with-param name="value">1</xsl:with-param>
                         <xsl:with-param name="quantity">Concentration</xsl:with-param>
@@ -1041,7 +1041,7 @@ DERIVATIVE states {
            
             </xsl:when>
             <xsl:otherwise>
-    ? ERROR: Unrecognised form of the rate equation for <xsl:value-of select="@name"/>
+                // ERROR: Unrecognised form of the rate equation for <xsl:value-of select="@name"/>
             
             </xsl:otherwise>
         </xsl:choose>
@@ -1073,7 +1073,7 @@ DERIVATIVE states {
        </xsl:if>      
        
     
-    ?     *** Finished rate equations for gate: <xsl:value-of select="$gateName"/> ***
+       //     *** Finished rate equations for gate: <xsl:value-of select="$gateName"/> ***
     
 
     </xsl:for-each> <!--<xsl:for-each select="cml:current_voltage_relation/cml:gate">-->
@@ -1081,7 +1081,7 @@ DERIVATIVE states {
 
 <xsl:if test="count(cml:hh_gate/cml:transition/cml:voltage_gate/*/cml:parameterised_hh[@type='linoid']) &gt; 0 or
               count(cml:current_voltage_relation/cml:gate/*[@expr_form='exp_linear']) &gt; 0">
-? Function to assist with parameterised expressions of type linoid/exp_linear
+              // Function to assist with parameterised expressions of type linoid/exp_linear
 
 FUNCTION vtrap(VminV0, B) {
     if (fabs(VminV0/B) &lt; 1e-6) {
@@ -1101,7 +1101,7 @@ UNITSON
 
 <xsl:template match="cml:ion_concentration">
 <!-- Based on Louise Whiteley's implementation of this while on rotation in the Silver Lab-->
-? Creating ion concentration
+// Creating ion concentration
 
 TITLE Channel: <xsl:value-of select="@name"/>
 
@@ -1258,7 +1258,7 @@ DERIVATIVE conc {
         <xsl:otherwise>/tau</xsl:otherwise></xsl:choose>
     </xsl:variable>
     <xsl:if test="count(cml:decaying_pool_model/cml:pool_volume_info) &gt; 0">
-    LOCAL thickness_cm, surf_area_cm2, volume_cm3 ? Note, normally dimensions are in um, but curr dens is in mA/cm2, etc
+        LOCAL thickness_cm, surf_area_cm2, volume_cm3 // Note, normally dimensions are in um, but curr dens is in mA/cm2, etc
     
     thickness_cm = thickness *(1e-4)
     surf_area_cm2 = surf_area * 1e-8
@@ -1324,22 +1324,22 @@ DERIVATIVE conc {
 
 <xsl:template match="cml:synapse_type">
     <xsl:if test="count(cml:doub_exp_syn)>0">
-? Creating synaptic mechanism, based on NEURON source impl of Exp2Syn
+        // Creating synaptic mechanism, based on NEURON source impl of Exp2Syn
     </xsl:if>
     <xsl:if test="count(cml:blocking_syn)>0">
-? Creating NMDA like synaptic mechanism, based on NEURON source impl of Exp2Syn
+        // Creating NMDA like synaptic mechanism, based on NEURON source impl of Exp2Syn
     </xsl:if>
     <xsl:if test="count(cml:multi_decay_syn)>0">
-? Creating synaptic mechanism, based on Volker Steuber &amp; Chiara Saviane implementation of 3 decay component facilitating synapse
+        // Creating synaptic mechanism, based on Volker Steuber &amp; Chiara Saviane implementation of 3 decay component facilitating synapse
     </xsl:if>
     <xsl:if test="count(cml:electrical_syn)>0">
-? Creating synaptic mechanism for an electrical synapse
+        // Creating synaptic mechanism for an electrical synapse
     </xsl:if>
     <xsl:if test="count(cml:fac_dep_syn)>0">
-? Creating synaptic mechanism, based on Volker Steuber &amp; Chiara Saviane implementation of 3 decay component facilitating synapse
+        // Creating synaptic mechanism, based on Volker Steuber &amp; Chiara Saviane implementation of 3 decay component facilitating synapse
     </xsl:if>
     <xsl:if test="count(cml:stdp_syn)>0">
-? Creating synaptic mechanism, based on Andrew Davison's impl of Song and Abbot's STDP model
+        // Creating synaptic mechanism, based on Andrew Davison's impl of Song and Abbot's STDP model
     </xsl:if>
     <xsl:variable name="hasMultiDecay">
         <xsl:choose>
