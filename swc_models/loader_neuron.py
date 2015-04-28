@@ -74,8 +74,19 @@ def insertChannels(exprs):
     for k in exprs:
         expr = k.replace('*', '.*')
         typePat = re.compile(r'%s'%expr)
-        print exprs[k]
+        for exp in exprs[k]:
+            insert(typePat, exp)
 
+def insert(pat, chan):
+    """Insert the pattern into segments """
+    chanName, expr = chan
+    for sec in topology.nodes():
+        secName = sec.hname()
+        if pat.match(secName):
+            print("Match : %s" % secName)
+        else:
+            pass
+            #print("Not matched: %s" % secName)
 
 def addNode(sec):
     """Add a node to topolgoy"""
