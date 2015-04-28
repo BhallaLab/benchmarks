@@ -149,4 +149,6 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     loadModel(filename)
     nx.draw(topology)
-    nx.write_dot(topology, 'topology.dot')
+    topologyFile = 'topology.dot'
+    print("[INFO] Saving topology to %s" % topologyFile)
+    nx.write_dot(topology, topologyFile)
