@@ -84,8 +84,10 @@ def insert(pat, chan):
         secName = sec.hname()
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
-            val = eval(expr)
-            print("Insert %s into %s with val: %s" % (chanName, secName, val))
+            g = eval(expr)
+            print("Insert %s into %s with conductance: %s uS" % (chanName, secName, g))
+            sec.insert(chanName)
+
         else:
             pass
 
