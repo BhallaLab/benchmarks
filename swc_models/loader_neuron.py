@@ -91,8 +91,7 @@ def insert(pat, chan):
 def centerOfSec(sec):
     centers = []
     for seg in sec.allseg():
-        centers.append(computeCenter(seg)
-
+        centers.append(computeCenter(seg))
 
 def addNode(sec):
     """Add a node to topolgoy"""
@@ -109,7 +108,6 @@ def addNode(sec):
     else:
         color = 'blue'
 
-    pos = centerOfSec(sec)
     topology.add_node(sec
             , label= label
             , segs = sec.allseg()
