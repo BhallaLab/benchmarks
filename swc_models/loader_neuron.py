@@ -23,6 +23,7 @@ import pylab
 import networkx as nx
 
 topology = nx.DiGraph()
+sign = np.sign
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -82,10 +83,11 @@ def insert(pat, chan):
     for sec in topology.nodes():
         secName = sec.hname()
         if pat.match(secName):
-            print("Match : %s" % secName)
+            expr = expr.replace('r', str(topology.node[sec]['r']))
+            val = eval(expr)
+            print("Insert %s into %s with val: %s" % (chanName, secName, val))
         else:
             pass
-            #print("Not matched: %s" % secName)
 
 # NOTE: Calling this function causes segmentation fault.
 def centerOfSec(sec):
