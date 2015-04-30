@@ -86,8 +86,8 @@ def insert(pat, chan):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
             print("Insert %s into %s with conductance: %s uS" % (chanName, secName, g))
-            sec.insert(chanName)
-
+            chan = sec.insert(chanName)
+            h('gmax=%s' % (g))
         else:
             pass
 
