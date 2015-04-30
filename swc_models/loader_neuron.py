@@ -163,9 +163,13 @@ def loadModel(filename, args=None):
                 channelExprDict[sec].append((channelName, expr))
     insertChannels(channelExprDict)
 
+def loadMechanism():
+    h.nrn_load_dll('./x86_64/.libs/libnrnmech.so')
+
 if __name__ == '__main__':
     def main(filename):
         loadModel(filename, args)
+    loadMechanism()
     filename = sys.argv[1]
     loadModel(filename)
     nx.draw(topology)

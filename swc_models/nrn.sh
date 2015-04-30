@@ -44,6 +44,9 @@ else
     PYC="gdb -ex r --args $PYC"
 fi
 
+echo "Converting channels to neuron library"
+./channelml_to_nrn.sh *.xml
+
 SWCFILES=`find . -type f -name "*.swc"`
 if [ ! -f ./benchmark.csv ]; then
     echo "num_segments,tot_time,filepath" | tee benchmark.csv
