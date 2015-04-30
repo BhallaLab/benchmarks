@@ -45,10 +45,9 @@ def computeCenter(seg):
         xpoints[i] = h.x3d(i, seg)
         ypoints[i] = h.y3d(i, seg)
         zpoints[i] = h.z3d(i, seg)
-    r =  np.sqrt(np.mean(
-        np.array([xpoints.mean(), ypoints.mean(), zpoints.mean()])**2)
-        )
-    return r
+    center = np.array([xpoints.mean(), ypoints.mean(), zpoints.mean()])
+    r =  np.sqrt(np.mean(center))
+    return r, center
 
 def computeSectionLength(sec):
     return sec.L
@@ -88,6 +87,13 @@ def insert(pat, chan):
             pass
             #print("Not matched: %s" % secName)
 
+# NOTE: Calling this function causes segmentation fault.
+def centerOfSec(sec):
+    centers = []
+    for seg in sec.allseg():
+        centers.append(computeCenter(seg)
+
+
 def addNode(sec):
     """Add a node to topolgoy"""
     global topolgoy
@@ -103,6 +109,7 @@ def addNode(sec):
     else:
         color = 'blue'
 
+    pos = centerOfSec(sec)
     topology.add_node(sec
             , label= label
             , segs = sec.allseg()
