@@ -38,14 +38,11 @@ shift $(($OPTIND-1))
 
 PYC=python
 if [ $debug = 0 ]; then
-    continue
+    echo ""
 else
     echo "Debugging mode"
     PYC="gdb -ex r --args $PYC"
 fi
-
-echo "Converting channels to neuron library"
-./channelml_to_nrn.sh *.xml
 
 SWCFILES=`find . -type f -name "*.swc"`
 if [ ! -f ./benchmark.csv ]; then

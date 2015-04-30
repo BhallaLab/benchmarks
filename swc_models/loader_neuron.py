@@ -164,7 +164,8 @@ def loadModel(filename, args=None):
     insertChannels(channelExprDict)
 
 def loadMechanism():
-    h.nrn_load_dll('./x86_64/.libs/libnrnmech.so')
+    print("[INFO] Loading user-defined mechanism")
+    h.nrn_load_dll('./i686/.libs/libnrnmech.so')
 
 if __name__ == '__main__':
     def main(filename):
