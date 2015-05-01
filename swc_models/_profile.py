@@ -20,6 +20,7 @@ import datetime, time
 dataDir = '_data'
 profileFile = 'profile.csv'
 
+# The sequence here should be similar to one found in shell script.
 keys = [ "nseg", "nchan", "simtime", "dt", "runtime"
     , "simulator", "comment"
     ]
@@ -27,14 +28,14 @@ keys = [ "nseg", "nchan", "simtime", "dt", "runtime"
 if not os.path.isdir(dataDir):
     os.makedirs(dataDir)
 
-stamp = datetime.datetime.now().isoformat()
+#stamp = datetime.datetime.now().isoformat()
 
-if os.path.exists(profileFile):
-    os.rename(profileFile, os.path.join(dataDir, '%s_%s'%(profileFile, stamp)))
+#if os.path.exists(profileFile):
+    #os.rename(profileFile, os.path.join(dataDir, '%s_%s'%(profileFile, stamp)))
 
-with open(profileFile, "w") as pF:
-    pF.write(",".join(keys))
-    pF.write("\n")
+#with open(profileFile, "w") as pF:
+    #pF.write(",".join(keys))
+    #pF.write("\n")
 
 def insertData(**kwargs):
     """Insert a line into profile file"""

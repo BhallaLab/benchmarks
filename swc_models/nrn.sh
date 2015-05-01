@@ -44,6 +44,13 @@ else
     PYC="gdb -ex r --args $PYC"
 fi
 
+## Move old profile file into _data 
+mkdir -p _data
+if [ -f ./profile.csv ]; then
+    mv ./profile.csv _data/profile_`date +%s`.csv
+    echo "nseg,nchan,simtime,dt,runtime,simulator,comment" > profile.csv 
+fi
+
 SWCFILES=`find . -type f -name "*.swc"`
 if [ ! -f ./benchmark.csv ]; then
     echo "num_segments,tot_time,filepath" | tee benchmark.csv

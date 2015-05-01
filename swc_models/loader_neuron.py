@@ -85,21 +85,22 @@ def insertChannels(exprs):
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
-            nchan += 1
 
 def insert(pat, chan):
     """Insert the pattern into segments """
+    global nchan
     chanName, expr = chan
     for sec in topology.nodes():
         secName = sec.hname()
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
-#            print("|- Inserting {} into {} with conductance: {} uS".format(
+            #print("|- Inserting {} into {} with conductance: {} uS".format(
                 #chanName, secName, g)
                 #)
             chan = sec.insert(chanName)
             h('gmax=%s' % (g))
+            nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.
 def centerOfSec(sec):
