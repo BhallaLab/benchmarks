@@ -20,7 +20,7 @@ import datetime, time
 dataDir = '_data'
 profileFile = 'profile.csv'
 
-keys = [ "nseg", "nchans", "simtime", "dt", "runtime"
+keys = [ "nseg", "nchan", "simtime", "dt", "runtime"
     , "simulator", "comment"
     ]
 

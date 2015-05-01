@@ -187,7 +187,7 @@ def main(args):
     h.tstop = 1e3 * float(args.sim_time)
     h.run()
     t = time.time() - t1
-    insertData(simulator=simulator, dt=dt, nseg=nseg, nchan=nchan
+    insertData(simulator=simulator, dt=1e-3*dt, nseg=nseg, nchan=nchan
             , simtime=args.sim_time, runtime=t)
     print("Time taken by neuron: %s sec" % t)
 
