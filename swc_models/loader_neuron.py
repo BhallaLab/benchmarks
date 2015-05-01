@@ -78,12 +78,14 @@ def cluster(segDict):
 
 def insertChannels(exprs):
     """Insert channels in segments given by expr"""
+    global nchan
     assert type(exprs) == defaultdict
     for k in exprs:
         expr = k.replace('*', '.*')
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
+            nchan += 1
 
 def insert(pat, chan):
     """Insert the pattern into segments """
@@ -93,9 +95,9 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
-            print("|- Inserting {} into {} with conductance: {} uS".format(
-                chanName, secName, g)
-                )
+#            print("|- Inserting {} into {} with conductance: {} uS".format(
+                #chanName, secName, g)
+                #)
             chan = sec.insert(chanName)
             h('gmax=%s' % (g))
 
@@ -108,6 +110,7 @@ def centerOfSec(sec):
 def addNode(sec):
     """Add a node to topolgoy"""
     global topolgoy
+    global nseg
     label = sec.hname()
     nodeType = 'box'
     if "soma" in label.lower():
@@ -119,9 +122,7 @@ def addNode(sec):
         color = 'yellow'
     else:
         color = 'blue'
-
-    for i in sec.allseg(): nseg += 1
-
+    nseg += sec.nseg
     topology.add_node(sec
             , label= label
             , segs = sec.allseg()
@@ -141,6 +142,8 @@ def addNode(sec):
 # @return None
 def loadModel(filename, args=None):
     """Load model given in filename """
+
+
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
     for sec in cell.allsec():
@@ -172,10 +175,10 @@ def loadModel(filename, args=None):
             for sec in secPat.split(":"):
                 channelExprDict[sec].append((channelName, expr))
         insertChannels(channelExprDict)
-        nchan += 1
     return None
 
 def main(args):
+    global nseg, nchan, simulator
     loadModel(args.swc_file, args)
     print("Done loading")
     h.init()
