@@ -25,6 +25,8 @@ import networkx as nx
 topology = nx.DiGraph()
 sign = np.sign
 
+h.dt = 5e-6
+
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
     h.load_file('stdgui.hoc')
@@ -164,15 +166,20 @@ def loadModel(filename, args=None):
     insertChannels(channelExprDict)
 
 def loadMechanism():
+    """No need to call this function anymore. Once MOD files are compiled, they
+    are automatically loaded by NEURON"""
     print("[INFO] Loading user-defined mechanism")
-    h.nrn_load_dll('./i686/.libs/libnrnmech.so')
+    h.nrn_load_dll('./x86_64/.libs/libnrnmech.so')
+
+def main(filename):
+    loadModel(filename, args)
+    finitialize()
 
 if __name__ == '__main__':
-    def main(filename):
-        loadModel(filename, args)
-    loadMechanism()
+    #loadMechanism()
     filename = sys.argv[1]
-    loadModel(filename)
+    main(filename)
+
     nx.draw(topology)
     topologyFile = 'topology.dot'
     print("[INFO] Saving topology to %s" % topologyFile)
