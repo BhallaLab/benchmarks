@@ -50,7 +50,7 @@ if [ ! -f ./benchmark.csv ]; then
 fi
 for file in $SWCFILES; do
     echo "Executing model $file"
-    $PYC ./swc_loader.py -f $file -s neuron -t 1.0 -o nrn.png \
+    $PYC ./swc_loader.py -f $file -s neuron -t 1 -o nrn.png \
         -c "hd, *dend*:*apic*, 5e-2*(1+(r*3e4))" \
         -c "kdr, *, 100" \
         -c "na3, *soma:*dend*:*apic*, 250" \

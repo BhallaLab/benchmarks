@@ -25,7 +25,7 @@ def main(args):
     elif args.simulator == 'neuron':
         import loader_neuron
         logging.info("Loading into NEURON")
-        model = loader_neuron.loadModel(args.swc_file, args)
+        model = loader_neuron.main(args)
     else:
         print("[WARN] Unsupported simulator %s" % args.simulator)
         sys.exit()

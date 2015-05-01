@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""swc_loader_neuron.py: 
+
+"""swc_loader_neuron.py:
 
     Load an SWC file in neuron.
 
 """
-    
 __author__           = "Dilawar Singh"
 __copyright__        = "Copyright 2015, Dilawar Singh and NCBS Bangalore"
 __credits__          = ["NCBS Bangalore"]
@@ -21,11 +21,17 @@ import re
 import numpy as np
 import pylab
 import networkx as nx
+import time
+from _profile import *
 
 topology = nx.DiGraph()
 sign = np.sign
 
-h.dt = 5e-6
+h.dt = 5e-3
+nseg = 0
+nchan = 0
+dt = h.dt
+simulator = 'neuron'
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -87,11 +93,11 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
-            print("Insert %s into %s with conductance: %s uS" % (chanName, secName, g))
+            print("|- Inserting {} into {} with conductance: {} uS".format(
+                chanName, secName, g)
+                )
             chan = sec.insert(chanName)
             h('gmax=%s' % (g))
-        else:
-            pass
 
 # NOTE: Calling this function causes segmentation fault.
 def centerOfSec(sec):
@@ -114,6 +120,8 @@ def addNode(sec):
     else:
         color = 'blue'
 
+    for i in sec.allseg(): nseg += 1
+
     topology.add_node(sec
             , label= label
             , segs = sec.allseg()
@@ -132,9 +140,9 @@ def addNode(sec):
 #
 # @return None
 def loadModel(filename, args=None):
+    """Load model given in filename """
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
-
     for sec in cell.allsec():
         addNode(sec)
         for child in sec.children():
@@ -163,23 +171,25 @@ def loadModel(filename, args=None):
             channelName, secPat, expr = p.split(',')
             for sec in secPat.split(":"):
                 channelExprDict[sec].append((channelName, expr))
-    insertChannels(channelExprDict)
+        insertChannels(channelExprDict)
+        nchan += 1
+    return None
 
-def loadMechanism():
-    """No need to call this function anymore. Once MOD files are compiled, they
-    are automatically loaded by NEURON"""
-    print("[INFO] Loading user-defined mechanism")
-    h.nrn_load_dll('./x86_64/.libs/libnrnmech.so')
-
-def main(filename):
-    loadModel(filename, args)
-    finitialize()
+def main(args):
+    loadModel(args.swc_file, args)
+    print("Done loading")
+    h.init()
+    print("[INFO] Running NEURON for %s sec" % args.sim_time)
+    t1 = time.time()
+    h.tstop = 1e3 * float(args.sim_time)
+    h.run()
+    t = time.time() - t1
+    insertData(simulator=simulator, dt=dt, nseg=nseg, nchan=nchan
+            , simtime=args.sim_time, runtime=t)
+    print("Time taken by neuron: %s sec" % t)
 
 if __name__ == '__main__':
-    #loadMechanism()
     filename = sys.argv[1]
-    main(filename)
-
     nx.draw(topology)
     topologyFile = 'topology.dot'
     print("[INFO] Saving topology to %s" % topologyFile)

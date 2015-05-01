@@ -19,6 +19,10 @@ import sys
 dataDir = '_data'
 profileFile = 'profile.csv'
 
+keys = [ "nseg", "nchans", "simtime", "dt", "runtime"
+    , "simulator", "comment"
+    ]
+
 if not os.path.isdir(dataDir):
     os.makedirs(dataDir)
 
@@ -28,9 +32,16 @@ if os.path.exists(profileFile):
     os.rename(profileFile, os.path.join(dataDir, '%s_%s'%(profileFile, stamp)))
 
 with open(profileFile, "w") as pF:
-    pF.write("nseg,nchans,simtime,simulator,comment\n")
+    pF.write(",".join(keys))
+    pF.write("\n")
 
-def insertLine(line):
+def insertData(**kwargs):
     """Insert a line into profile file"""
+    print("Writing %s" % kwargs)
     with open(profileFile, "a") as f:
-        f.write("%s\n" % line)
+        line = []
+        for k in keys:
+            try: line.append(str(kwargs[k]))
+            except: line.append(" ")
+        f.write(",".join(line))
+        f.write("\n")
