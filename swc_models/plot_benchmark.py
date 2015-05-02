@@ -16,6 +16,7 @@ __status__           = "Development"
 
 import _profile 
 import sqlite3 as sql
+from collections import defaultdict
 
 def dict_factory(cursor, row):
     d = {}
@@ -33,16 +34,21 @@ def main():
     for e in db.execute(query):
         models.append(e['model_name'])
 
-    mooseVecs = []
-    nrnVecs = []
-    xvec = []
+    mooseDict = defaultdict(list)
+    nrnDict = defaultdict(list)
 
     for mod in models:
         query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'"""
         neurons = db.execute(query.format(_profile.tableName, mod, 'neuron'))
         mooses = db.execute(query.format(_profile.tableName, mod, 'moose'))
-        for row in neurons.fetchall():
-            print row
+        for n in neurons.fetchall():
+            nrnDict[mod].append(n['runtime']/n['simtime'])
+        for m in mooses.fetchall():
+            mooseDict[mod].append(m['runtime']/m['simtime'])
+
+    for k in mooseDict:
+        print mooseDict[k]
+        print nrnDict[k]
 
 
 if __name__ == '__main__':

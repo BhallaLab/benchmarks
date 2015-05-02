@@ -28,7 +28,7 @@ cur_.execute(
         , no_of_channels INTEGER
         , simulator TEXT NOT NULL
         , simtime REAL DEFAULT 0
-        , runtime REAL DEFAULT -1
+        , runtime REAL DEFAULT 0
         , dt REAL DEFAULT 0.000000001
         , comment TEXT
         )""".format(tableName)
