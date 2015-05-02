@@ -188,8 +188,13 @@ def main(args):
     h.tstop = 1e3 * float(args.sim_time)
     h.run()
     t = time.time() - t1
-    insertData(simulator=simulator, dt=1e-3*dt, nseg=nseg, nchan=nchan
-            , simtime=args.sim_time, runtime=t)
+    insert(simulator=simulator, dt=1e-3*dt
+            , no_of_compartments=nseg
+            , no_of_channels=nchan
+            , simtime=args.sim_time
+            , runtime=t
+            , model_name = args.swc_file
+            )
     print("Time taken by neuron: %s sec" % t)
 
 if __name__ == '__main__':

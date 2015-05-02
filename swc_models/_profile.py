@@ -24,9 +24,10 @@ tableName = 'rallpack1'
 cur_.execute(
         """CREATE TABLE IF NOT EXISTS {} ( time DATETIME 
         , model_name VARCHAR
-        , no_of_compartment INTEGER 
+        , no_of_compartments INTEGER 
         , no_of_chananels INTEGER
         , simulator TEXT NOT NULL
+        , simtime REAL DEFAULT 0
         , runtime REAL DEFAULT -1
         , coretime REAL DEFAULT -1
         , comment TEXT
