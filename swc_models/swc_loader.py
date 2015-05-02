@@ -21,7 +21,7 @@ def main(args):
     if args.simulator == 'moose':
         import loader_moose
         logging.info("Loading into MOOSE")
-        model = loader_moose.loadModel(args.swc_file, args)
+        model = loader_moose.main( args)
     elif args.simulator == 'neuron':
         import loader_neuron
         logging.info("Loading into NEURON")

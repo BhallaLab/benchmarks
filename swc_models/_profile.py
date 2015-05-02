@@ -25,7 +25,7 @@ cur_.execute(
         """CREATE TABLE IF NOT EXISTS {} ( time DATETIME 
         , model_name VARCHAR
         , no_of_compartments INTEGER 
-        , no_of_chananels INTEGER
+        , no_of_channels INTEGER
         , simulator TEXT NOT NULL
         , simtime REAL DEFAULT 0
         , runtime REAL DEFAULT -1
@@ -34,8 +34,7 @@ cur_.execute(
         )""".format(tableName)
         )
 
-def insert(**values):
-    simulator = values['simulator']
+def dbEntry(**values):
     keys = []
     vals = []
     for k in values: 
@@ -53,8 +52,8 @@ def insert(**values):
     conn_.commit()
 
 def main():
-    insert({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'moose' })
-    insert({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'neuron' })
+    dbEntry({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'moose' })
+    dbEntry({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'neuron' })
     for c in cur_.execute("SELECT * from %s"%tableName):
         print c
 

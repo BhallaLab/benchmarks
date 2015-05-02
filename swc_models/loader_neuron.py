@@ -188,7 +188,7 @@ def main(args):
     h.tstop = 1e3 * float(args.sim_time)
     h.run()
     t = time.time() - t1
-    insert(simulator=simulator
+    dbEntry(simulator=simulator
             , dt=1e-3*dt
             , no_of_compartments=nseg
             , no_of_channels=nchan
