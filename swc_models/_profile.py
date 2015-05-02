@@ -1,6 +1,6 @@
-"""_profile.py: 
+"""config.py: 
 
-    This module is responsible for profiling data.
+    Global variables.
 
 """
     
@@ -13,37 +13,49 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-import os
+import sqlite3 as sql 
 import sys
-import datetime, time
 
-dataDir = '_data'
-profileFile = 'profile.csv'
+dbFile = '_profile.sqlite'
+conn_ = sql.connect(dbFile)
+cur_ = conn_.cursor()
+tableName = 'rallpack1'
 
-# The sequence here should be similar to one found in shell script.
-keys = [ "nseg", "nchan", "simtime", "dt", "runtime"
-    , "simulator", "comment"
-    ]
+cur_.execute(
+        """CREATE TABLE IF NOT EXISTS {} ( time DATETIME 
+        , model_name VARCHAR
+        , no_of_compartment INTEGER 
+        , no_of_chananels INTEGER
+        , simulator TEXT NOT NULL
+        , runtime REAL DEFAULT -1
+        , coretime REAL DEFAULT -1
+        , comment TEXT
+        )""".format(tableName)
+        )
 
-if not os.path.isdir(dataDir):
-    os.makedirs(dataDir)
+def insert(**values):
+    simulator = values['simulator']
+    keys = []
+    vals = []
+    for k in values: 
+        keys.append(k)
+        vals.append("'%s'"%values[k])
+    keys.append("time")
+    vals.append("datetime('now')")
 
-#stamp = datetime.datetime.now().isoformat()
+    keys = ",".join(keys)
+    vals = ",".join(vals)
+    
+    query = """INSERT INTO {} ({}) VALUES ({})""".format(tableName, keys, vals)
+    print("Excuting: %s" % query)
+    cur_.execute(query)
+    conn_.commit()
 
-#if os.path.exists(profileFile):
-    #os.rename(profileFile, os.path.join(dataDir, '%s_%s'%(profileFile, stamp)))
+def main():
+    insert({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'moose' })
+    insert({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'neuron' })
+    for c in cur_.execute("SELECT * from %s"%tableName):
+        print c
 
-#with open(profileFile, "w") as pF:
-    #pF.write(",".join(keys))
-    #pF.write("\n")
-
-def insertData(**kwargs):
-    """Insert a line into profile file"""
-    print("Writing %s" % kwargs)
-    with open(profileFile, "a") as f:
-        line = []
-        for k in keys:
-            try: line.append(str(kwargs[k]))
-            except: line.append(" ")
-        f.write(",".join(line))
-        f.write("\n")
+if __name__ == '__main__':
+    main()
