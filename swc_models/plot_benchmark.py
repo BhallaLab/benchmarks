@@ -17,20 +17,32 @@ __status__           = "Development"
 import _profile 
 import sqlite3 as sql
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+db = sql.connect(_profile.dbFile)
+db.row_factory = dict_factory
 
 def main():
-    db = sql.connect(_profile.dbFile)
+    global db
     models = []
     query="SELECT model_name from %s WHERE simulator='neuron'" % _profile.tableName
     for e in db.execute(query):
-        models.append(e[0])
+        models.append(e['model_name'])
+
+    mooseVecs = []
+    nrnVecs = []
+    xvec = []
+
     for mod in models:
         query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'"""
         neurons = db.execute(query.format(_profile.tableName, mod, 'neuron'))
         mooses = db.execute(query.format(_profile.tableName, mod, 'moose'))
-        print neurons.fetchall()
-        print mooses.fetchall()
-        print "====="
+        for row in neurons.fetchall():
+            print row
 
 
 if __name__ == '__main__':
