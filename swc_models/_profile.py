@@ -19,7 +19,7 @@ import sys
 dbFile = '_profile.sqlite'
 conn_ = sql.connect(dbFile)
 cur_ = conn_.cursor()
-tableName = 'rallpack1'
+tableName = 'swc'
 
 cur_.execute(
         """CREATE TABLE IF NOT EXISTS {} ( time DATETIME 
@@ -29,7 +29,7 @@ cur_.execute(
         , simulator TEXT NOT NULL
         , simtime REAL DEFAULT 0
         , runtime REAL DEFAULT -1
-        , coretime REAL DEFAULT -1
+        , dt REAL DEFAULT 0.000000001
         , comment TEXT
         )""".format(tableName)
         )
