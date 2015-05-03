@@ -16,6 +16,8 @@ __status__           = "Development"
 
 import _profile 
 import sqlite3 as sql
+import numpy as np
+import pylab
 from collections import defaultdict
 
 def dict_factory(cursor, row):
@@ -36,6 +38,7 @@ def main():
 
     mooseDict = defaultdict(list)
     nrnDict = defaultdict(list)
+    secDict = {}
 
     for mod in models:
         query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'"""
@@ -45,10 +48,23 @@ def main():
             nrnDict[mod].append(n['runtime']/n['simtime'])
         for m in mooses.fetchall():
             mooseDict[mod].append(m['runtime']/m['simtime'])
+            secDict[mod] = n['no_of_compartments']
 
+    nrnVec = []
+    mooseVec = []
+    xvec = []
     for k in mooseDict:
-        print mooseDict[k]
-        print nrnDict[k]
+        mooseVec.append(np.mean(mooseDict[k]))
+        nrnVec.append(np.mean(nrnDict[k]))
+        xvec.append(secDict[k])
+
+    width = 0.3
+    rect1 = pylab.bar(np.arange(len(xvec)), nrnVec, width, color='b'
+            , label='neuron')
+    rect2 = pylab.bar(np.arange(len(xvec))+width, mooseVec, width, color='r'
+            , label='moose')
+    pylab.legend(loc='best', framealpha=0.4)
+    pylab.show()
 
 
 if __name__ == '__main__':
