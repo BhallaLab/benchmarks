@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+export PYTHONPATH=/opt/moose3.0.1/python
 
 __ScriptVersion="0.1"
 
