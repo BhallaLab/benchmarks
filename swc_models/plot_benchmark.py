@@ -64,7 +64,7 @@ def main():
     rect2 = pylab.bar(np.arange(len(xvec))+width, mooseVec, width, color='r'
             , label='moose')
     pylab.legend(loc='best', framealpha=0.4)
-    pylab.show()
+    pylab.savefig('benchmark.png')
 
 
 if __name__ == '__main__':
