@@ -32,6 +32,8 @@ nseg = 0
 nchan = 0
 dt = h.dt
 simulator = 'neuron'
+_args = None
+_records = {'v_pre' : h.Vector(), 't' : h.Vector() }
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -108,10 +110,9 @@ def centerOfSec(sec):
     for seg in sec.allseg():
         centers.append(computeCenter(seg))
 
-def addNode(sec):
+def addNode(sec, record=False):
     """Add a node to topolgoy"""
-    global topolgoy
-    global nseg
+    global topolgoy, _records, nseg
     label = sec.hname()
     nodeType = 'box'
     if "soma" in label.lower():
@@ -133,6 +134,9 @@ def addNode(sec):
             , color = color
             , r = 0.0
             )
+    if record:
+        _records['v_pre'].record(sec(0.5)._ref_v)
+        _records['t'].record(sec(0.5)._ref_v)
 
 ##
 # @brief This fuction should be called from ./swc_loader.py file.
@@ -148,7 +152,7 @@ def loadModel(filename, args=None):
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
     for sec in cell.allsec():
-        addNode(sec)
+        addNode(sec, record=True)
         for child in sec.children():
             addNode(child)
             scaleLength = 50
@@ -165,6 +169,7 @@ def loadModel(filename, args=None):
         if topology.in_degree(n) == 0:
             sourceNode = n
             break
+    setupStimulus(sourceNode)
     for e in nx.bfs_edges(topology, sourceNode):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
@@ -178,8 +183,18 @@ def loadModel(filename, args=None):
         insertChannels(channelExprDict)
     return None
 
+
+def setupStimulus(sec):
+    """Setup the stimulus"""
+    global _args
+    stim = h.IClamp(0.5, sec=sec)
+    stim.amp = 10.0
+    stim.delay = 5.0
+    stim.dur = args.sim_time
+
 def main(args):
-    global nseg, nchan, simulator
+    global nseg, nchan, simulator, _args
+    _args = args
     loadModel(args.swc_file, args)
     print("Done loading")
     h.init()
@@ -198,9 +213,3 @@ def main(args):
             )
     print("Time taken by neuron: %s sec" % t)
 
-if __name__ == '__main__':
-    filename = sys.argv[1]
-    nx.draw(topology)
-    topologyFile = 'topology.dot'
-    print("[INFO] Saving topology to %s" % topologyFile)
-    nx.write_dot(topology, topologyFile)
