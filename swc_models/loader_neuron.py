@@ -190,7 +190,7 @@ def setupStimulus(sec):
     stim = h.IClamp(0.5, sec=sec)
     stim.amp = 10.0
     stim.delay = 5.0
-    stim.dur = args.sim_time
+    stim.dur = _args.sim_time
 
 def main(args):
     global nseg, nchan, simulator, _args

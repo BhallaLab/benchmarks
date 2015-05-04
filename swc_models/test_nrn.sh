@@ -13,6 +13,7 @@ for file in $SWCFILES; do
         -c "kap, *axon:*soma*, 300" \
         -c "kap, *dend:*apic*, 150*(1+sign(100-r*1e6)) * (1+(r*1e4))" \
         -c "kad, *dend:*apic*, 150*(1+sign(r*1e6-100))*(1+r*1e4)"
+    break
 done
 echo "All done"
 
