@@ -192,7 +192,8 @@ def makePlots():
     global _args
     for k in _records:
         if 't' != k:
-            pylab.plot(_records['t'], _records[k])
+            pylab.plot(_records['t'], _records[k], label=k)
+    pylab.legend()
     if not _args.plots:
         pylab.show()
     else:
@@ -202,10 +203,7 @@ def makePlots():
 def setupStimulus(sec):
     """Setup the stimulus"""
     global _args
-    stim = h.IClamp(0.5, sec=sec)
-    stim.amp = 10.0
-    stim.delay = 5.0
-    stim.dur = _args.sim_time
+    return 
 
 def main(args):
     global nseg, nchan, simulator, _args

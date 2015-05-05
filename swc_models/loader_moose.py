@@ -32,6 +32,7 @@ modelName = None
 simulator = 'moose'
 ncompts = 0
 nchans = 0
+_args = None
 
 def makePlot( cell ):
     fig = plt.figure( figsize = ( 10, 12 ) )
@@ -96,33 +97,18 @@ def loadModel(filename, args):
 
     if args.plots:
         print("[INFO] Plotting is ON")
-        makePlot( cell[0] )
+        #makePlot( cell[0] )
         # Now we set up the display
         moose.le( '/model/%s/soma'%modelName )
         soma = moose.element( '/model/%s/soma'%modelName )
-        kap = moose.element( '/model/%s/soma/kap'%modelName )
 
         graphs = moose.Neutral( '/graphs' )
         vtab = moose.Table( '/graphs/vtab' )
         moose.connect( vtab, 'requestOut', soma, 'getVm' )
-        kaptab = moose.Table( '/graphs/kaptab' )
-        moose.connect( kaptab, 'requestOut', kap, 'getGk' )
 
         compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
         compts[0].inject = inject
         ecomptPath = [x.path for x in compts]
-
-        t = numpy.arange( 0, args.sim_time, vtab.dt )
-        fig = plt.figure()
-        p1 = fig.add_subplot(311)
-        p2 = fig.add_subplot(312)
-        p2.plot( t,  vtab.vector, label = 'Vm Soma' )
-        p2.legend()
-        p3 = fig.add_subplot(313)
-        p3.plot( t, kaptab.vector, label = 'kap Soma' )
-        p3.legend()
-        plt.show()
-
     for i in range( 8 ):
         moose.setClock( i, args.sim_dt )
 
@@ -130,13 +116,30 @@ def loadModel(filename, args):
     hsolve.dt = args.sim_dt
     hsolve.target = '/model/%s/soma' % modelName
 
+def plots():
+    global _args
+    vtab = moose.Table('/graphs/vtab')
+    t = numpy.arange( 0, _args.sim_time, vtab.dt )
+    fig = plt.figure()
+    #assert len(t) == len(vtab.vector), "%s ?= %s" % (len(t), len(vtab.vector))
+    plt.plot(t, vtab.vector[0:-1], label = 'Vm Soma' )
+    plt.legend()
+    if not _args.plots:
+        return 
+    else:
+        print("[INFO] Saving plots to %s" % _args.plots)
+        plt.savefig(_args.plots)
+        plt.show()
+
+
 def main(args):
+    global _args
+    _args = args
     global ncompts, nchans
     loadModel(args.swc_file, args)
     moose.reinit()
     compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]" % modelName )
     ncompts = len(compts)
-    compts[0].inject = inject
     startt = time.time()
     moose.start(args.sim_time)
     t = time.time() - startt
@@ -149,3 +152,4 @@ def main(args):
             , dt=args.sim_dt
             )
 
+    plots()
