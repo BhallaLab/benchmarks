@@ -91,11 +91,14 @@ def loadModel(filename, args):
                 "RM", "#", "2.8", \
                 "CM", "#", "0.01", \
                 "RA", "#", "1.5", \
-                ] + [x.replace('*', '#') for x in args.insert_channels]
-
-        moose.showfields( cell[0] )
+                ] 
+        
+        for expr in args.insert_channels:
+            x = expr.split(";")
+            chanDistrib += x
         cell[0].channelDistribution = chanDistrib
         cell[0].parseChanDistrib()
+        moose.showfields( cell[0] )
 
     if args.plots:
         print("[INFO] Plotting is ON")
@@ -129,7 +132,7 @@ def setupStimuls(compt):
     command.delay[1] = _args.sim_time / 3.0
     moose.connect(command, 'output', compt, 'injectMsg')
 
-def plots(filter='soma', nos=10):
+def plots(filter='soma'):
     global _records
     global _args
     if not _args.plots:
@@ -140,12 +143,9 @@ def plots(filter='soma', nos=10):
         for k in _records:
             if filter in k:
                 toPlot.append(k)
-        toPlot = np.random.choice(toPlot, nos)
         for k in toPlot:
             tables[k] = _records[k]
-        mu.plotRecords(tables)
-        print("[INFO] Saving plots to %s" % _args.plots)
-        plt.savefig(_args.plots)
+        mu.plotRecords(tables, subplot=True, outfile=_args.plots)
 
 def main(args):
     global _args
