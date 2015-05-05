@@ -1,4 +1,3 @@
-import moogli
 import numpy
 import pylab
 import moose
