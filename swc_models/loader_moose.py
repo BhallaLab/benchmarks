@@ -12,10 +12,11 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-import numpy
+import numpy as np
 import pylab
 import moose
 import time
+import moose.utils as mu
 from moose import neuroml
 from PyQt4 import Qt, QtCore, QtGui
 import matplotlib.pyplot as plt
@@ -33,6 +34,7 @@ simulator = 'moose'
 ncompts = 0
 nchans = 0
 _args = None
+_records = {}
 
 def makePlot( cell ):
     fig = plt.figure( figsize = ( 10, 12 ) )
@@ -103,34 +105,47 @@ def loadModel(filename, args):
         soma = moose.element( '/model/%s/soma'%modelName )
 
         graphs = moose.Neutral( '/graphs' )
-        vtab = moose.Table( '/graphs/vtab' )
-        moose.connect( vtab, 'requestOut', soma, 'getVm' )
 
         compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
-        compts[0].inject = inject
-        ecomptPath = [x.path for x in compts]
+        setupStimuls(compts[0])
+        for compt in compts:
+            vtab = moose.Table( '%s/vm' % compt.path )
+            moose.connect( vtab, 'requestOut', compt, 'getVm' )
+            _records[compt.path] = vtab
+
     for i in range( 8 ):
         moose.setClock( i, args.sim_dt )
 
     hsolve = moose.HSolve( '/model/%s/hsolve' % modelName )
     hsolve.dt = args.sim_dt
-    hsolve.target = '/model/%s/soma' % modelName
+    hsolve.target = '/model/%s ' % modelName
+    moose.reinit()
 
-def plots():
+def setupStimuls(compt):
     global _args
-    vtab = moose.Table('/graphs/vtab')
-    t = numpy.arange( 0, _args.sim_time, vtab.dt )
-    fig = plt.figure()
-    #assert len(t) == len(vtab.vector), "%s ?= %s" % (len(t), len(vtab.vector))
-    plt.plot(t, vtab.vector[0:-1], label = 'Vm Soma' )
-    plt.legend()
+    command = moose.PulseGen('%s/command' % compt.path)
+    command.level[0] = inject
+    command.width[0] = 1e-2
+    command.delay[1] = _args.sim_time / 3.0
+    moose.connect(command, 'output', compt, 'injectMsg')
+
+def plots(filter='soma', nos=10):
+    global _records
+    global _args
     if not _args.plots:
         return 
     else:
+        toPlot = []
+        tables = {}
+        for k in _records:
+            if filter in k:
+                toPlot.append(k)
+        toPlot = np.random.choice(toPlot, nos)
+        for k in toPlot:
+            tables[k] = _records[k]
+        mu.plotRecords(tables)
         print("[INFO] Saving plots to %s" % _args.plots)
         plt.savefig(_args.plots)
-        plt.show()
-
 
 def main(args):
     global _args
