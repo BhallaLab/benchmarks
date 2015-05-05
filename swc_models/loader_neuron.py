@@ -98,9 +98,9 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
-            #print("|- Inserting {} into {} with conductance: {} uS".format(
-                #chanName, secName, g)
-                #)
+            print("|- Inserting {} into {} with conductance: {} uS".format(
+                chanName, secName, g)
+                )
             chan = sec.insert(chanName)
             h('gmax=%s' % (g))
             nchan += 1
@@ -141,7 +141,6 @@ def addNode(sec, record=False):
     if record:
         _records[label] = h.Vector()
         _records[label].record(sec(0.5)._ref_v)
-        _records['t'].record(h._ref_t)
 
 ##
 # @brief This fuction should be called from ./swc_loader.py file.
@@ -152,7 +151,6 @@ def addNode(sec, record=False):
 # @return None
 def loadModel(filename, args=None):
     """Load model given in filename """
-
 
     print("[INFO] Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
@@ -166,6 +164,7 @@ def loadModel(filename, args=None):
                     , len=child.L/scaleLength
                     , minlen=child.L/scaleLength
                     )
+    _records['t'].record(h._ref_t)
 
     # Do a BFS and compute the length of edges.
     # Get the source node. This node has no parents and it should be only 1.
@@ -174,7 +173,7 @@ def loadModel(filename, args=None):
         if topology.in_degree(n) == 0:
             sourceNode = n
             break
-    #addStim(sourceNode)
+    print("[DEBUG] Found parent node %s" % sourceNode)
     for e in nx.bfs_edges(topology, sourceNode):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
@@ -186,36 +185,43 @@ def loadModel(filename, args=None):
             for sec in secPat.split(":"):
                 channelExprDict[sec].append((channelName, expr))
         insertChannels(channelExprDict)
+
+    # Add a stimulus to sourceNode.
+    addStim(sourceNode)
     return None
 
 def makePlots():
     global _args
-    for k in _records:
-        if 't' != k:
-            pylab.plot(_records['t'], _records[k], label=k)
-    #pylab.legend()
+    #for k in _records:
+        #if 't' != k:
+            #pylab.plot(_records['t'], _records[k], label=k)
+    pylab.plot(_records['t'], _records['soma[0]'], label='Soma Vm')
+    pylab.legend()
     if not _args.plots:
         pylab.show()
     else:
         print("[INFO] Saving neuron data to %s" % _args.plots)
         pylab.savefig(_args.plots)
 
-def addStim(sec):
+def addStim(section):
     """Setup the stimulus"""
     global _args
-    print("[INFO] Adding a pulsegen at %s" % sec.hname())
-    stim = h.IClamp(0.5, sec=sec)
-    stim.amp = 10
-    stim.delay = 0
-    stim.dur = 1e3*_args.sim_time
-    return 
+    print("[INFO] Adding a pulsegen at %s" % section.hname())
+    stim = h.IClamp(0.5, sec=section)
+    stim.amp = 10000.0
+    stim.delay = 1.0
+    stim.dur = float(1e3*_args.sim_time)
+    #_records['stim'] = h.Vector()
+    #_records['stim'].record(stim(1)._ref_v)
+    from IPython import embed
+    embed()
 
 def main(args):
     global nseg, nchan, simulator, _args
     _args = args
     loadModel(args.swc_file, args)
-
     print("Done loading")
+
     h.init()
     print("[INFO] Running NEURON for %s sec" % args.sim_time)
     t1 = time.time()
@@ -231,4 +237,5 @@ def main(args):
             , model_name = args.swc_file
             )
     print("Time taken by neuron: %s sec" % t)
+
     makePlots()
