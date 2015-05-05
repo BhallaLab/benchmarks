@@ -22,6 +22,7 @@ import numpy as np
 import pylab
 import networkx as nx
 import time
+import moose.utils as mu
 from _profile import *
 
 topology = nx.DiGraph()
@@ -33,7 +34,7 @@ nchan = 0
 dt = h.dt
 simulator = 'neuron'
 _args = None
-_records = {'v_pre' : h.Vector(), 't' : h.Vector() }
+_records = { 't' : h.Vector() }
 
 def instantiate_swc(filename):
     """load an swc file and instantiate it"""
@@ -111,7 +112,10 @@ def centerOfSec(sec):
         centers.append(computeCenter(seg))
 
 def addNode(sec, record=False):
-    """Add a node to topolgoy"""
+    """Add a node to topolgoy
+
+    if `record=True` then also add a recorder to plot.
+    """
     global topolgoy, _records, nseg
     label = sec.hname()
     nodeType = 'box'
@@ -135,8 +139,9 @@ def addNode(sec, record=False):
             , r = 0.0
             )
     if record:
-        _records['v_pre'].record(sec(0.5)._ref_v)
-        _records['t'].record(sec(0.5)._ref_v)
+        _records[label] = h.Vector()
+        _records[label].record(sec(0.5)._ref_v)
+        _records['t'].record(h._ref_t)
 
 ##
 # @brief This fuction should be called from ./swc_loader.py file.
@@ -183,6 +188,16 @@ def loadModel(filename, args=None):
         insertChannels(channelExprDict)
     return None
 
+def makePlots():
+    global _args
+    for k in _records:
+        if 't' != k:
+            pylab.plot(_records['t'], _records[k])
+    if not _args.plots:
+        pylab.show()
+    else:
+        print("[INFO] Saving neuron data to %s" % _args.plots)
+        pylab.savefig(_args.plots)
 
 def setupStimulus(sec):
     """Setup the stimulus"""
@@ -196,6 +211,7 @@ def main(args):
     global nseg, nchan, simulator, _args
     _args = args
     loadModel(args.swc_file, args)
+
     print("Done loading")
     h.init()
     print("[INFO] Running NEURON for %s sec" % args.sim_time)
@@ -212,4 +228,4 @@ def main(args):
             , model_name = args.swc_file
             )
     print("Time taken by neuron: %s sec" % t)
-
+    makePlots()
