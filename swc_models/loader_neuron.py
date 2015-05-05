@@ -174,7 +174,7 @@ def loadModel(filename, args=None):
         if topology.in_degree(n) == 0:
             sourceNode = n
             break
-    setupStimulus(sourceNode)
+    #addStim(sourceNode)
     for e in nx.bfs_edges(topology, sourceNode):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
@@ -193,16 +193,21 @@ def makePlots():
     for k in _records:
         if 't' != k:
             pylab.plot(_records['t'], _records[k], label=k)
-    pylab.legend()
+    #pylab.legend()
     if not _args.plots:
         pylab.show()
     else:
         print("[INFO] Saving neuron data to %s" % _args.plots)
         pylab.savefig(_args.plots)
 
-def setupStimulus(sec):
+def addStim(sec):
     """Setup the stimulus"""
     global _args
+    print("[INFO] Adding a pulsegen at %s" % sec.hname())
+    stim = h.IClamp(0.5, sec=sec)
+    stim.amp = 10
+    stim.delay = 0
+    stim.dur = 1e3*_args.sim_time
     return 
 
 def main(args):

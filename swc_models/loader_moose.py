@@ -91,7 +91,9 @@ def loadModel(filename, args):
                 "RM", "#", "2.8", \
                 "CM", "#", "0.01", \
                 "RA", "#", "1.5", \
+                "RA", "#axon#", "0.5" \
                 ] 
+        chanDistrib = []
         
         for expr in args.insert_channels:
             x = expr.split(";")
@@ -111,6 +113,7 @@ def loadModel(filename, args):
 
         compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
         setupStimuls(compts[0])
+        compts[0].inject = inject
         for compt in compts:
             vtab = moose.Table( '%s/vm' % compt.path )
             moose.connect( vtab, 'requestOut', compt, 'getVm' )
@@ -126,10 +129,12 @@ def loadModel(filename, args):
 
 def setupStimuls(compt):
     global _args
+    return
     command = moose.PulseGen('%s/command' % compt.path)
     command.level[0] = inject
-    command.width[0] = 1e-2
-    command.delay[1] = _args.sim_time / 3.0
+    command.width[0] = _args.sim_time
+    #command.delay[0] = 0.1
+    command.delay[1] = 2 * _args.sim_time
     moose.connect(command, 'output', compt, 'injectMsg')
 
 def plots(filter='soma'):
