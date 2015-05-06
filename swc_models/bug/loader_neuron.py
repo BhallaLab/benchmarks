@@ -200,6 +200,11 @@ def addStim(section):
     #_records['stim'] = h.Vector()
     #_records['stim'].record(stim(1)._ref_v)
 
+    
+    # Dropping into ipython shell and coming out of it
+    #from IPython import embed
+    #embed()
+
 def main(args):
     global nseg, nchan, simulator, _args
     _args = args
