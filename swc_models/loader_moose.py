@@ -87,8 +87,9 @@ def loadModel(filename, args):
             "RM", "#", "2.8", \
             "CM", "#", "0.01", \
             "RA", "#", "1.5", \
-            "RA", "#axon#", "0.5", \
+            "RA", "#axon#", "0.5" ]
 
+        chanDistrib = [
             "hd", "#dend#,#apical#", "5e-2*(1+(r*3e4))", \
             "kdr", "#", "100", \
             "na3", "#soma#,#dend#,#apical#", "250", \
@@ -97,17 +98,6 @@ def loadModel(filename, args):
             "kap", "#dend#,#apical#", "150*(1+sign(100-r*1e6)) * (1+(r*1e4))", \
             "kad", "#dend#,#apical#", "150*(1+sign(r*1e6-100))*(1+r*1e4)", \
             ]
-        #chanDistrib = [ \
-        #        "EM", "#", "-58e-3", \
-        #        "initVm", "#", "-65e-3", \
-        #        "RM", "#", "2.8", \
-        #        "CM", "#", "0.01", \
-        #        "RA", "#", "1.5", \
-        #        "RA", "#axon#", "0.5" \
-        #        ] 
-        #for expr in args.insert_channels:
-        #    x = expr.split(";")
-        #    chanDistrib += x
         cell[0].channelDistribution = chanDistrib
         cell[0].parseChanDistrib()
         moose.showfields( cell[0] )
