@@ -95,6 +95,7 @@ def insert(pat, chan):
     chanName, expr = chan
     for sec in topology.nodes():
         secName = sec.hname()
+        #h('access %s' % secName)
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
@@ -181,9 +182,11 @@ def loadModel(filename, args=None):
     channelExprDict = defaultdict(list)
     if args.insert_channels:
         for p in args.insert_channels:
-            channelName, secPat, expr = p.split(',')
-            for sec in secPat.split(":"):
+            channelName, secPat, expr = p.split(';')
+            for sec in secPat.split(","):
+                sec = sec.strip()
                 channelExprDict[sec].append((channelName, expr))
+
         insertChannels(channelExprDict)
 
     # Add a stimulus to sourceNode.
@@ -207,11 +210,12 @@ def makePlots():
 def addStim(section):
     """Setup the stimulus"""
     global _args
-    print("[INFO] Adding a pulsegen at %s" % section.hname())
+    print("[INFO] Adding a pulsegen (%s A) at %s" % (_args.inject,
+        section.hname()))
     h('access %s' % section.hname())
     h('objectvar stim')
     h('stim = new IClamp(0.5)')
-    h('stim.amp = 0.1')
+    h('stim.amp = %s' % (_args.inject*1e9))
     h('stim.dur = %s' % (1e3*_args.sim_time))
 
 def main(args):

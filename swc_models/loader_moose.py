@@ -27,7 +27,6 @@ from _profile import dbEntry
 
 PI = 3.14159265359
 frameRunTime = 0.001
-inject = 1e-10
 FaradayConst = 96845.34
 modelName = None
 simulator = 'moose'
@@ -140,7 +139,8 @@ def loadModel(filename, args):
 def setupStimuls(compt):
     global _args
     command = moose.PulseGen('%s/command' % compt.path)
-    command.level[0] = 7*inject
+    print("[INFO] Injecting %s (Amps) of current" % _args.inject)
+    command.level[0] = _args.inject
     command.delay[0] = 0
     command.width[0] = _args.sim_time
     moose.connect(command, 'output', compt, 'injectMsg')

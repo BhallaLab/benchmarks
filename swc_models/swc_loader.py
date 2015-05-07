@@ -71,6 +71,13 @@ if __name__ == '__main__':
         , default = []
         , help = 'Help'
         )
+
+    parser.add_argument('--inject', '-i'
+            , required = False
+            , default = 0.0
+            , type = float
+            , help = "Current injected into SOMA (in Amps)"
+            )
     
     class Args: pass 
     args = Args()
