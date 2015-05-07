@@ -201,20 +201,18 @@ def makePlots():
         pylab.show()
     else:
         print("[INFO] Saving neuron data to %s" % _args.plots)
+        #pylab.show()
         pylab.savefig(_args.plots)
 
 def addStim(section):
     """Setup the stimulus"""
     global _args
     print("[INFO] Adding a pulsegen at %s" % section.hname())
-    stim = h.IClamp(0.5, sec=section)
-    stim.amp = 10000.0
-    stim.delay = 1.0
-    stim.dur = float(1e3*_args.sim_time)
-    #_records['stim'] = h.Vector()
-    #_records['stim'].record(stim(1)._ref_v)
-    from IPython import embed
-    embed()
+    h('access %s' % section.hname())
+    h('objectvar stim')
+    h('stim = new IClamp(0.5)')
+    h('stim.amp = 0.1')
+    h('stim.dur = %s' % (1e3*_args.sim_time))
 
 def main(args):
     global nseg, nchan, simulator, _args
