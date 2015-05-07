@@ -27,7 +27,7 @@ from _profile import dbEntry
 
 PI = 3.14159265359
 frameRunTime = 0.001
-inject = 25e-10
+inject = 1e-10
 FaradayConst = 96845.34
 modelName = None
 simulator = 'moose'
@@ -72,9 +72,6 @@ def loadModel(filename, args):
     print("[INFO] Opening model file: %s" % modelName)
     cell = moose.loadModel( filename, '/model/{}'.format(modelName))
 
-    for i in moose.wildcardFind( '/library/##' ):
-        i.tick = -1
-
     if args.insert_channels:
         print("[INFO] Adding channels")
         cm = ChannelML( {'temperature': 32 })
@@ -86,18 +83,32 @@ def loadModel(filename, args):
         cm.readChannelMLFromFile( 'nax.xml' )
 
         chanDistrib = [ \
-                "EM", "#", "-58e-3", \
-                "initVm", "#", "-65e-3", \
-                "RM", "#", "2.8", \
-                "CM", "#", "0.01", \
-                "RA", "#", "1.5", \
-                "RA", "#axon#", "0.5" \
-                ] 
-        chanDistrib = []
-        
-        for expr in args.insert_channels:
-            x = expr.split(";")
-            chanDistrib += x
+            "EM", "#", "-58e-3", \
+            "initVm", "#", "-65e-3", \
+            "RM", "#", "2.8", \
+            "CM", "#", "0.01", \
+            "RA", "#", "1.5", \
+            "RA", "#axon#", "0.5", \
+
+            "hd", "#dend#,#apical#", "5e-2*(1+(r*3e4))", \
+            "kdr", "#", "100", \
+            "na3", "#soma#,#dend#,#apical#", "250", \
+            "nax", "#axon#", "1250", \
+            "kap", "#axon#,#soma#", "300", \
+            "kap", "#dend#,#apical#", "150*(1+sign(100-r*1e6)) * (1+(r*1e4))", \
+            "kad", "#dend#,#apical#", "150*(1+sign(r*1e6-100))*(1+r*1e4)", \
+            ]
+        #chanDistrib = [ \
+        #        "EM", "#", "-58e-3", \
+        #        "initVm", "#", "-65e-3", \
+        #        "RM", "#", "2.8", \
+        #        "CM", "#", "0.01", \
+        #        "RA", "#", "1.5", \
+        #        "RA", "#axon#", "0.5" \
+        #        ] 
+        #for expr in args.insert_channels:
+        #    x = expr.split(";")
+        #    chanDistrib += x
         cell[0].channelDistribution = chanDistrib
         cell[0].parseChanDistrib()
         moose.showfields( cell[0] )
@@ -108,12 +119,11 @@ def loadModel(filename, args):
         # Now we set up the display
         moose.le( '/model/%s/soma'%modelName )
         soma = moose.element( '/model/%s/soma'%modelName )
+        assert soma
 
         graphs = moose.Neutral( '/graphs' )
-
         compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
         setupStimuls(compts[0])
-        compts[0].inject = inject
         for compt in compts:
             vtab = moose.Table( '%s/vm' % compt.path )
             moose.connect( vtab, 'requestOut', compt, 'getVm' )
@@ -124,17 +134,15 @@ def loadModel(filename, args):
 
     hsolve = moose.HSolve( '/model/%s/hsolve' % modelName )
     hsolve.dt = args.sim_dt
-    hsolve.target = '/model/%s ' % modelName
+    hsolve.target = '/model/%s/soma ' % modelName
     moose.reinit()
 
 def setupStimuls(compt):
     global _args
-    return
     command = moose.PulseGen('%s/command' % compt.path)
-    command.level[0] = inject
+    command.level[0] = 7*inject
+    command.delay[0] = 0
     command.width[0] = _args.sim_time
-    #command.delay[0] = 0.1
-    command.delay[1] = 2 * _args.sim_time
     moose.connect(command, 'output', compt, 'injectMsg')
 
 def plots(filter='soma'):
@@ -150,7 +158,7 @@ def plots(filter='soma'):
                 toPlot.append(k)
         for k in toPlot:
             tables[k] = _records[k]
-        mu.plotRecords(tables, subplot=True, outfile=_args.plots)
+        mu.plotRecords(tables, outfile=_args.plots)
 
 def main(args):
     global _args
