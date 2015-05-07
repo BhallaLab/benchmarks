@@ -95,15 +95,14 @@ def insert(pat, chan):
     chanName, expr = chan
     for sec in topology.nodes():
         secName = sec.hname()
-        #h('access %s' % secName)
         if pat.match(secName):
             expr = expr.replace('r', str(topology.node[sec]['r']))
             g = eval(expr)
             print("|- Inserting {} into {} with conductance: {} uS".format(
                 chanName, secName, g)
                 )
-            chan = sec.insert(chanName)
-            h('gmax=%s' % (g))
+            h('{0} insert {1}'.format(secName, chanName))
+            h('\tg_{}={}'.format(chanName,g))
             nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.

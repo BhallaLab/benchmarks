@@ -15,6 +15,9 @@ __status__           = "Development"
 
 import sqlite3 as sql 
 import sys
+import platform
+
+uname_ = platform.uname()
 
 dbFile = '_profile.sqlite'
 conn_ = sql.connect(dbFile)
@@ -31,7 +34,8 @@ cur_.execute(
         , runtime REAL DEFAULT 0
         , dt REAL DEFAULT 0.000000001
         , comment TEXT
-        )""".format(tableName)
+        , uname TEXT DEFAULT "{}"
+        )""".format(tableName, uname_)
         )
 
 def dbEntry(**values):
