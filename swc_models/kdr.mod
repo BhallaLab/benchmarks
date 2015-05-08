@@ -1,96 +1,149 @@
-TITLE Borg-Graham-like K-A channel
-: INACTIVATING, M.Migliore, BJ, 1996
-: Modified to be used with cvode M.Migliore 2001
+
+?  This is a NEURON mod file generated from a ChannelML file
+
+?  Unit system of original ChannelML file: Physiological Units
+
+COMMENT
+    ChannelML file containing a single Channel description
+ENDCOMMENT
+
+TITLE Channel: kdr
+
+COMMENT
+    Delayed rectifier K channel. Comment from original mod: K-DR channel, from Klee Ficker and Heinemann,
+        modified to account for Dax et al., M.Migliore 1997
+ENDCOMMENT
+
 
 UNITS {
-	(mA) = (milliamp)
-	(mV) = (millivolt)
-
-}
-
-PARAMETER {
-        dt (ms)
-	v (mV)
-        ek (mV)
-	celsius 	(degC)
-	gkdrbar=.003 (mho/cm2)
-        vhalfn=-40   (mV)
-        vhalfl=-60   (mV)
-        a0l=0.001      (/ms)
-        a0n=0.03      (/ms)
-        zetan=-5    (1)
-        zetal=2    (1)
-        gmn=0.7   (1)
-        gml=1.0   (1)
-	nmax=0.3  (1)
+    (mA) = (milliamp)
+    (mV) = (millivolt)
+    (S) = (siemens)
+    (um) = (micrometer)
+    (molar) = (1/liter)
+    (mM) = (millimolar)
+    (l) = (liter)
 }
 
 
+    
 NEURON {
-	SUFFIX borgkdr
-	USEION k READ ek WRITE ik
-        RANGE gkdr,gkdrbar
-	GLOBAL ninf,linf,taun,taul
+
+    SUFFIX kdr
+    USEION k READ ek WRITE ik VALENCE 1  ? reversal potential of ion is read, outgoing current is written
+           
+        
+    RANGE gmax, gion
+    
+    RANGE ninf, ntau
+    
 }
 
-STATE {
-	n
-        l
+PARAMETER { 
+
+    gmax = 0.01 (S/cm2)  ? default value, should be overwritten when conductance placed on cell
+    
 }
+
+
 
 ASSIGNED {
-	ik (mA/cm2)
-        ninf
-        linf      
-        gkdr
-        taun
-        taul
+
+    v (mV)
+    
+    celsius (degC)
+    
+    ? Reversal potential of k
+    ek (mV)
+    ? The outward flow of ion: k calculated by rate equations...
+    ik (mA/cm2)
+    
+    
+    gion (S/cm2)
+    ninf
+    ntau (ms)
+    
 }
+
+BREAKPOINT { 
+                        
+    SOLVE states METHOD cnexp
+    
+    gion = gmax*((1*n)^1)
+    ik = gion*(v - ek)
+            
+
+}
+
+
 
 INITIAL {
-        rates(v)
-        n=ninf
-        l=linf
-
+    
+    ek = -90
+        
+    rates(v)
+    n = ninf
+        
+    
 }
-BREAKPOINT {
-	SOLVE states METHOD cnexp
-	gkdr = gkdrbar*n^3*l
-	ik = gkdr*(v-ek)
-
-}
-
-FUNCTION alpn(v(mV)) {
-  alpn = exp(1.e-3*zetan*(v-vhalfn)*9.648e4/(8.315*(273.16+celsius))) 
+    
+STATE {
+    n
+    
 }
 
-FUNCTION betn(v(mV)) {
-  betn = exp(1.e-3*zetan*gmn*(v-vhalfn)*9.648e4/(8.315*(273.16+celsius))) 
+DERIVATIVE states {
+    rates(v)
+    n' = (ninf - n)/ntau
+    
 }
 
-FUNCTION alpl(v(mV)) {
-  alpl = exp(1.e-3*zetal*(v-vhalfl)*9.648e4/(8.315*(273.16+celsius))) 
+PROCEDURE rates(v(mV)) {  
+    
+    ? Note: not all of these may be used, depending on the form of rate equations
+    LOCAL  alpha, beta, tau, inf, gamma, zeta, temp_adj_n, A_alpha_n, B_alpha_n, Vhalf_alpha_n, A_beta_n, B_beta_n, Vhalf_beta_n, A_tau_n, B_tau_n, Vhalf_tau_n, A_inf_n, B_inf_n, Vhalf_inf_n
+        
+    TABLE ninf, ntau DEPEND celsius FROM -100 TO 100 WITH 2000
+    
+    
+    UNITSOFF
+    temp_adj_n = 1
+    
+        
+    ?      ***  Adding rate equations for gate: n  ***
+         
+    ? Found a generic form of the rate equation for alpha, using expression: (exp ( (1e-3 * -3 * (v - 13) * 9.648e4) / (8.315*(273.16 + (celsius) )) ))
+    alpha = (exp ( (1e-3 * -3 * (v - 13) * 9.648e4) / (8.315*(273.16 + (celsius) )) ))
+        
+     
+    ? Found a generic form of the rate equation for beta, using expression: (exp ( (1e-3 * -3 * 0.7 * (v - 13) * 9.648e4) / (8.315*(273.16 + (celsius) ))) )
+    beta = (exp ( (1e-3 * -3 * 0.7 * (v - 13) * 9.648e4) / (8.315*(273.16 + (celsius) ))) )
+        
+     
+    ? Found a generic form of the rate equation for tau, using expression: beta/(0.02 * (1 + alpha)) < 2 ? 2 : beta/(0.02 * (1 + alpha)) 
+    
+    
+    if (beta/(0.02 * (1 + alpha)) < 2 ) {
+        tau =  2 
+    } else {
+        tau =  beta/(0.02 * (1 + alpha)) 
+    }
+    ntau = tau/temp_adj_n
+     
+    ? Found a generic form of the rate equation for inf, using expression: 1/(1 + alpha)
+    inf = 1/(1 + alpha)
+        
+    ninf = inf
+          
+       
+    
+    ?     *** Finished rate equations for gate: n ***
+    
+
+    
 }
 
-FUNCTION betl(v(mV)) {
-  betl = exp(1.e-3*zetal*gml*(v-vhalfl)*9.648e4/(8.315*(273.16+celsius))) 
-}
 
-DERIVATIVE states {  
-        rates(v)
-        n' = (ninf - n)/taun
-        l' = (linf - l)/taul
-}
+UNITSON
 
-PROCEDURE rates(v (mV)) { :callable from hoc
-        LOCAL a,q10
-        q10=3^((celsius-30)/10)
-        a = alpn(v)
-        ninf = 1/(1+a)
-        taun = betn(v)/(q10*a0n*(1+a))
-	if (taun<nmax) {taun=nmax}
-        a = alpl(v)
-        linf = 1/(1+a)
-        taul = betl(v)/(q10*a0l*(1 + a))
-}
 
