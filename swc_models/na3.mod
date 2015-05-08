@@ -1,214 +1,138 @@
+TITLE na3
+: Na current 
+: from Jeff M.
+:  ---------- modified -------M.Migliore may97
 
-?  This is a NEURON mod file generated from a ChannelML file
+NEURON {
+	SUFFIX na3
+	USEION na READ ena WRITE ina
+	RANGE  gbar, ar2
+	GLOBAL minf, hinf, mtau, htau, sinf, taus,qinf, thinf
+}
 
-?  Unit system of original ChannelML file: Physiological Units
+PARAMETER {
+	gbar = 0.010   	(mho/cm2)	
+								
+	tha  =  -30	(mV)		: v 1/2 for act	
+	qa   = 7.2	(mV)		: act slope (4.5)		
+	Ra   = 0.4	(/ms)		: open (v)		
+	Rb   = 0.124 	(/ms)		: close (v)		
 
-COMMENT
-    ChannelML file containing a single Channel description
-ENDCOMMENT
+	thi1  = -45	(mV)		: v 1/2 for inact 	
+	thi2  = -45 	(mV)		: v 1/2 for inact 	
+	qd   = 1.5	(mV)	        : inact tau slope
+	qg   = 1.5      (mV)
+	mmin=0.02	
+	hmin=0.5			
+	q10=2
+	Rg   = 0.01 	(/ms)		: inact recov (v) 	
+	Rd   = .03 	(/ms)		: inact (v)	
+	qq   = 10        (mV)
+	tq   = -55      (mV)
 
-TITLE Channel: na3
+	thinf  = -50 	(mV)		: inact inf slope	
+	qinf  = 4 	(mV)		: inact inf slope 
 
-COMMENT
-    Na channel. Comment from original mod: Na current, modified from Jeff Magee. M.Migliore may97,
-        added sh to account for higher threshold M.Migliore, Apr.2002
-ENDCOMMENT
+        vhalfs=-60	(mV)		: slow inact.
+        a0s=0.0003	(ms)		: a0s=b0s
+        zetas=12	(1)
+        gms=0.2		(1)
+        smax=10		(ms)
+        vvh=-58		(mV) 
+        vvs=2		(mV)
+        ar2=1		(1)		: 1=no inact., 0=max inact.
+	ena		(mV)            : must be explicitly def. in hoc
+	celsius
+	v 		(mV)
+}
 
 
 UNITS {
-    (mA) = (milliamp)
-    (mV) = (millivolt)
-    (S) = (siemens)
-    (um) = (micrometer)
-    (molar) = (1/liter)
-    (mM) = (millimolar)
-    (l) = (liter)
-}
-
-
-    
-NEURON {
-
-    SUFFIX na3
-    USEION na READ ena WRITE ina VALENCE 1  ? reversal potential of ion is read, outgoing current is written
-           
-        
-    RANGE gmax, gion
-    
-    RANGE minf, mtau
-    
-    RANGE hinf, htau
-    
-    RANGE ar
-}
-
-PARAMETER { 
-
-    gmax = 0.025 (S/cm2)  ? default value, should be overwritten when conductance placed on cell
-    
-    ar = 1 : Note units of this will be determined by its usage in the generic functions
-
-}
-
-
+	(mA) = (milliamp)
+	(mV) = (millivolt)
+	(pS) = (picosiemens)
+	(um) = (micron)
+} 
 
 ASSIGNED {
-
-    v (mV)
-    
-    celsius (degC)
-    
-    ? Reversal potential of na
-    ena (mV)
-    ? The outward flow of ion: na calculated by rate equations...
-    ina (mA/cm2)
-    
-    
-    gion (S/cm2)
-    minf
-    mtau (ms)
-    hinf
-    htau (ms)
-    
+	ina 		(mA/cm2)
+	thegna		(mho/cm2)
+	minf 		hinf 		
+	mtau (ms)	htau (ms) 	
+	sinf (ms)	taus (ms)
 }
+ 
 
-BREAKPOINT { 
-                        
-    SOLVE states METHOD cnexp
-    
-    gion = gmax*((1*m)^3)*((1*h)^1)
-    ina = gion*(v - ena)
-            
+STATE { m h s}
 
-}
-
-
+BREAKPOINT {
+        SOLVE states METHOD cnexp
+        thegna = gbar*m*m*m*h*s
+	ina = thegna * (v - ena)
+} 
 
 INITIAL {
-    
-    ena = 50
-        
-    rates(v)
-    m = minf
-        h = hinf
-        
-    
-}
-    
-STATE {
-    m
-    h
-    
-}
-
-DERIVATIVE states {
-    rates(v)
-    m' = (minf - m)/mtau
-    h' = (hinf - h)/htau
-    
-}
-
-PROCEDURE rates(v(mV)) {  
-    
-    ? Note: not all of these may be used, depending on the form of rate equations
-    LOCAL  alpha, beta, tau, inf, gamma, zeta, temp_adj_m, A_alpha_m, B_alpha_m, Vhalf_alpha_m, A_beta_m, B_beta_m, Vhalf_beta_m, A_tau_m, B_tau_m, Vhalf_tau_m, temp_adj_h, A_alpha_h, B_alpha_h, Vhalf_alpha_h, A_beta_h, B_beta_h, Vhalf_beta_h, A_tau_h, B_tau_h, Vhalf_tau_h, A_inf_h, B_inf_h, Vhalf_inf_h
-        
-    TABLE minf, mtau,hinf, htau DEPEND celsius, ar FROM -100 TO 100 WITH 2000
-    
-    
-    UNITSOFF
-    
-    ? There is a Q10 factor which will alter the tau of the gates 
-            
-    temp_adj_m = 2^((celsius - 24)/10)
-                        
-    temp_adj_h = 2^((celsius - 24)/10)
-                        
-        
-    ?      ***  Adding rate equations for gate: m  ***
-        
-    ? Found a parameterised form of rate equation for alpha, using expression: A*((v-Vhalf)/B) / (1 - exp(-((v-Vhalf)/B)))
-    A_alpha_m = 2.88
-    B_alpha_m = 7.2
-    Vhalf_alpha_m = -30 
-    alpha = A_alpha_m * vtrap((v - Vhalf_alpha_m), B_alpha_m)
-    
-    
-    ? Found a parameterised form of rate equation for beta, using expression: A*((v-Vhalf)/B) / (1 - exp(-((v-Vhalf)/B)))
-    A_beta_m = 0.8928
-    B_beta_m = -7.2
-    Vhalf_beta_m = -30 
-    beta = A_beta_m * vtrap((v - Vhalf_beta_m), B_beta_m)
-    
-     
-    ? Found a generic form of the rate equation for tau, using expression: 1/( (alpha + beta) * temp_adj_m ) < 0.02 ? (0.02 * temp_adj_m) : 1/(alpha + beta) 
-    
-    
-    if (1/( (alpha + beta) * temp_adj_m ) < 0.02 ) {
-        tau =  (0.02 * temp_adj_m) 
-    } else {
-        tau =  1/(alpha + beta) 
-    }
-    mtau = tau/temp_adj_m
-    minf = alpha/(alpha + beta)
-          
-       
-    
-    ?     *** Finished rate equations for gate: m ***
-    
-
-    
-        
-    ?      ***  Adding rate equations for gate: h  ***
-        
-    ? Found a parameterised form of rate equation for alpha, using expression: A*((v-Vhalf)/B) / (1 - exp(-((v-Vhalf)/B)))
-    A_alpha_h = 0.045
-    B_alpha_h = 1.5
-    Vhalf_alpha_h = -45 
-    alpha = A_alpha_h * vtrap((v - Vhalf_alpha_h), B_alpha_h)
-    
-    
-    ? Found a parameterised form of rate equation for beta, using expression: A*((v-Vhalf)/B) / (1 - exp(-((v-Vhalf)/B)))
-    A_beta_h = 0.015
-    B_beta_h = -1.5
-    Vhalf_beta_h = -45 
-    beta = A_beta_h * vtrap((v - Vhalf_beta_h), B_beta_h)
-    
-     
-    ? Found a generic form of the rate equation for tau, using expression: 1/( (alpha + beta) * temp_adj_h ) < 0.5 ? (0.5 * temp_adj_h) : 1/(alpha + beta) 
-    
-    
-    if (1/( (alpha + beta) * temp_adj_h ) < 0.5 ) {
-        tau =  (0.5 * temp_adj_h) 
-    } else {
-        tau =  1/(alpha + beta) 
-    }
-    htau = tau/temp_adj_h
-     
-    ? Found a generic form of the rate equation for inf, using expression: 1/(1 + (exp ((v-(-50))/4 )) )
-    inf = 1/(1 + (exp ((v-(-50))/4 )) )
-        
-    hinf = inf
-          
-       
-    
-    ?     *** Finished rate equations for gate: h ***
-    
-
-    
+	trates(v,ar2)
+	m=minf  
+	h=hinf
+	s=sinf
 }
 
 
-? Function to assist with parameterised expressions of type linoid/exp_linear
-
-FUNCTION vtrap(VminV0, B) {
-    if (fabs(VminV0/B) < 1e-6) {
-    vtrap = (1 + VminV0/B/2)
-}else{
-    vtrap = (VminV0 / B) /(1 - exp((-1 *VminV0)/B))
-    }
+FUNCTION alpv(v(mV)) {
+         alpv = 1/(1+exp((v-vvh)/vvs))
+}
+        
+FUNCTION alps(v(mV)) {  
+  alps = exp(1.e-3*zetas*(v-vhalfs)*9.648e4/(8.315*(273.16+celsius)))
 }
 
-UNITSON
+FUNCTION bets(v(mV)) {
+  bets = exp(1.e-3*zetas*gms*(v-vhalfs)*9.648e4/(8.315*(273.16+celsius)))
+}
+
+LOCAL mexp, hexp, sexp
+
+DERIVATIVE states {   
+        trates(v,ar2)      
+        m' = (minf-m)/mtau
+        h' = (hinf-h)/htau
+        s' = (sinf - s)/taus
+}
+
+PROCEDURE trates(vm,a2) {  
+        LOCAL  a, b, c, qt
+        qt=q10^((celsius-24)/10)
+	a = trap0(vm,tha,Ra,qa)
+	b = trap0(-vm,-tha,Rb,qa)
+	mtau = 1/(a+b)/qt
+        if (mtau<mmin) {mtau=mmin}
+	minf = a/(a+b)
+
+	a = trap0(vm,thi1,Rd,qd)
+	b = trap0(-vm,-thi2,Rg,qg)
+	htau =  1/(a+b)/qt
+        if (htau<hmin) {htau=hmin}
+	hinf = 1/(1+exp((vm-thinf)/qinf))
+	c=alpv(vm)
+        sinf = c+a2*(1-c)
+        taus = bets(vm)/(a0s*(1+alps(vm)))
+        if (taus<smax) {taus=smax}
+}
+
+FUNCTION trap0(v,th,a,q) {
+	if (fabs(v-th) > 1e-6) {
+	        trap0 = a * (v - th) / (1 - exp(-(v - th)/q))
+	} else {
+	        trap0 = a * q
+ 	}
+}	
+
+        
+
+
+
+
+
 
 
