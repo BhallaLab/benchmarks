@@ -35,6 +35,7 @@ nchans = 0
 _args = None
 _records = {}
 
+
 def makePlot( cell ):
     fig = plt.figure( figsize = ( 10, 12 ) )
     chans = ['hd', 'kdr', 'na3', 'nax', 'kap', 'kad']
@@ -59,6 +60,19 @@ def makePlot( cell ):
         pylab.plot( x, y, '-bo', label = i )
         pylab.legend()
         pylab.show()
+
+def saveData( outfile ):
+    clock = moose.Clock('/clock')
+    yvec = None
+    for k in _records:
+        if "soma" in k: yvec = _records[k].vector
+    xvec = np.linspace(0, clock.currentTime, len(yvec))
+    with open(outfile, "wb") as f:
+        f.write("%s,%s\n" % ('time', 'soma'))
+        for i, t in enumerate(xvec):
+            f.write("%s,%s\n" % (t, yvec[i]))
+    mu.info("[INFO] Done writing to file %s" % outfile)
+
 
 def loadModel(filename, args):
     """Load the model and insert channels """
@@ -170,4 +184,4 @@ def main(args):
             , dt=args.sim_dt
             )
 
-    plots()
+    saveData(outfile="_data/moose.csv")

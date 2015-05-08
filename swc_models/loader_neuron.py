@@ -19,6 +19,7 @@ from collections import Counter, defaultdict
 import sys
 import re
 import numpy as np
+import csv
 import pylab
 import networkx as nx
 import time
@@ -197,14 +198,26 @@ def loadModel(filename, args=None):
     addStim(sourceNode)
     return None
 
+def saveData(outfile):
+    """Save data to a csv file"""
+    xvec = _records['t']
+    yvec = _records['soma[0]']
+    with open(outfile, 'wb') as f:
+        fnames = [ 't', 'soma' ]
+        f.write(",".join(fnames)+"\n")
+        for i, x in enumerate(xvec):
+            f.write("%s,%s\n" % (1e-3*x, 1e-3*yvec[i]))
+    print("[INFO] Done writing data to %s" % outfile)
+
 def makePlots():
     global _args
     #for k in _records:
         #if 't' != k:
             #pylab.plot(_records['t'], _records[k], label=k)
+    pylab.figure(figsize=(10, 2.0))
     pylab.plot(_records['t'], _records['soma[0]'], label='Soma Vm')
-    pylab.tight_layout()
-    pylab.legend(loc='best', framealpha=0.4)
+    pylab.xlabel('Time (ms)')
+    pylab.ylabel('Vm (mV)')
     pylab.title("Neuron")
     if not _args.plots:
         pylab.show()
@@ -245,5 +258,4 @@ def main(args):
             , model_name = args.swc_file
             )
     print("Time taken by neuron: %s sec" % t)
-
-    makePlots()
+    saveData('_data/nrn.csv')
