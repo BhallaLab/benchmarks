@@ -9,7 +9,7 @@ SWCFILES=`find . -type f -name "*.swc"`
 for file in $SWCFILES; do
     echo "Executing model $file"
     $PYC ./swc_loader.py -f $file -s neuron -t 1 -o nrn.eps \
-        -i 0.000000001 \
+        -i 0.0000000007 \
         -c "hd; *dend*,*apic*; 5e-2*(1+(r*3e4))" \
         -c "kdr; *; 100" \
         -c "na3; *soma,*dend*,*apic*; 250" \

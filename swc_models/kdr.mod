@@ -94,22 +94,3 @@ PROCEDURE rates(v (mV)) { :callable from hoc
         taul = betl(v)/(q10*a0l*(1 + a))
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

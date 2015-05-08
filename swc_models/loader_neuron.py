@@ -101,8 +101,13 @@ def insert(pat, chan):
             print("|- Inserting {} into {} with conductance: {} uS".format(
                 chanName, secName, g)
                 )
-            h('{0} insert {1}'.format(secName, chanName))
-            h('\tg_{}={}'.format(chanName,g))
+            try:
+                sec.insert(chanName)
+            except:
+                print("[FATAL] Couldn't insert {}".format(chanName))
+                sys.exit()
+            #h('{0} insert {1}'.format(secName, chanName))
+            #h('\tg_{}={}'.format(chanName,g))
             nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.
@@ -198,7 +203,9 @@ def makePlots():
         #if 't' != k:
             #pylab.plot(_records['t'], _records[k], label=k)
     pylab.plot(_records['t'], _records['soma[0]'], label='Soma Vm')
-    pylab.legend()
+    pylab.tight_layout()
+    pylab.legend(loc='best', framealpha=0.4)
+    pylab.title("Neuron")
     if not _args.plots:
         pylab.show()
     else:
