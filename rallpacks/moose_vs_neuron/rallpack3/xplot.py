@@ -4,7 +4,7 @@
 
     This program uses matplotlib to plot xplot like data.
 
-Last modified: Fri May 23, 2014  01:40AM
+Last modified: Tue May 12, 2015  11:10AM
 
 """
     
@@ -21,6 +21,7 @@ import sys
 import pylab
 
 data = {}
+args_ = None
 
 def buildData( file ):
     global data 
@@ -49,6 +50,7 @@ def zipIt(ys):
 
 def plotData( outFile = None ):
     global data 
+    global args_
     for file in data:
         xvec, yx = data[file]
         try:
@@ -58,6 +60,9 @@ def plotData( outFile = None ):
             sys.exit(0)
         for yvec in yvecs:
             pylab.plot(xvec, yvec)
+    if args_.title:
+        pylab.title("%s" % args_.title)
+
     if not outFile:
         pylab.show()
     else:
@@ -75,6 +80,14 @@ if __name__ == "__main__":
             , default = None
             , help = "Output file to store plot"
             )
+
+    parser.add_argument('-t', "--title"
+            , default = None
+            , help = "Title of plot"
+            )
+
+    global args_
     args = parser.parse_args()
+    args_ = args
     [ buildData(file) for file in args.file ]
     plotData( outFile = args.output )

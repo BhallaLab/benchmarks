@@ -235,6 +235,7 @@ def setupDUT( dt ):
     comp = cable[0]
     data = moose.Neutral('/data')
     pg = moose.PulseGen('/data/pg')
+    pg.delay[0] = 0.0
     pg.firstWidth = 25e-3
     pg.firstLevel = 1e-10
     moose.connect(pg, 'output', comp, 'injectMsg')
@@ -275,6 +276,7 @@ def main(args):
         print("Plotting data")
         utils.plotRecords({ 'table0' : table0, 'table1' : table1 }
                 , outfile = args['output']
+                , title = 'MOOSE'
                 )
 
 if __name__ == '__main__':
