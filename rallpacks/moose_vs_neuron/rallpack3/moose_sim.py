@@ -253,19 +253,29 @@ def simulate( runTime, dt):
     moose.start( runTime )
     return time.time() - t1
 
+def recordAt(tablePath, elem, field):
+    tab = moose.Table(tablePath)
+    tab.connect('requestOut', elem, 'get' + field)
+    return tab
+
 def main(args):
     global cable
     dt = args['dt']
     makeCable(args)
     setupDUT(dt)
-    table0 = utils.recordAt( '/table0', cable[0], 'vm')
-    table1 = utils.recordAt( '/table1', cable[-1], 'vm')
+    table0 = recordAt( '/table0', cable[0], 'Vm')
+    table1 = recordAt( '/table1', cable[-1], 'Vm')
     st = simulate( args['run_time'], dt )
     _profile.insert( simulator='moose'
             , no_of_compartment=args['ncomp']
             , coretime=st
             )
-    #utils.saveRecords({ 'table0' : table0, 'table1' : table1 })
+
+    if args['output']:
+        print("Plotting data")
+        utils.plotRecords({ 'table0' : table0, 'table1' : table1 }
+                , outfile = args['output']
+                )
 
 if __name__ == '__main__':
     import argparse
