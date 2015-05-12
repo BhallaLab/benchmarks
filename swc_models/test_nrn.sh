@@ -17,5 +17,8 @@ for file in $SWCFILES; do
         -c "kad; *dend,*apic*; 150*(1+sign(r*1e6-100))*(1+r*1e4)"
     break
 done
+./plot_gnuplot.sh ./_data/nrn.csv
 echo "All done"
+
+
 
