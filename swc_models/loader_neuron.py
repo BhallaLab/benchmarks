@@ -102,13 +102,13 @@ def insert(pat, chan):
             print("|- Inserting {} into {} with conductance: {} uS".format(
                 chanName, secName, g)
                 )
-            try:
-                sec.insert(chanName)
-            except:
-                print("[FATAL] Couldn't insert {}".format(chanName))
-                sys.exit()
-            #h('{0} insert {1}'.format(secName, chanName))
-            #h('\tg_{}={}'.format(chanName,g))
+           #try:
+                #sec.insert(chanName)
+            #except:
+                #print("[FATAL] Couldn't insert {}".format(chanName))
+                #sys.exit()
+            h('{0} insert {1}'.format(secName, chanName))
+            h('\tg_{}={}'.format(chanName,g))
             nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.
