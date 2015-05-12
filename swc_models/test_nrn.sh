@@ -3,8 +3,6 @@
 # Tue May  5 10:17:32 2015
 # This script test NEURON and MOOSE performance.
 set -e
-
-#rm -f nrn.png
 SWCFILES=`find . -type f -name "*.swc"`
 for file in $SWCFILES; do
     echo "Executing model $file"
