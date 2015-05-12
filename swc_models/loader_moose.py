@@ -96,14 +96,14 @@ def loadModel(filename, args):
         cm.readChannelMLFromFile( 'nax.xml' )
 
         chanDistrib = [ \
-            "EM", "#", "-58e-3", \
-            "initVm", "#", "-65e-3", \
+            "EM", "#", "-70e-3", \
+            "initVm", "#", "-70e-3", \
             "RM", "#", "2.8", \
             "CM", "#", "0.01", \
             "RA", "#", "1.5", \
             "RA", "#axon#", "0.5" ]
 
-        chanDistrib = [
+        chanDistrib += [
             "hd", "#dend#,#apical#", "5e-2*(1+(r*3e4))", \
             "kdr", "#", "100", \
             "na3", "#soma#,#dend#,#apical#", "250", \
