@@ -108,14 +108,17 @@ def loadModel(filename, args):
                 [ ".", "#axon#", "RA", "0.5" ] 
                 ]
 
-        chanDistrib = [ ['hd', '#dend#,#apical#', 'Gbar', '5e-2*(1+(p*3e4))']
-                , ['kdr', '#', 'Gbar', '100']
-                , ['na3', '#soma#,#dend#,#apical#', 'Gbar', '250']
-                , ['nax', '#axon#', 'Gbar', '1250']
-                , ['kap', '#axon#,#soma#', 'Gbar', '300']
-                , ['kap', '#dend#,#apical#', 'Gbar', '150*(1+sign(100-p*1e6)) * (1+(p*1e4))']
-                , ['kad', '#dend#,#apical#', 'Gbar', '150*(1+sign(p*1e6-100))*(1+p*1e4)']
-                ]
+        for c in _args.insert_channels:
+            chanDistrib.append( c.split(";"))
+
+        #chanDistrib = [ ['hd', '#dend#,#apical#', 'Gbar', '5e-2*(1+(p*3e4))']
+                #, ['kdr', '#', 'Gbar', '100']
+                #, ['na3', '#soma#,#dend#,#apical#', 'Gbar', '250']
+                #, ['nax', '#axon#', 'Gbar', '1250']
+                #, ['kap', '#axon#,#soma#', 'Gbar', '300']
+                #, ['kap', '#dend#,#apical#', 'Gbar', '150*(1+sign(100-p*1e6)) * (1+(p*1e4))']
+                #, ['kad', '#dend#,#apical#', 'Gbar', '150*(1+sign(p*1e6-100))*(1+p*1e4)']
+            #    ]
 
     rdes = rd.rdesigneur( cellProto = cellProto
             , combineSegments = True
@@ -125,10 +128,6 @@ def loadModel(filename, args):
             )
 
     rdes.buildModel('/model')
-
-    chans = moose.wildcardFind("/model/elec/##[TYPE=HHChannel]")
-    print("Total channels found %s" % len(chans))
-    #assert len(chans) > 0
 
     compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
     setupStimuls( compts[0] )

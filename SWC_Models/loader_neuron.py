@@ -85,7 +85,7 @@ def insertChannels(exprs):
     global nchan
     assert type(exprs) == defaultdict
     for k in exprs:
-        expr = k.replace('*', '.*')
+        expr = k.replace('#', '.*')
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
@@ -97,18 +97,17 @@ def insert(pat, chan):
     for sec in topology.nodes():
         secName = sec.hname()
         if pat.match(secName):
-            expr = expr.replace('r', str(topology.node[sec]['r']))
+            expr = expr.replace('p', str(topology.node[sec]['r']))
             g = eval(expr)
             print("|- Inserting {} into {} with conductance: {} uS".format(
                 chanName, secName, g)
                 )
-           #try:
-                #sec.insert(chanName)
-            #except:
-                #print("[FATAL] Couldn't insert {}".format(chanName))
-                #sys.exit()
-            h('{0} insert {1}'.format(secName, chanName))
-            h('\tg_{}={}'.format(chanName,g))
+            try:
+                sec.insert(chanName)
+            except Exception as e:
+                #print("[INFO] Using HOC statement to insert")
+                h('{0} insert {1}'.format(secName, chanName))
+                h('\tg_{}={}'.format(chanName,g))
             nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.
@@ -187,7 +186,7 @@ def loadModel(filename, args=None):
     channelExprDict = defaultdict(list)
     if args.insert_channels:
         for p in args.insert_channels:
-            channelName, secPat, expr = p.split(';')
+            channelName, secPat, gbar, expr = p.split(';')
             for sec in secPat.split(","):
                 sec = sec.strip()
                 channelExprDict[sec].append((channelName, expr))
