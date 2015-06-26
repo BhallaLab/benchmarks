@@ -65,9 +65,11 @@ def makePlot( cell ):
 
 def saveData( outfile ):
     clock = moose.Clock('/clock')
+    assert clock
     yvec = None
     for k in _records:
-        if "soma" in k: yvec = _records[k].vector
+        if "soma" in k: 
+            yvec = _records[k].vector
     xvec = np.linspace(0, clock.currentTime, len(yvec))
     with open(outfile, "wb") as f:
         f.write("%s,%s\n" % ('time', 'soma'))
@@ -81,31 +83,31 @@ def loadModel(filename, args):
     global modelName
     global nchans, ncompts
 
-    moose.Neutral( '/model' )
     # Load in the swc file.
-    modelName = filename.split('/')[-1]
-    print("[INFO] Opening model file: %s" % modelName)
-    cell = moose.loadModel( filename, '/model/{}'.format(modelName))
+    modelName = "elec"
+    cellProto = [ ( filename, modelName ) ]
 
     if args.insert_channels:
-        print("[INFO] Adding channels")
-        cm = ChannelML( {'temperature': 32 })
-        cm.readChannelMLFromFile( 'hd.xml' )
-        cm.readChannelMLFromFile( 'kap.xml' )
-        cm.readChannelMLFromFile( 'kad.xml' )
-        cm.readChannelMLFromFile( 'kdr.xml' )
-        cm.readChannelMLFromFile( 'na3.xml' )
-        cm.readChannelMLFromFile( 'nax.xml' )
+        chanProto = [
+                ['./chans/hd.xml'], 
+                ['./chans/kap.xml'], 
+                ['./chans/kad.xml'], 
+                ['./chans/kdr.xml'], 
+                ['./chans/na3.xml'], 
+                ['./chans/nax.xml'], 
+                ['./chans/CaConc.xml'], 
+                ['./chans/Ca.xml'], 
+                ['./chans/NMDA.xml'], 
+                ['./chans/Glu.xml'] 
+                ]
 
-        chanDistrib = [ \
-            "EM", "#", "-70e-3", \
-            "initVm", "#", "-70e-3", \
-            "RM", "#", "2.8", \
-            "CM", "#", "0.01", \
-            "RA", "#", "1.5", \
-            "RA", "#axon#", "0.5" ]
+        passiveDistrib = [ 
+                [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
+                    "Em", "-58e-3", "initVm", "-65e-3" ], 
+                [ ".", "#axon#", "RA", "0.5" ] 
+                ]
 
-        chanDistrib += [
+        chanDistrib = [
             "hd", "#dend#,#apical#", "5e-2*(1+(r*3e4))", \
             "kdr", "#", "100", \
             "na3", "#soma#,#dend#,#apical#", "250", \
@@ -114,28 +116,30 @@ def loadModel(filename, args):
             "kap", "#dend#,#apical#", "150*(1+sign(100-r*1e6)) * (1+(r*1e4))", \
             "kad", "#dend#,#apical#", "150*(1+sign(r*1e6-100))*(1+r*1e4)", \
             ]
-        #cell[0].channelDistribution = chanDistrib
-        #cell[0].parseChanDistrib()
-        rd.rdesigneur( useGssa = False
-                , chanDistrib = chanDistrib
-                )
-        moose.showfields( cell[0] )
+    else:
+        passiveDistrib = []
+        chanDistrib = []
 
-    if args.plots:
-        print("[INFO] Plotting is ON")
-        #makePlot( cell[0] )
-        # Now we set up the display
-        moose.le( '/model/%s/soma'%modelName )
-        soma = moose.element( '/model/%s/soma'%modelName )
-        assert soma
+    rdes = rd.rdesigneur( useGssa = False
+            , cellProto = cellProto
+            , passiveDistrib = passiveDistrib
+            , chanDistrib = chanDistrib
+            )
 
-        graphs = moose.Neutral( '/graphs' )
-        compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
-        setupStimuls(compts[0])
-        for compt in compts:
-            vtab = moose.Table( '%s/vm' % compt.path )
-            moose.connect( vtab, 'requestOut', compt, 'getVm' )
-            _records[compt.path] = vtab
+    rdes.buildModel('/model')
+
+    moose.le( '/model/%s/soma'%modelName )
+    soma = moose.element( '/model/%s/soma'%modelName )
+    assert soma
+
+    graphs = moose.Neutral( '/graphs' )
+    compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
+    setupStimuls(compts[0])
+
+    for compt in compts:
+        vtab = moose.Table( '%s/vm' % compt.path )
+        moose.connect( vtab, 'requestOut', compt, 'getVm' )
+        _records[compt.path] = vtab
 
     for i in range( 8 ):
         moose.setClock( i, args.sim_dt )
@@ -148,11 +152,14 @@ def loadModel(filename, args):
 def setupStimuls(compt):
     global _args
     command = moose.PulseGen('%s/command' % compt.path)
-    print("[INFO] Injecting %s (Amps) of current" % _args.inject)
+    print("[INFO] Injecting %s (Amps) of current for %s sec" % (_args.inject,
+        _args.sim_time)
+        )
     command.level[0] = _args.inject
     command.delay[0] = 0
     command.width[0] = _args.sim_time
-    moose.connect(command, 'output', compt, 'injectMsg')
+    m = moose.connect(command, 'output', compt, 'injectMsg')
+    print m
 
 def plots(filter='soma'):
     global _records
