@@ -1,0 +1,4 @@
+1. Run nrnivmodl to compile the channels.
+2. Run ./benchmark_all.sh to generate the benchmarks.
+3. Run ./plot_benchmark.py to generate a plot out of sqlite database generated
+in step 2.
