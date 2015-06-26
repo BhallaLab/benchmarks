@@ -82,13 +82,13 @@ def cluster(segDict):
 
 def insertChannels(exprs):
     """Insert channels in segments given by expr"""
-    global nchan
     assert type(exprs) == defaultdict
     for k in exprs:
         expr = k.replace('#', '.*')
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
+    print("[INFO] Total channels in neuron: %s" % nchan)
 
 def insert(pat, chan):
     """Insert the pattern into segments """
@@ -99,9 +99,7 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('p', str(topology.node[sec]['r']))
             g = eval(expr)
-            print("|- Inserting {} into {} with conductance: {} uS".format(
-                chanName, secName, g)
-                )
+            #print("|- Inserting {} into {} with conductance: {} uS".format( chanName, secName, g))
             try:
                 sec.insert(chanName)
             except Exception as e:

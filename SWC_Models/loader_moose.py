@@ -111,15 +111,6 @@ def loadModel(filename, args):
         for c in _args.insert_channels:
             chanDistrib.append( c.split(";"))
 
-        #chanDistrib = [ ['hd', '#dend#,#apical#', 'Gbar', '5e-2*(1+(p*3e4))']
-                #, ['kdr', '#', 'Gbar', '100']
-                #, ['na3', '#soma#,#dend#,#apical#', 'Gbar', '250']
-                #, ['nax', '#axon#', 'Gbar', '1250']
-                #, ['kap', '#axon#,#soma#', 'Gbar', '300']
-                #, ['kap', '#dend#,#apical#', 'Gbar', '150*(1+sign(100-p*1e6)) * (1+(p*1e4))']
-                #, ['kad', '#dend#,#apical#', 'Gbar', '150*(1+sign(p*1e6-100))*(1+p*1e4)']
-            #    ]
-
     rdes = rd.rdesigneur( cellProto = cellProto
             , combineSegments = True
             , passiveDistrib = passiveDistrib
@@ -136,6 +127,9 @@ def loadModel(filename, args):
         vtab = moose.Table( '%s/vm' % compt.path )
         moose.connect( vtab, 'requestOut', compt, 'getVm' )
         _records[compt.path] = vtab
+
+    nchans  = moose.wildcardFind('/model/elec/##[TYPE=ZombieHHChannel]')
+    print("[INFO] Total channels: %s" % len(nchans))
 
 def setupStimuls(compt):
     global _args
