@@ -43,7 +43,11 @@ def dbEntry(**values):
     vals = []
     for k in values: 
         keys.append(k)
-        vals.append("'%s'"%values[k])
+        try:
+            vals.append("'%s'" % values[k])
+        except Exception as e:
+            print(values[k])
+            raise Exception
     keys.append("time")
     vals.append("datetime('now')")
 

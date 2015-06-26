@@ -255,4 +255,4 @@ def main(args):
             , model_name = args.swc_file
             )
     print("Time taken by neuron: %s sec" % t)
-    saveData('_data/nrn.csv')
+    #saveData('_data/nrn.csv')

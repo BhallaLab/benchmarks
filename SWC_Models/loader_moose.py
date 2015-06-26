@@ -128,8 +128,10 @@ def loadModel(filename, args):
         moose.connect( vtab, 'requestOut', compt, 'getVm' )
         _records[compt.path] = vtab
 
-    nchans  = moose.wildcardFind('/model/elec/##[TYPE=ZombieHHChannel]')
-    print("[INFO] Total channels: %s" % len(nchans))
+    nchans  = len(set([x.path for x in
+        moose.wildcardFind('/model/elec/##[TYPE=ZombieHHChannel]')])
+        )
+    print("[INFO] Total channels: %s" % nchans)
 
 def setupStimuls(compt):
     global _args
@@ -176,4 +178,4 @@ def main(args):
             , runtime=t
             , dt=args.sim_dt
             )
-    saveData(outfile="_data/moose.csv")
+    #saveData(outfile="_data/moose.csv")
