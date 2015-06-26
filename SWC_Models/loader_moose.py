@@ -21,6 +21,8 @@ from moose import neuroml
 from PyQt4 import Qt, QtCore, QtGui
 import matplotlib.pyplot as plt
 import sys
+sys.path.append('/opt/moose/Demos/util')
+import rdesigneur as rd
 import os
 from moose.neuroml.ChannelML import ChannelML
 from _profile import dbEntry
@@ -112,8 +114,11 @@ def loadModel(filename, args):
             "kap", "#dend#,#apical#", "150*(1+sign(100-r*1e6)) * (1+(r*1e4))", \
             "kad", "#dend#,#apical#", "150*(1+sign(r*1e6-100))*(1+r*1e4)", \
             ]
-        cell[0].channelDistribution = chanDistrib
-        cell[0].parseChanDistrib()
+        #cell[0].channelDistribution = chanDistrib
+        #cell[0].parseChanDistrib()
+        rd.rdesigneur( useGssa = False
+                , chanDistrib = chanDistrib
+                )
         moose.showfields( cell[0] )
 
     if args.plots:

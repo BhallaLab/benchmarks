@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
+# This script test MOOSE on SWC model file.
 
-# Tue May  5 10:17:32 2015
-# This script test NEURON and MOOSE performance.
-set -e
+#SWCFILES=`find . -type f -name "*.swc"`
+MODELFILE="$1"
 
-#rm -f nrn.png
-SWCFILES=`find . -type f -name "*.swc"`
-for file in $SWCFILES; do
-    echo "Executing model $file"
-    $PYC ./swc_loader.py -f $file -s moose -t 1 -o moose.eps \
+if [ $# -lt 1 ]; then
+    echo "USAGE: $0 swc_file"
+    exit;
+fi
+
+function runMOOSE 
+{
+    echo "Executing model $1"
+    $PYC ./swc_loader.py -f $1 -s moose -t 1 -o moose.eps \
         -i 0.000000001 \
         -c "hd; *dend*,*apic*; 5e-2*(1+(r*3e4))" \
         -c "kdr; *; 100" \
@@ -17,8 +21,13 @@ for file in $SWCFILES; do
         -c "kap; *axon,*soma*; 300" \
         -c "kap; *dend,*apic*; 150*(1+sign(100-r*1e6)) * (1+(r*1e4))" \
         -c "kad; *dend,*apic*; 150*(1+sign(r*1e6-100))*(1+r*1e4)"
-    break
-done
-./plot_gnuplot.sh ./_data/moose.csv
-echo "All done"
+}
 
+function runAll 
+{
+    for file in $SWCFILES; do
+        runMOOSE $file
+    done
+}
+
+runMOOSE $MODELFILE
