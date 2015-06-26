@@ -12,7 +12,6 @@ __maintainer__       = "Dilawar Singh"
 __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
-import loader_neuron
 import sys
 import logging
 
@@ -45,7 +44,7 @@ if __name__ == '__main__':
         , required = False
         , default = 'moose'
         , type = str
-        , help = 'Ding dong'
+        , help = 'Which simulator [moose|neuron]'
         )
 
     parser.add_argument('--sim_time', '-t'

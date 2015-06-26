@@ -87,18 +87,19 @@ def loadModel(filename, args):
     modelName = "elec"
     cellProto = [ ( filename, modelName ) ]
 
+    passiveDistrib = []
+    chanDistrib = []
     if args.insert_channels:
         chanProto = [
-                ['./chans/hd.xml'], 
-                ['./chans/kap.xml'], 
-                ['./chans/kad.xml'], 
-                ['./chans/kdr.xml'], 
-                ['./chans/na3.xml'], 
-                ['./chans/nax.xml'], 
-                ['./chans/CaConc.xml'], 
-                ['./chans/Ca.xml'], 
-                ['./chans/NMDA.xml'], 
-                ['./chans/Glu.xml'] 
+                ['./hd.xml'], 
+                ['./kap.xml'], 
+                ['./kad.xml'], 
+                ['./kdr.xml'], 
+                ['./na3.xml'], 
+                ['./nax.xml'], 
+                #['./Ca.xml'], 
+                #['./NMDA.xml'], 
+                #['./Glu.xml'] 
                 ]
 
         passiveDistrib = [ 
@@ -107,74 +108,61 @@ def loadModel(filename, args):
                 [ ".", "#axon#", "RA", "0.5" ] 
                 ]
 
-        chanDistrib = [
-            "hd", "#dend#,#apical#", "5e-2*(1+(r*3e4))", \
-            "kdr", "#", "100", \
-            "na3", "#soma#,#dend#,#apical#", "250", \
-            "nax", "#axon#", "1250", \
-            "kap", "#axon#,#soma#", "300", \
-            "kap", "#dend#,#apical#", "150*(1+sign(100-r*1e6)) * (1+(r*1e4))", \
-            "kad", "#dend#,#apical#", "150*(1+sign(r*1e6-100))*(1+r*1e4)", \
-            ]
-    else:
-        passiveDistrib = []
-        chanDistrib = []
+        chanDistrib = [ ['hd', '#dend#,#apical#', 'Gbar', '5e-2*(1+(p*3e4))']
+                , ['kdr', '#', 'Gbar', '100']
+                , ['na3', '#soma#,#dend#,#apical#', 'Gbar', '250']
+                , ['nax', '#axon#', 'Gbar', '1250']
+                , ['kap', '#axon#,#soma#', 'Gbar', '300']
+                , ['kap', '#dend#,#apical#', 'Gbar', '150*(1+sign(100-p*1e6)) * (1+(p*1e4))']
+                , ['kad', '#dend#,#apical#', 'Gbar', '150*(1+sign(p*1e6-100))*(1+p*1e4)']
+                ]
 
-    rdes = rd.rdesigneur( useGssa = False
-            , cellProto = cellProto
+    rdes = rd.rdesigneur( cellProto = cellProto
+            , combineSegments = True
             , passiveDistrib = passiveDistrib
+            , chanProto = chanProto
             , chanDistrib = chanDistrib
             )
 
     rdes.buildModel('/model')
 
-    moose.le( '/model/%s/soma'%modelName )
-    soma = moose.element( '/model/%s/soma'%modelName )
-    assert soma
+    chans = moose.wildcardFind("/model/elec/##[TYPE=HHChannel]")
+    print("Total channels found %s" % len(chans))
+    #assert len(chans) > 0
 
-    graphs = moose.Neutral( '/graphs' )
     compts = moose.wildcardFind( "/model/%s/#[ISA=CompartmentBase]"%modelName )
-    setupStimuls(compts[0])
+    setupStimuls( compts[0] )
 
     for compt in compts:
         vtab = moose.Table( '%s/vm' % compt.path )
         moose.connect( vtab, 'requestOut', compt, 'getVm' )
         _records[compt.path] = vtab
 
-    for i in range( 8 ):
-        moose.setClock( i, args.sim_dt )
-
-    hsolve = moose.HSolve( '/model/%s/hsolve' % modelName )
-    hsolve.dt = args.sim_dt
-    hsolve.target = '/model/%s/soma ' % modelName
-    moose.reinit()
-
 def setupStimuls(compt):
     global _args
     command = moose.PulseGen('%s/command' % compt.path)
-    print("[INFO] Injecting %s (Amps) of current for %s sec" % (_args.inject,
-        _args.sim_time)
+    print("[INFO] Injecting {} Amps into {} for {} seconds".format(
+        _args.inject
+        , compt.path
+        , _args.sim_time)
         )
     command.level[0] = _args.inject
     command.delay[0] = 0
     command.width[0] = _args.sim_time
     m = moose.connect(command, 'output', compt, 'injectMsg')
-    print m
 
 def plots(filter='soma'):
     global _records
     global _args
-    if not _args.plots:
-        return 
-    else:
-        toPlot = []
-        tables = {}
-        for k in _records:
-            if filter in k:
-                toPlot.append(k)
-        for k in toPlot:
-            tables[k] = _records[k]
-        mu.plotRecords(tables, outfile=_args.plots)
+    toPlot = []
+    tables = {}
+    for k in _records:
+        if filter in k:
+            toPlot.append(k)
+    for k in toPlot:
+        tables[k] = _records[k]
+    mu.plotRecords(tables, subplot=True) #, outfile=_args.plots)
+    plt.show()
 
 def main(args):
     global _args
@@ -195,5 +183,4 @@ def main(args):
             , runtime=t
             , dt=args.sim_dt
             )
-
     saveData(outfile="_data/moose.csv")
