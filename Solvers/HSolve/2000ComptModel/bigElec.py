@@ -17,6 +17,7 @@ import sys
 import moose
 import os
 from moose.neuroml.ChannelML import ChannelML
+sys.path.append(os.path.join(os.environ['HOME'], 'moose3.0.1/Demos/util'))
 import rdesigneur as rd
 
 PI = 3.14159265359
