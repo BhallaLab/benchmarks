@@ -6,7 +6,7 @@ TOTAL=$1
 
 echo "Recompiling NEURON mechanism libraries"
 mkdir -p _log
-nrnivmodl &> _log/nrnivmodel.log
+( cd chans && nrnivmodl &> _log/nrnivmodel.log )
 mkdir -p _data
 
 SWCFILES=`find . -type f -name "*.swc"`
