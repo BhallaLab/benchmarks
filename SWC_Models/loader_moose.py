@@ -91,15 +91,12 @@ def loadModel(filename, args):
     chanDistrib = []
     if args.insert_channels:
         chanProto = [
-                ['./hd.xml'], 
-                ['./kap.xml'], 
-                ['./kad.xml'], 
-                ['./kdr.xml'], 
-                ['./na3.xml'], 
-                ['./nax.xml'], 
-                #['./Ca.xml'], 
-                #['./NMDA.xml'], 
-                #['./Glu.xml'] 
+                ['./chans/hd.xml'], 
+                ['./chans/kap.xml'], 
+                ['./chans/kad.xml'], 
+                ['./chans/kdr.xml'], 
+                ['./chans/na3.xml'], 
+                ['./chans/nax.xml'], 
                 ]
 
         passiveDistrib = [ 
@@ -159,6 +156,17 @@ def plots(filter='soma'):
     mu.plotRecords(tables, subplot=True) #, outfile=_args.plots)
     plt.show()
 
+def countSpike():
+    import count_spike
+    soma = None 
+    for k in _records.keys():
+        if "soma" in k.lower():
+            soma = _records[k].vector 
+            break
+    if len(soma) > 0:
+        nSpikes = count_spike.num_spikes( soma )
+        print("Total spike in MOOSE: %s" % nSpikes)
+
 def main(args):
     global _args
     _args = args
@@ -178,4 +186,6 @@ def main(args):
             , runtime=t
             , dt=args.sim_dt
             )
+    countSpike()
     #saveData(outfile="_data/moose.csv")
+

@@ -16,6 +16,7 @@ __status__           = "Development"
 import sqlite3 as sql 
 import sys
 import platform
+import logging
 
 uname_ = platform.uname()
 
