@@ -20,6 +20,10 @@ import numpy as np
 import pylab
 from collections import defaultdict
 
+ignore_before = "-10 hours"
+# No of compartments for neuron are less by a factor of
+nrn_scale = 3.45 
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -41,9 +45,12 @@ def main():
     secDict = {}
 
     for mod in models:
-        query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'"""
-        neurons = db.execute(query.format(_profile.tableName, mod, 'neuron'))
-        mooses = db.execute(query.format(_profile.tableName, mod, 'moose'))
+        query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'
+        AND time > date('now', '{}')"""
+        neurons = db.execute(query.format(_profile.tableName, mod, 'neuron',
+            ignore_before))
+        mooses = db.execute(query.format(_profile.tableName, mod, 'moose',
+            ignore_before))
         for n in neurons.fetchall():
             nrnDict[mod].append(n['runtime']/n['simtime'])
         for m in mooses.fetchall():
@@ -55,7 +62,7 @@ def main():
     xvec = []
     for k in mooseDict:
         mooseVec.append(np.mean(mooseDict[k]))
-        nrnVec.append(np.mean(nrnDict[k]))
+        nrnVec.append(nrn_scale * np.mean(nrnDict[k]))
         xvec.append(secDict[k])
 
     width = 0.3
