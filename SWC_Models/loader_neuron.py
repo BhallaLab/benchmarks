@@ -26,23 +26,23 @@ import time
 import moose.utils as mu
 from _profile import *
 
-
-
 import logging
-logger = logging.getLogger("nrn")
-# create file handler which logs even debug messages
-fh = logging.FileHandler('nrn.log')
-fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-# add the handlers to logger
-logger.addHandler(ch)
-logger.addHandler(fh)
+logging.basicConfig(level=logging.DEBUG,
+    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+    datefmt='%m-%d %H:%M',
+    filename='nrn.log',
+    filemode='w')
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+_logger = logging.getLogger('')
+
 
 topology = nx.DiGraph()
 sign = np.sign
@@ -106,7 +106,7 @@ def insertChannels(exprs):
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
-    logger.debug("Total channels in neuron: %s" % nchan)
+    _logger.debug("Total channels in neuron: %s" % nchan)
 
 def insert(pat, chan):
     """Insert the pattern into segments """
@@ -117,14 +117,15 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('p', str(topology.node[sec]['r']))
             g = eval(expr)
-            logger.debug("|- Inserting {} into {} with conductance: {} uS".format( chanName, secName, g))
-            try:
-                sec.insert(chanName)
-            except Exception as e:
-                #logger.debug("[INFO] Using HOC statement to insert")
-                h('{0} insert {1}'.format(secName, chanName))
-                h('\tg_{}={}'.format(chanName,g))
-            nchan += 1
+            _logger.debug("|- Inserting {} into {} with conductance: {} uS".format( chanName, secName, g))
+            for i in range(2):
+                try:
+                    sec.insert(chanName)
+                except Exception as e:
+                    #_logger.debug("[INFO] Using HOC statement to insert")
+                    h('{0} insert {1}'.format(secName, chanName))
+                    h('\tg_{}={}'.format(chanName,g))
+                nchan += 1
 
 # NOTE: Calling this function causes segmentation fault.
 def centerOfSec(sec):
@@ -173,7 +174,7 @@ def addNode(sec, record=False):
 def loadModel(filename, args=None):
     """Load model given in filename """
 
-    logger.debug("Loading %s into NEURON" % filename)
+    _logger.debug("Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
     for sec in cell.allsec():
         addNode(sec, record=True)
@@ -194,7 +195,7 @@ def loadModel(filename, args=None):
         if topology.in_degree(n) == 0:
             sourceNode = n
             break
-    logger.debug("Found parent node %s" % sourceNode)
+    _logger.debug("Found parent node %s" % sourceNode)
     for e in nx.bfs_edges(topology, sourceNode):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
@@ -222,12 +223,12 @@ def saveData(outfile):
         f.write(",".join(fnames)+"\n")
         for i, x in enumerate(xvec):
             f.write("%s,%s\n" % (1e-3*x, 1e-3*yvec[i]))
-    logger.debug("Done writing data to %s" % outfile)
+    _logger.debug("Done writing data to %s" % outfile)
 
 def countSpike( ):
     import count_spike
     soma = _records['soma[0]']
-    logger.info("Total spike in NRN: %s" % count_spike.num_spikes( soma ))
+    _logger.info("Total spike in NRN: %s" % count_spike.num_spikes( soma ))
 
 def makePlots():
     global _args
@@ -242,14 +243,14 @@ def makePlots():
     if not _args.plots:
         pylab.show()
     else:
-        logger.info("Saving neuron data to %s" % _args.plots)
+        _logger.info("Saving neuron data to %s" % _args.plots)
         #pylab.show()
         pylab.savefig(_args.plots)
 
 def addStim(section):
     """Setup the stimulus"""
     global _args
-    logger.debug("Adding a pulsegen (%s A) at %s" % (_args.inject,
+    _logger.debug("Adding a pulsegen (%s A) at %s" % (_args.inject,
         section.hname()))
     h('access %s' % section.hname())
     h('objectvar stim')
@@ -275,5 +276,5 @@ def main(args):
             , runtime=t
             , model_name = args.swc_file
             )
-    #saveData('_data/nrn.csv')
+    saveData('_data/nrn.csv')
     countSpike()

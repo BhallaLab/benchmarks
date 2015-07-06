@@ -37,6 +37,22 @@ nchans = 0
 _args = None
 _records = {}
 
+import logging
+logging.basicConfig(level=logging.DEBUG,
+    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+    datefmt='%m-%d %H:%M',
+    filename='moose.log',
+    filemode='w')
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+_logger = logging.getLogger('')
 
 def makePlot( cell ):
     fig = plt.figure( figsize = ( 10, 12 ) )
@@ -128,12 +144,12 @@ def loadModel(filename, args):
     nchans  = len(set([x.path for x in
         moose.wildcardFind('/model/elec/##[TYPE=ZombieHHChannel]')])
         )
-    print("[INFO] Total channels: %s" % nchans)
+    _logger.info("Total channels: %s" % nchans)
 
 def setupStimuls(compt):
     global _args
     command = moose.PulseGen('%s/command' % compt.path)
-    print("[INFO] Injecting {} Amps into {} for {} seconds".format(
+    _logger.info("Injecting {} Amps into {} for {} seconds".format(
         _args.inject
         , compt.path
         , _args.sim_time)
@@ -165,7 +181,7 @@ def countSpike():
             break
     if len(soma) > 0:
         nSpikes = count_spike.num_spikes( soma )
-        print("Total spike in MOOSE: %s" % nSpikes)
+        _logger.info("Total spike in MOOSE: %s" % nSpikes)
 
 def main(args):
     global _args
@@ -187,5 +203,5 @@ def main(args):
             , dt=args.sim_dt
             )
     countSpike()
-    #saveData(outfile="_data/moose.csv")
+    saveData(outfile="_data/moose.csv")
 
