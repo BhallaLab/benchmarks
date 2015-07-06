@@ -4,7 +4,7 @@
 PYC="gdb -ex r --args python"
 PYC="python"
 
-if [ $# -lt 1 ]; then
+if [[ $# -lt 1 ]]; then
     echo "USAGE: $0 swc_file [plot]"
     exit;
 fi
