@@ -9,7 +9,7 @@ mkdir -p _log
 nrnivmodl chans &> nrnivmodel.log 
 mkdir -p _data
 
-SWCFILES=`find . -type f -name "*.swc"`
+SWCFILES=`find ./SWCDATA -type f -name "*.swc"`
 i=0
 for file in $SWCFILES; do
     echo "||| Using modelfile $file"
