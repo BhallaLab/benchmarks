@@ -25,7 +25,24 @@ import networkx as nx
 import time
 import moose.utils as mu
 from _profile import *
+
+
+
 import logging
+logger = logging.getLogger("nrn")
+# create file handler which logs even debug messages
+fh = logging.FileHandler('nrn.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+fh.setFormatter(formatter)
+# add the handlers to logger
+logger.addHandler(ch)
+logger.addHandler(fh)
 
 topology = nx.DiGraph()
 sign = np.sign
@@ -89,7 +106,7 @@ def insertChannels(exprs):
         typePat = re.compile(r'%s'%expr)
         for exp in exprs[k]:
             insert(typePat, exp)
-    logging.debug("[INFO] Total channels in neuron: %s" % nchan)
+    logger.debug("Total channels in neuron: %s" % nchan)
 
 def insert(pat, chan):
     """Insert the pattern into segments """
@@ -100,11 +117,11 @@ def insert(pat, chan):
         if pat.match(secName):
             expr = expr.replace('p', str(topology.node[sec]['r']))
             g = eval(expr)
-            logging.debug("|- Inserting {} into {} with conductance: {} uS".format( chanName, secName, g))
+            logger.debug("|- Inserting {} into {} with conductance: {} uS".format( chanName, secName, g))
             try:
                 sec.insert(chanName)
             except Exception as e:
-                #logging.debug("[INFO] Using HOC statement to insert")
+                #logger.debug("[INFO] Using HOC statement to insert")
                 h('{0} insert {1}'.format(secName, chanName))
                 h('\tg_{}={}'.format(chanName,g))
             nchan += 1
@@ -156,7 +173,7 @@ def addNode(sec, record=False):
 def loadModel(filename, args=None):
     """Load model given in filename """
 
-    logging.debug("[INFO] Loading %s into NEURON" % filename)
+    logger.debug("Loading %s into NEURON" % filename)
     cell = instantiate_swc(filename)
     for sec in cell.allsec():
         addNode(sec, record=True)
@@ -177,7 +194,7 @@ def loadModel(filename, args=None):
         if topology.in_degree(n) == 0:
             sourceNode = n
             break
-    logging.debug("[DEBUG] Found parent node %s" % sourceNode)
+    logger.debug("Found parent node %s" % sourceNode)
     for e in nx.bfs_edges(topology, sourceNode):
         src, tgt = e
         topology.node[tgt]['r'] = topology.node[src]['r'] + src.L
@@ -205,12 +222,12 @@ def saveData(outfile):
         f.write(",".join(fnames)+"\n")
         for i, x in enumerate(xvec):
             f.write("%s,%s\n" % (1e-3*x, 1e-3*yvec[i]))
-    logging.debug("[INFO] Done writing data to %s" % outfile)
+    logger.debug("Done writing data to %s" % outfile)
 
 def countSpike( ):
     import count_spike
     soma = _records['soma[0]']
-    logging.info("Total spike in NRN: %s" % count_spike.num_spikes( soma ))
+    logger.info("Total spike in NRN: %s" % count_spike.num_spikes( soma ))
 
 def makePlots():
     global _args
@@ -225,14 +242,14 @@ def makePlots():
     if not _args.plots:
         pylab.show()
     else:
-        logging.info("[INFO] Saving neuron data to %s" % _args.plots)
+        logger.info("Saving neuron data to %s" % _args.plots)
         #pylab.show()
         pylab.savefig(_args.plots)
 
 def addStim(section):
     """Setup the stimulus"""
     global _args
-    logging.debug("[INFO] Adding a pulsegen (%s A) at %s" % (_args.inject,
+    logger.debug("Adding a pulsegen (%s A) at %s" % (_args.inject,
         section.hname()))
     h('access %s' % section.hname())
     h('objectvar stim')
