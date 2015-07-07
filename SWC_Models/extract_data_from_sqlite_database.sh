@@ -6,6 +6,13 @@ set -e
 DB=`pwd`/_profile.sqlite
 SQLITE="sqlite3 $DB"
 
+# Total entries
+moose_total=`$SQLITE "SELECT COUNT(*) FROM swc WHERE simulator='moose'";`
+nrn_total=`$SQLITE "SELECT COUNT(*) FROM swc WHERE simulator='neuron'";`
+echo "Total MOOSE entries: " $moose_total
+echo "Total NEURON entries: " $nrn_total
+
+
 # In this section, we compute the average number of channels and number of
 # comparmtents in both MOOSE and NEURON.
 avg_nrn_compt=`$SQLITE "SELECT AVG(no_of_compartments) FROM swc WHERE
