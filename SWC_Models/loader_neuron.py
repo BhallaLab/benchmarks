@@ -24,6 +24,7 @@ import pylab
 import networkx as nx
 import time
 from _profile import *
+query_dict_ = {}
 
 import logging
 logging.basicConfig(level=logging.DEBUG,
@@ -31,6 +32,7 @@ logging.basicConfig(level=logging.DEBUG,
     datefmt='%m-%d %H:%M',
     filename='nrn.log',
     filemode='w')
+
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
@@ -226,7 +228,13 @@ def saveData(outfile):
 def countSpike( ):
     import count_spike
     soma = _records['soma[0]']
-    _logger.info("Total spike in NRN: %s" % count_spike.num_spikes( soma ))
+    numSpikes, meanDt, varDt = count_spike.spikes_characterization( soma )
+    query_dict_['number_of_spikes'] = numSpikes
+    query_dict_['mean_spike_interval'] = meanDt
+    query_dict_['variance_spike_interval'] = varDt
+    _logger.info("Neuron: #spike={}, mean={}, variance={}".format(
+        numSpikes , meanDt , varDt)
+        )
 
 def makePlots():
     global _args
@@ -266,14 +274,13 @@ def main(args):
     h.tstop = 1e3 * float(args.sim_time)
     h.run()
     t = time.time() - t1
-    numSpikes = countSpike()
-    dbEntry(simulator=simulator
-            , dt=1e-3*dt
-            , no_of_compartments=nseg
-            , no_of_channels=nchan
-            , simtime=args.sim_time
-            , runtime=t
-            , model_name = args.swc_file
-            , num_spikes = num_spikes
-            )
+    countSpike()
+    query_dict_['number_of_compartments'] = nseg
+    query_dict_['number_of_channels'] = nchan
+    query_dict_['simulator'] = 'neuron'
+    query_dict_['dt'] = 1e-3*dt
+    query_dict_['model_name'] = args.swc_file
+    query_dict_['run_time'] = t
+    query_dict_['simulation_time'] = 1e3*args.sim_time
+    dbEntry( query_dict_ )
     saveData('_data/nrn.csv')

@@ -27,7 +27,8 @@ cur_ = conn_.cursor()
 
 import time
 month = time.strftime("%Y%m")
-tableName = '%s' % month
+print month
+tableName = 'table%s' % month
 
 cur_.execute(
         """CREATE TABLE IF NOT EXISTS {} (
