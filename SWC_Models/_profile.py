@@ -24,20 +24,10 @@ uname_ = platform.uname()
 dbFile = '_profile.sqlite'
 conn_ = sql.connect(dbFile)
 cur_ = conn_.cursor()
-tableName = 'runtime'
 
-#db_colums = [ "model_name"
-        #, "number_of_compartments"
-        #, "number_of_channels"
-        #, "simulator"
-        #, "simulation_time"
-        #, "run_time"
-        #, "dt"
-        #, "number_of_spikes"
-        #, "mean_of_spike_interval"
-        #, "variance_of_spike_interval"
-        #, "timestamp"
-        #)
+import time
+month = time.strftime("%Y%m")
+tableName = '%s' % month
 
 cur_.execute(
         """CREATE TABLE IF NOT EXISTS {} (

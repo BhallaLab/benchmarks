@@ -33,8 +33,8 @@ def spikes_characterization(vec, threshold = 0.0, dt = 50e-6):
         meanDt = np.mean(diffIndex)
         varDt = np.var(diffIndex)
     else:
-        meanDt = 0.0
-        varDt = 0.0
+        meanDt = -1
+        varDt = -1
     return nSpikes, meanDt, varDt
 
 
