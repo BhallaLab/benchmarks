@@ -1,45 +1,40 @@
-def count_spikes(tables, threshold = 0.0):
-    '''Count the number of spikes, also pupulate the spikeTables '''
-    nSpikes = 0
-    spikeBegin = False
-    spikeEnds = False
-    clock = moose.Clock('/clock')
-    for tname in tables:
-        t = tables[tname]
-        dt = clock.currentTime / len(t.vector)
-        spikeList = []
-        for i, x in enumerate(t.vector):
-            if x > threshold:
-                if not spikeBegin:
-                    spikeBegin = True
-                    spikeEnds = False
-                else: pass
-            else:
-                if spikeBegin:
-                    spikeEnds = True
-                    spikeBegin = False
-                    spikeList.append(i*dt)
-                    nSpikes += 1
-        spikeTables[tname] = spikeList
-    return nSpikes
+import numpy as np
 
+def spikeLocation(vec, threshold):
+    """Count the number of spikes in train, and return a list of index where
+    spike ends.
+    """
 
-def num_spikes(vec, threshold = 0.0):
-    """Number of spikes in vector vec """
     nSpikes = 0
-    spikeBegin = False
-    spikeEnds = False
+    spikeBegin, spikeEnds = False, False
     spikeList = []
     for i, x in enumerate(vec):
         if x > threshold:
             if not spikeBegin:
-                spikeBegin = True
-                spikeEnds = False
+                spikeBegin, spikeEnds = True, False
             else: pass
         else:
             if spikeBegin:
-                spikeEnds = True
-                spikeBegin = False
+                spikeEnds, spikeBegin = True, False
+                spikeList.append(i)
                 nSpikes += 1
-    return nSpikes
+    return nSpikes, spikeList
+
+def spikes_characterization(vec, threshold = 0.0, dt = 50e-6):
+    """Number of spikes in vector vec 
+    mean of interval of spike occurance.
+    variance of interval of spike occurance.
+    """
+    print("Spike characterization: theshold: {} and dt: {}".format(threshold ,
+        dt))
+    nSpikes, spikeList = spikeLocation(vec, threshold)
+    if len(spikeList) > 1:
+        diffIndex = np.diff(spikeList)
+        meanDt = np.mean(diffIndex)
+        varDt = np.var(diffIndex)
+    else:
+        meanDt = 0.0
+        varDt = 0.0
+    return nSpikes, meanDt, varDt
+
 

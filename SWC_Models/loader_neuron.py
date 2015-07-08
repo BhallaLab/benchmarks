@@ -266,6 +266,7 @@ def main(args):
     h.tstop = 1e3 * float(args.sim_time)
     h.run()
     t = time.time() - t1
+    numSpikes = countSpike()
     dbEntry(simulator=simulator
             , dt=1e-3*dt
             , no_of_compartments=nseg
@@ -273,6 +274,6 @@ def main(args):
             , simtime=args.sim_time
             , runtime=t
             , model_name = args.swc_file
+            , num_spikes = num_spikes
             )
     saveData('_data/nrn.csv')
-    countSpike()

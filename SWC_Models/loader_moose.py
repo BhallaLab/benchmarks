@@ -27,6 +27,10 @@ import os
 from moose.neuroml.ChannelML import ChannelML
 from _profile import dbEntry
 
+
+# Global variable to log query to database.
+db_query_ = {}
+
 PI = 3.14159265359
 frameRunTime = 0.001
 FaradayConst = 96845.34
@@ -174,14 +178,21 @@ def plots(filter='soma'):
 
 def countSpike():
     import count_spike
+    global db_query_
     soma = None 
     for k in _records.keys():
         if "soma" in k.lower():
             soma = _records[k].vector 
             break
     if len(soma) > 0:
-        nSpikes = count_spike.num_spikes( soma )
-        _logger.info("Total spike in MOOSE: %s" % nSpikes)
+        nSpikes, meanDT, varDT = count_spike.spikes_characterization( soma )
+        db_query_['number_of_spikes'] = nSpikes
+        db_query_['mean_spike_interval'] = meanDT
+        db_query_['variance_spike_interval'] = varDT
+        _logger.info("[MOOSE] Spike characteristics:")
+        _logger.info("\t num_spikes: {}, mean_dt: {}, var_dt: {}".format(
+            nSpikes, meanDT, varDT)
+            )
 
 def main(args):
     global _args
@@ -194,14 +205,14 @@ def main(args):
     startt = time.time()
     moose.start(args.sim_time)
     t = time.time() - startt
-    dbEntry(simulator='moose'
-            , model_name=args.swc_file
-            , no_of_compartments=ncompts
-            , no_of_channels=nchans
-            , simtime=args.sim_time
-            , runtime=t
-            , dt=args.sim_dt
-            )
+    db_query_['simulator'] = 'moose'
+    db_query_['number_of_compartments'] = ncompts
+    db_query_['number_of_channels'] = nchans
+    db_query_['simulation_time'] = args.sim_time
+    db_query_['run_time'] = t
+    db_query_['dt'] = args.sim_dt
+    db_query_['model_name'] = args.swc_file
     countSpike()
+    dbEntry(db_query_)
     saveData(outfile="_data/moose.csv")
 

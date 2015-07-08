@@ -24,48 +24,61 @@ uname_ = platform.uname()
 dbFile = '_profile.sqlite'
 conn_ = sql.connect(dbFile)
 cur_ = conn_.cursor()
-tableName = 'swc'
+tableName = 'runtime'
+
+#db_colums = [ "model_name"
+        #, "number_of_compartments"
+        #, "number_of_channels"
+        #, "simulator"
+        #, "simulation_time"
+        #, "run_time"
+        #, "dt"
+        #, "number_of_spikes"
+        #, "mean_of_spike_interval"
+        #, "variance_of_spike_interval"
+        #, "timestamp"
+        #)
 
 cur_.execute(
-        """CREATE TABLE IF NOT EXISTS {} ( time DATETIME 
+        """CREATE TABLE IF NOT EXISTS {} (
+        timestamp DATETIME 
         , model_name VARCHAR
-        , no_of_compartments INTEGER 
-        , no_of_channels INTEGER
+        , number_of_compartments INTEGER 
+        , number_of_channels INTEGER
         , simulator TEXT NOT NULL
-        , simtime REAL DEFAULT 0
-        , runtime REAL DEFAULT 0
+        , simulation_time REAL DEFAULT 0
+        , run_time REAL DEFAULT 0
         , dt REAL DEFAULT 0.000000001
+        , number_of_spikes INTEGER
+        , mean_spike_interval REAL
+        , variance_spike_interval REAL
         , comment TEXT
         , uname TEXT DEFAULT "{}"
         )""".format(tableName, uname_)
         )
 
-def dbEntry(**values):
+def dbEntry(queryDict):
     keys = []
     vals = []
-    for k in values: 
+    for k in queryDict: 
         keys.append(k)
         try:
-            vals.append("'%s'" % values[k])
+            vals.append("'%s'" % queryDict[k])
         except Exception as e:
-            print(values[k])
+            print(queryDict[k])
             raise Exception
-    keys.append("time")
+    keys.append("timestamp")
     vals.append("datetime('now')")
-
     keys = ",".join(keys)
     vals = ",".join(vals)
-    
     query = """INSERT INTO {} ({}) VALUES ({})""".format(tableName, keys, vals)
-    pp.pprint(values)
+    pp.pprint(queryDict)
     cur_.execute(query)
     conn_.commit()
 
 def main():
-    dbEntry({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'moose' })
-    dbEntry({ 'no_of_compartment': 100, 'coretime' : 0.0001, 'simulator' : 'neuron' })
-    for c in cur_.execute("SELECT * from %s"%tableName):
-        print c
+    print("No tests")
+    pass
 
 if __name__ == '__main__':
     main()

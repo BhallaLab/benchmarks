@@ -22,7 +22,6 @@ from collections import defaultdict
 
 ignore_before = "-10 hours"
 # No of compartments for neuron are less by a factor of
-nrn_scale = 3.45 
 
 def dict_factory(cursor, row):
     d = {}
@@ -33,7 +32,7 @@ def dict_factory(cursor, row):
 db = sql.connect(_profile.dbFile)
 db.row_factory = dict_factory
 
-def main():
+def plot_with_models_on_x_axis():
     global db
     models = []
     query="SELECT model_name from %s WHERE simulator='neuron'" % _profile.tableName
@@ -71,8 +70,16 @@ def main():
     rect2 = pylab.bar(np.arange(len(xvec))+width, mooseVec, width, color='r'
             , label='moose')
     pylab.legend(loc='best', framealpha=0.4)
-    pylab.savefig('benchmark.png')
+    pylab.savefig('benchmark_model_name_of_x_axis.png')
 
 
+def compareMOOSEAndNEURON():
+    print("++ Comparing MOOSE and NEURON")
+
+
+
+def main():
+    compareMOOSEAndNEURON()
+    
 if __name__ == '__main__':
     main()
