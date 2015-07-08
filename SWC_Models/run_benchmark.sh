@@ -3,17 +3,29 @@
 export PYTHONPATH=/opt/moose/python
 #set -e
 TOTAL="$1"
-echo "Recompiling NEURON mechanism libraries"
-mkdir -p _log
-nrnivmodl chans &> nrnivmodel.log 
+
 mkdir -p _data
+mkdir -p _log
+
+function runNRN
+{
+    echo "Recompiling NEURON mechanism libraries"
+    nrnivmodl chans &> nrnivmodel.log 
+    ./test_nrn.sh "$file" || echo "+ [WARN] Could not run NEURON on file $file"
+}
+
+function runMOOSE
+{
+    ./test_moose.sh "$1" || echo "+ [WARN] Could not run MOOSE on file $1"
+}
+
 
 SWCFILES=`find -L ./SWCDATA -type f -name "*.swc"`
+declare -i i
 i=0
 for file in $SWCFILES; do
-    echo "||| Using modelfile $file"
-    ./test_moose.sh "$file" || echo "+ [WARN] Could not run MOOSE on file $file"
-    ./test_nrn.sh "$file" || echo "+ [WARN] Could not run NEURON on file $file"
+    runNRN $file
+    #runMOOSE $file
     i=$((i+1))
     if [[ $i = $TOTAL ]]; then
         echo "... Done $TOTAL comparisions. Quitting"
@@ -21,4 +33,3 @@ for file in $SWCFILES; do
     fi
 done
 notify-send "Benchmarking is done for $TOTAL files"
-
