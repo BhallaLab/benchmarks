@@ -25,7 +25,7 @@ declare -i i
 i=0
 for file in $SWCFILES; do
     runNRN $file
-    #runMOOSE $file
+    runMOOSE $file
     i=$((i+1))
     if [[ $i = $TOTAL ]]; then
         echo "... Done $TOTAL comparisions. Quitting"
