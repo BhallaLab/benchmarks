@@ -23,7 +23,6 @@ import csv
 import pylab
 import networkx as nx
 import time
-import moose.utils as mu
 from _profile import *
 
 import logging
@@ -42,7 +41,6 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 _logger = logging.getLogger('')
-
 
 topology = nx.DiGraph()
 sign = np.sign

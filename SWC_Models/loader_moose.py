@@ -91,7 +91,7 @@ def saveData( outfile ):
         f.write("%s,%s\n" % ('time', 'soma'))
         for i, t in enumerate(xvec):
             f.write("%s,%s\n" % (t, yvec[i]))
-    mu.info("[INFO] Done writing to file %s" % outfile)
+    _logger.debug("Done writing to file %s" % outfile)
 
 
 def loadModel(filename, args):

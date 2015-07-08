@@ -3,7 +3,6 @@
 
 PYC="gdb -ex r --args python"
 PYC="python"
-
 if [[ $# -lt 1 ]]; then
     echo "USAGE: $0 swc_file [plot]"
     exit;
@@ -14,7 +13,7 @@ PLOT="$2"
 
 function runNRN 
 {
-    echo "Executing model $1"
+    echo "Executing model in NEURON $1"
     $PYC ./swc_loader.py -f $1 -s neuron -t 1 \
         -i 0.0000000008 \
         -c "hd;#dend#,#apical#;Gbar;5e-2*(1+(p*3e4))" \

@@ -17,6 +17,7 @@ import sqlite3 as sql
 import sys
 import platform
 import logging
+import pprint as pp
 
 uname_ = platform.uname()
 
@@ -56,7 +57,7 @@ def dbEntry(**values):
     vals = ",".join(vals)
     
     query = """INSERT INTO {} ({}) VALUES ({})""".format(tableName, keys, vals)
-    print("Excuting: %s" % query)
+    pp.pprint(values)
     cur_.execute(query)
     conn_.commit()
 
