@@ -24,7 +24,7 @@ SWCFILES=`find -L ./SWCDATA -type f -name "*.swc"`
 declare -i i
 i=0
 for file in $SWCFILES; do
-    runNRN $file
+    #runNRN $file
     runMOOSE $file
     i=$((i+1))
     if [[ $i = $TOTAL ]]; then

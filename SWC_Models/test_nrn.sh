@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # This script run NEURON on SWC model file.
+set -x
 
 PYC="gdb -ex r --args python"
 PYC="python"

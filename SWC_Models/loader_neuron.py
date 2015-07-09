@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-"""swc_loader_neuron.py:
+"""loader_neuron.py:
 
     Load an SWC file in neuron.
 
@@ -284,3 +282,4 @@ def main(args):
     query_dict_['simulation_time'] = 1e3*args.sim_time
     dbEntry( query_dict_ )
     saveData('_data/nrn.csv')
+
