@@ -1,0 +1,1 @@
+/data/dilawars/Scripts/plot_gnuplot.sh
