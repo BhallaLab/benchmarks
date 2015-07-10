@@ -46,3 +46,22 @@ avg_moose_runtime=`$SQLITE "SELECT AVG(run_time) FROM $TABLENAME WHERE simulator
 # be scaled by this number,
 echo "Avg moose runtime: $avg_moose_runtime"
 echo "Avg neuron runtime:" `echo "$NRNFACTOR * $avg_nrn_runtime" | bc`
+
+# NEURON performance for smaller models n < 1000.
+nrn_per_compt_run_time=`$SQLITE "SELECT AVG(run_time/number_of_compartments) FROM $TABLENAME \
+    WHERE simulator='neuron' AND number_of_compartments < 1000";`
+moose_per_compt_run_time=`$SQLITE "SELECT AVG(run_time/number_of_compartments) FROM $TABLENAME \
+    WHERE simulator='moose' AND number_of_compartments < 1000";`
+
+echo "Per compt. run time (nrn/moose) < 1000 compts"
+printf "\t $nrn_per_compt_run_time / $moose_per_compt_run_time \n"
+
+# NEURON performance for smaller models n > 3000
+nrn_per_compt_run_time=`$SQLITE "SELECT AVG(run_time/number_of_compartments) FROM $TABLENAME \
+    WHERE simulator='neuron' AND number_of_compartments > 3000";`
+moose_per_compt_run_time=`$SQLITE "SELECT AVG(run_time/number_of_compartments) FROM $TABLENAME \
+    WHERE simulator='moose' AND number_of_compartments > 3000";`
+
+echo "Per compt. run time (nrn/moose) > 3000 compts"
+printf "\t $nrn_per_compt_run_time / $moose_per_compt_run_time"
+
