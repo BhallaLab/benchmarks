@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # This script run NEURON on SWC model file.
-set -x
-
+unset DISPLAY
 PYC="gdb -ex r --args python"
 PYC="python"
 if [[ $# -lt 1 ]]; then

@@ -1,0 +1,57 @@
+\documentclass[crop,tikz]{standalone}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\begin{document}
+
+\begin{tikzpicture}    
+    \begin{axis} [
+            xlabel = No of compartments
+            , ylabel = Run time (seconds)
+            , legend pos=outer north east
+        ]
+
+        \addplot table [
+            x=number_of_compartments , y=run_time , col sep=comma
+            , scatter, only marks
+            ] {./moose_performance.csv};
+
+        \addplot+[no markers, red] table [
+            col sep=comma
+            ,y={create col/linear regression={y=run_time}} 
+        ] {./moose_performance.csv};
+
+        \addlegendentry{moose};
+        \addlegendentry{%
+            $\pgfmathprintnumber{\pgfplotstableregressiona} \cdot x 
+        \pgfmathprintnumber[print sign]{\pgfplotstableregressionb}$};
+
+    \end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}    
+    \begin{axis} [
+            xlabel = No of compartments
+            , ylabel = Run time (seconds)
+            , legend pos=outer north east
+        ]
+
+        \addplot table [
+            x=number_of_compartments, y=run_time, col sep=comma
+            , scatter, only marks
+            ] {./neuron_performance.csv};
+
+        \addplot+[no markers, red] table [
+            col sep=comma
+            ,y={create col/linear regression={y=run_time}} 
+        ] {./neuron_performance.csv};
+
+        \addlegendentry{neuron};
+        \addlegendentry{%
+            $\pgfmathprintnumber{\pgfplotstableregressiona} \cdot x 
+        \pgfmathprintnumber[print sign]{\pgfplotstableregressionb}$};
+
+    \end{axis}
+
+\end{tikzpicture}
+
+
+\end{document}

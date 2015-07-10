@@ -24,8 +24,8 @@ SWCFILES=`find -L ../swc_models -type f -name "*.swc"`
 declare -i i
 i=0
 for file in $SWCFILES; do
-    #runNRN $file
-    runMOOSE $file
+    runNRN $file
+    #runMOOSE $file
     i=$((i+1))
     if [[ $i = $TOTAL ]]; then
         echo "... Done $TOTAL comparisions. Quitting"

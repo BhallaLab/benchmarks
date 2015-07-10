@@ -29,9 +29,9 @@ db.row_factory = dict_factory
 
 curr = db.cursor()
 
-def getMOOSE():
+def getSIM(simname = 'moose'):
     query = """SELECT * FROM table201507 WHERE
-    simulator='moose' ORDER BY number_of_compartments"""
+    simulator='{}' ORDER BY number_of_compartments""".format(simname)
     result = []
     for row in curr.execute(query):
         result.append(row)
@@ -44,7 +44,9 @@ def getMOOSE():
             , 'mean_spike_interval'
             , 'variance_spike_interval'
             ]
-    with open('moose_performance.csv', "w") as f:
+    csvFile = "%s_performance.csv" % simname
+    print("[INFO] Writing to %s" % csvFile)
+    with open(csvFile, "w") as f:
         f.write("{}\n".format(",".join(header)))
         for r in result:
             line = []
@@ -55,10 +57,12 @@ def getMOOSE():
                     print("Key %s not found" % h)
                     print(r.keys())
             f.write("{}\n".format(",".join(line)))
-        
+     
+def getMOOSE():
+    getSIM('moose')
 
 def getNRN():
-    pass
+    getSIM('neuron')
 
 def main():
     moose = getMOOSE()
