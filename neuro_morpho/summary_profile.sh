@@ -24,6 +24,18 @@ simulator='moose'";`
 echo "Avg no of compartments in MOOSE: " $avg_moose_compt
 echo "Avg no of compartments in NEURON: " $avg_nrn_compt
 
+echo "No of channels per compartment in MOOSE (min, max, avg)"
+echo -e "\t" `$SQLITE "SELECT MIN(number_of_channels/number_of_compartments) \
+    , MAX(number_of_channels/number_of_compartments) \
+    , AVG(number_of_channels/number_of_compartments) \
+    FROM $TABLENAME where simulator='moose'";`
+
+echo "No of channels per compartment in NEURON (min, max, avg)"
+echo -e  "\t" `$SQLITE "SELECT MIN(number_of_channels/number_of_compartments) \
+    , MAX(number_of_channels/number_of_compartments) \
+    , AVG(number_of_channels/number_of_compartments) \
+    FROM $TABLENAME where simulator='neuron'";`
+
 # NOTE: We assume that run time in each simulator is proportional to the number
 # of compartments.
 NRNFACTOR=`echo "$avg_moose_compt / $avg_nrn_compt" | bc -l`

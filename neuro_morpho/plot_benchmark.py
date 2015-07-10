@@ -32,12 +32,17 @@ def dict_factory(cursor, row):
 db = sql.connect(_profile.dbFile)
 db.row_factory = dict_factory
 
-def compare(mooseData, nrnData):
+def rowCompare(mooseData, nrnData):
+    """Since moose runtime scales linearly, in this comparision we scale moose
+    time according to compartments created in neurons.
+    """
     mooseRunTime = np.mean([ x['run_time'] for x in mooseData])
     nrnRunTime = np.mean([ x['run_time'] for x in nrnData])
-    print mooseRunTime, nrnRunTime
 
-
+    mooseCompts = np.mean([x['number_of_compartments'] for x in mooseData])
+    nrnCompts = np.mean([x['number_of_compartments'] for x in nrnData])
+    nrnScale = mooseCompts / float(nrnCompts)
+    return nrnCompts, mooseRunTime / nrnScale, nrnRunTime
 
 
 def plot_with_models_on_x_axis():
@@ -49,7 +54,9 @@ def plot_with_models_on_x_axis():
 
     mooseDict = defaultdict(list)
     nrnDict = defaultdict(list)
+    segDict = {}
 
+    xvec = []
     for mod in models:
         query = """SELECT * FROM {} WHERE model_name='{}' AND simulator='{}'"""
         #AND timestamp > date('now', '{}')"""
@@ -59,25 +66,32 @@ def plot_with_models_on_x_axis():
 
         mooses = db.execute(query.format(_profile.tableName, mod, 'moose'))
         for m in mooses.fetchall():
-            mooseDict[mod].append(n)
+            mooseDict[mod].append(m)
 
     print("Total %s entries found for moose" % len(mooseDict))
     print("Total %s entries found for nrn" % len(nrnDict))
 
     # for each model in mooose, compare it with neuron.
-    for k in mooseDict:
+    nrnVec = []
+    mooseVec = []
+    segVec = []
+    for i, k in enumerate(mooseDict):
+        xvec.append(k)
         mooseData = mooseDict[k]
         nrnData = nrnDict[k]
-        compare(mooseData, nrnData)
+        nrnseg, mooseTime, nrnTime = rowCompare(mooseData, nrnData)
+        segVec.append(nrnseg)
+        segDict[k] = nrnseg
+        nrnVec.append(nrnTime)
+        mooseVec.append(mooseTime)
 
-    #width = 0.3
-    #rect1 = pylab.bar(np.arange(len(xvec)), nrnVec, width, color='b'
-            #, label='neuron')
-    #rect2 = pylab.bar(np.arange(len(xvec))+width, mooseVec, width, color='r'
-            #, label='moose')
-    #pylab.legend(loc='best', framealpha=0.4)
-    #pylab.savefig('benchmark_model_name_of_x_axis.png')
-
+    pylab.plot(segVec, nrnVec, '.', label="Neuron")
+    pylab.plot(segVec, mooseVec, '*', label="MOOSE")
+    pylab.legend(loc='best', framealpha=0.4)
+    pylab.title("MOOSE Vs NEURON")
+    pylab.xlabel("No of compartments")
+    pylab.ylabel("Run time for 1 sec simulation")
+    pylab.show()
 
 def compareMOOSEAndNEURON():
     print("++ Comparing MOOSE and NEURON")
