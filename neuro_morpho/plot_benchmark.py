@@ -21,6 +21,8 @@ import pylab
 from collections import defaultdict
 
 ignore_before = "-10 days"
+compartment_size_limit = 2000
+
 # No of compartments for neuron are less by a factor of
 
 def dict_factory(cursor, row):
@@ -75,15 +77,18 @@ def plot_with_models_on_x_axis():
     nrnVec = []
     mooseVec = []
     segVec = []
+    
+    print("NOTICE: Compartment size limit : %s" % compartment_size_limit)
     for i, k in enumerate(mooseDict):
         xvec.append(k)
         mooseData = mooseDict[k]
         nrnData = nrnDict[k]
         nrnseg, mooseTime, nrnTime = rowCompare(mooseData, nrnData)
-        segVec.append(nrnseg)
-        segDict[k] = nrnseg
-        nrnVec.append(nrnTime)
-        mooseVec.append(mooseTime)
+        if nrnseg < compartment_size_limit:
+            segVec.append(nrnseg)
+            segDict[k] = nrnseg
+            nrnVec.append(nrnTime)
+            mooseVec.append(mooseTime)
 
     pylab.plot(segVec, nrnVec, '.', label="Neuron")
     pylab.plot(segVec, mooseVec, '*', label="MOOSE")
@@ -91,7 +96,9 @@ def plot_with_models_on_x_axis():
     pylab.title("MOOSE Vs NEURON")
     pylab.xlabel("No of compartments")
     pylab.ylabel("Run time for 1 sec simulation")
-    pylab.show()
+    outfile = '_plots/moose_vs_neuron_compt_x_axis.png'
+    print("[INFO] Saving to %s" % outfile)
+    pylab.savefig(outfile)
 
 def compareMOOSEAndNEURON():
     print("++ Comparing MOOSE and NEURON")
