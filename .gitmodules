@@ -1,0 +1,3 @@
+[submodule "swc_models"]
+	path = swc_models
+	url = dilawars@shares.ncbs.res.in:/home/bhalla/dilawars/repositories/swc_models
