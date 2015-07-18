@@ -4,8 +4,6 @@ from neuron import h
 import sys
 import pylab
 
-sys.path.append('/home_local/dilawars/moose3.0.1/Demos/util/')
-import rdesigneur as rd
 
 def buildMOOSE(swcfile):
     import loader_moose
@@ -47,22 +45,28 @@ def insertIntoNeuron(mooseCompt):
         if not soma_:
             soma_ = sec
         sec.nseg = 1
-        for mech in [ 'na3', 'kap']:
-            h('%s insert %s' % (sec.hname(), mech))
-            h('\tg_%s=120' % mech)
+
+        
+        # inserting mechanism
+        #for mech, gbar in [ ('na3', 120), ('kap', 36), ('pas', 0.001)]:
+        #    h('%s insert %s' % (sec.hname(), mech))
+        #    h('\tg_%s=%s' % (mech, gbar))
+
+        
+        sec.insert('na3')
+        sec.insert('kap')
         sec.insert('pas')
+        for seg in sec:
+            seg.na3.gbar = 120
+            seg.kap.gbar = 36
+            #seg.pas.g = 0.001
         sec.L = mooseCompt.length * 1e6
         sec.diam = mooseCompt.diameter * 1e6
         nrn_segs_[mooseCompt.path] = sec
         moose_compts_[sec] = mooseCompt
         nrn_records_[nrnSecName] = h.Vector()
         nrn_records_[nrnSecName].record(sec(0.5)._ref_v)
-
-        for seg in sec:
-            seg.na3.gbar = 120
-            seg.kap.gbar = 36
-            seg.diam = mooseCompt.length * 1e6
-            print seg.cm, seg.area(), seg.ri()
+        
         return sec
 
 def buildNRN(mooseCompts):
