@@ -71,18 +71,19 @@ def insert_pulsegen(stim):
             text.append("%s.dur = %s" % (stimname, (stim.delay[0] + stim.width[0])*1e3))
     return "\n".join(text)+"\n"
 
-            
-
 def insert_record(index, table):
     text = []
     tableName = "%s_%s" % (nrn_name(table), index)
+    text.append('objref rect')
+    text.append('rect = new Vector()')
+    text.append('rect.record(&t)')
     for targetVecs in table.neighbors['requestOut']:
         for target in targetVecs:
             targetName = nrn_name(target)
             text.append("objref %s" % tableName)
             text.append("%s = new Vector()" % tableName)
             text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
-    return "\n".join(text)
+    return "\n".join(text), tableName
 
 def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
@@ -95,10 +96,18 @@ def stimulus_text():
     stimtext = "\n".join(stimtext)
     return stimtext
 
-def plot_text():
+def plot_text(tableList):
     plottext = ["objref outF"]
     plottext.append("outF = new File()")
     plottext.append('outF.wopen("nrn_out.dat")')
+    plottext.append('outF.printf("t,%s")' % ",".join(tableList))
+    plottext.append('for i=0,rect.size()-1 {\n')
+    glist, plotlist = ["%g"], ["rect.x(i)"]
+    for t in tableList:
+        glist.append("%g")
+        plotlist.append("%s.x(i)" % t)
+    plottext.append('\toutF.printf("%s", %s)' % (" ".join(glist), ",".join(plotlist)))
+    plottext.append("}")
     plottext.append("\n")
     return "\n".join(plottext)
 
@@ -123,12 +132,14 @@ def to_neuron(path, **kwargs):
     for stim in  moose.wildcardFind('%s/##[TYPE=PulseGen]' % path):
         pulsetext.append(insert_pulsegen(stim))
 
-    recordText = []
+    recordText, tableList = [], []
     for i, table in enumerate(moose.wildcardFind('%s/##[TYPE=Table]' % path)):
-        recordText.append(insert_record(i, table))
+        text, tableName = insert_record(i, table)
+        recordText.append(text)
+        tableList.append(tableName)
 
     stimtext = stimulus_text()
-    plottext = plot_text()
+    plottext = plot_text(tableList)
     
     outfile = kwargs.get('outfile', 'moose_to_neuron.hoc')
     mu.info("Writing neuron model to %s" % outfile)
