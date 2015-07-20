@@ -97,7 +97,7 @@ def saveData( outfile ):
     _logger.debug("Done writing to file %s" % outfile)
 
 
-def loadModel(filename, args):
+def loadModel(filename, chanDistrib, passiveDistrib):
     """Load the model and insert channels """
     global modelName
     global nchans, ncompts
@@ -112,20 +112,6 @@ def loadModel(filename, args):
             ['./chans/kdr.xml'], 
             ['./chans/na3.xml'], 
             ['./chans/nax.xml'], 
-            ]
-
-    passiveDistrib = [ 
-            [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
-                "Em", "-58e-3", "initVm", "-65e-3" ]
-            , [ ".", "#axon#", "RA", "0.5" ] 
-            ]
-    chanDistrib = [
-            [  "na3", "#", "Gbar", "1200" ]
-            , [ "nax", "#", "Gbar", "125" ]
-            , [ "kap", "#", "Gbar", "360" ]
-            , [ "kdr", "#", "Gbar", "10" ]
-            , [ "hd", "#", "Gbar", "0.05" ]
-            , [ "kad", "#", "Gbar", "60" ]
             ]
 
     rdes = rd.rdesigneur( cellProto = cellProto

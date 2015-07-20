@@ -3,6 +3,7 @@ import moose.utils as mu
 from neuron import h
 import sys
 import pylab
+from collections import defaultdict
 
 
 def buildMOOSE(swcfile):
@@ -13,13 +14,13 @@ def buildMOOSE(swcfile):
     moose.reinit()
     buildNRN(compts)
 
-    #moose.start(0.1)
-    #records = {}
-    #for i, k in enumerate(records_):
-    #    if i == 3:
-    #        break
-    #    else: records[k] = records_[k]
-    #mu.plotRecords(records)
+    moose.start(0.1)
+    records = {}
+    for i, k in enumerate(records_):
+        if i == 3:
+            break
+        else: records[k] = records_[k]
+    mu.plotRecords(records)
 
 nrn_segs_ = {}
 moose_compts_ = {}
@@ -77,6 +78,7 @@ def insertIntoNeuron(mooseCompt):
         return sec
 
 def buildNRN(mooseCompts):
+    nrnTextFile = defaultdict(list)
     nrn_segs_ = {}
     moose_compts_ = {}
     global soma_
