@@ -70,25 +70,67 @@ def mooseToNrn(compts):
 
     connectionText = []
     for c in compts:
-        connectionText.append(connectSec(c))
+        connectionText.append(connect_neuron_sections(c))
     nrn_text_['connections'] = "\n".join(connectionText) 
+
+def insert_pulsegen(stim):
+    stimname = nrn_name(stim)
+    text = []
+    text.append('objectvar %s' % stimname)
+    for comptVecs in stim.neighbors['output']:
+        for compt in comptVecs:
+            targetName = nrn_name(compt)
+            text.append("%s %s = new IClamp(0.5)" % (targetName, stimname)) 
+            text.append("%s.amp = %s" % (stimname, stim.level[0] * 1e9))
+            text.append("%s.del = %s" % (stimname, stim.delay[0] * 1e3))
+            text.append("%s.dur = %s" % (stimname, (stim.delay[0] + stim.width[0])*1e3))
+    return "\n".join(text)
+            
+
+def insert_record(index, table):
+    text = []
+    tableName = "%s_%s" % (nrn_name(table), index)
+    for targetVecs in table.neighbors['requestOut']:
+        for target in targetVecs:
+            targetName = nrn_name(target)
+            text.append("objref %s" % tableName)
+            text.append("%s = new Vector()" % tableName)
+            text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
+    return "\n".join(text)
 
 
 def to_neuron(path, **kwargs):
     moose.reinit()
     mooseCompts = moose.wildcardFind('%s/##[TYPE=Compartment]' % path)
     zombiles = moose.wildcardFind('%s/##[TYPE=ZombieCompartment]'% path)
-    compts_ = set(mooseCompts).union(set(zombiles))
+    compts = set(mooseCompts).union(set(zombiles))
 
     headerText = []
 
     comptText = []
-    for c in compts_:
+    for c in compts:
         comptText.append(create_section_in_neuron(c))
 
     connectionText = []
-    for c in compts_:
+    for c in compts:
         connectionText.append(connect_neuron_sections(c))
+
+    stimText = []
+    for stim in  moose.wildcardFind('%s/##[TYPE=PulseGen]' % path):
+        stimText.append(insert_pulsegen(stim))
+
+    recordText = []
+    for i, table in enumerate(moose.wildcardFind('%s/##[TYPE=Table]' % path)):
+        recordText.append(insert_record(i, table))
+
+    stimtext = [ 'load_file("stdrun.hoc")' ]
+    mu.info("Default sim time is 1 second. Change it in script.")
+    stimtext.append('tstop=%s' % 1000)
+    stimtext.append('run()')
+
+    plottext = ["objref outF"]
+    plottext.append("outF = new File()")
+    plottext.append('outF.wopen("nrn_out.dat")')
 
     outfile = kwargs.get('outfile', 'moose_to_neuron.hoc')
     mu.info("Writing neuron model to %s" % outfile)
@@ -99,3 +141,7 @@ def to_neuron(path, **kwargs):
         f.write("\n")
         f.write("\n".join(connectionText))
         f.write("\n")
+        f.write("\n".join(recordText))
+        f.write("\n".join(stimText))
+        f.write("\n")
+        f.write("\n".join(plottext))
