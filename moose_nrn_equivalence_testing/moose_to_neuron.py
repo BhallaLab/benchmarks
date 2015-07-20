@@ -43,7 +43,7 @@ def create_section_in_neuron(mooseCompt):
                 , float(ek) * 1e3)
             )
     text.append("\n\t".join(params))
-    text.append("}")
+    text.append("}\n\n")
     return "\n".join(text)
 
 def connect_neuron_sections(compt):
@@ -55,28 +55,13 @@ def connect_neuron_sections(compt):
         for tgt in c:
             tgtSec = nrn_name(tgt)
             context.append('connect %s(0), %s(1)' % (tgtSec, srcSec))
+    context.append("\n")
     return "\n".join(context)
-
-def mooseToNrn(compts):
-    """Create a neuron script """
-    global nrn_text_, model_name_
-
-    nrn_text_['header'] = 'load_file("stdrun.hoc")'
-
-    networkText = []
-    for c in compts:
-        networkText.append(insertIntoNeuron(c))
-    nrn_text_['build_network'] = "\n".join(networkText)
-
-    connectionText = []
-    for c in compts:
-        connectionText.append(connect_neuron_sections(c))
-    nrn_text_['connections'] = "\n".join(connectionText) 
 
 def insert_pulsegen(stim):
     stimname = nrn_name(stim)
     text = []
-    text.append('objectvar %s' % stimname)
+    text.append('\nobjectvar %s' % stimname)
     for comptVecs in stim.neighbors['output']:
         for compt in comptVecs:
             targetName = nrn_name(compt)
@@ -84,7 +69,8 @@ def insert_pulsegen(stim):
             text.append("%s.amp = %s" % (stimname, stim.level[0] * 1e9))
             text.append("%s.del = %s" % (stimname, stim.delay[0] * 1e3))
             text.append("%s.dur = %s" % (stimname, (stim.delay[0] + stim.width[0])*1e3))
-    return "\n".join(text)
+    return "\n".join(text)+"\n"
+
             
 
 def insert_record(index, table):
@@ -97,6 +83,24 @@ def insert_record(index, table):
             text.append("%s = new Vector()" % tableName)
             text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
     return "\n".join(text)
+
+def stimulus_text():
+    stimtext = [ 'load_file("stdrun.hoc")' ]
+    mu.info(" Default sim time is 1 second. Change it in script.")
+    stimtext.append('tstop=%s' % 1000)
+    stimtext.append('cvode.active(1)')
+    stimtext.append('finitialize()')
+    stimtext.append('run()')
+    stimtext.append("\n")
+    stimtext = "\n".join(stimtext)
+    return stimtext
+
+def plot_text():
+    plottext = ["objref outF"]
+    plottext.append("outF = new File()")
+    plottext.append('outF.wopen("nrn_out.dat")')
+    plottext.append("\n")
+    return "\n".join(plottext)
 
 
 def to_neuron(path, **kwargs):
@@ -115,33 +119,24 @@ def to_neuron(path, **kwargs):
     for c in compts:
         connectionText.append(connect_neuron_sections(c))
 
-    stimText = []
+    pulsetext = []
     for stim in  moose.wildcardFind('%s/##[TYPE=PulseGen]' % path):
-        stimText.append(insert_pulsegen(stim))
+        pulsetext.append(insert_pulsegen(stim))
 
     recordText = []
     for i, table in enumerate(moose.wildcardFind('%s/##[TYPE=Table]' % path)):
         recordText.append(insert_record(i, table))
 
-    stimtext = [ 'load_file("stdrun.hoc")' ]
-    mu.info("Default sim time is 1 second. Change it in script.")
-    stimtext.append('tstop=%s' % 1000)
-    stimtext.append('run()')
-
-    plottext = ["objref outF"]
-    plottext.append("outF = new File()")
-    plottext.append('outF.wopen("nrn_out.dat")')
-
+    stimtext = stimulus_text()
+    plottext = plot_text()
+    
     outfile = kwargs.get('outfile', 'moose_to_neuron.hoc')
     mu.info("Writing neuron model to %s" % outfile)
     with open(outfile, "w") as f:
-        f.write("\n".join(headerText))
-        f.write("\n")
-        f.write("\n".join(comptText))
-        f.write("\n")
-        f.write("\n".join(connectionText))
-        f.write("\n")
-        f.write("\n".join(recordText))
-        f.write("\n".join(stimText))
-        f.write("\n")
-        f.write("\n".join(plottext))
+        f.writelines(headerText)
+        f.writelines(comptText)
+        f.writelines(connectionText)
+        f.writelines(recordText)
+        f.writelines(pulsetext)
+        f.writelines(stimtext)
+        f.writelines(plottext)
