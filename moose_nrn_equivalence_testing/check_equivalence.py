@@ -6,6 +6,7 @@ import moose.utils as mu
 import sys
 import pylab
 from collections import defaultdict
+import moose_to_neuron as m2n
 
 nrn_segs_ = {}
 moose_compts_ = {}
@@ -52,75 +53,15 @@ def plotNrn():
             break
     pylab.show()
 
-def nrnName(compt):
-    assert type(compt) != moose.vec, compt
-    path = compt.path
-    path = path.split('/')[-1]
-    return path.translate(None, "[]/")
-
-def insertIntoNeuron(mooseCompt):
-    global nrn_segs_
-    global moose_compts_
-    global soma_
-
-    secname = nrnName(mooseCompt)
-    text = [ "create %s" % secname ]
-
-    params = [ "%s { " % secname ]
-
-    # Here we fill in the mechanism.
-    params += [ "nseg = 1" ]
-
-    for chan in chanDistrib_:
-        mech, x, y, gbar = chan
-        params.append('insert %s { gmax = %s }' % (mech, float(gbar)/10.0))
-
-    text.append("\n\t".join(params))
-    text.append("}")
-    return "\n".join(text)
-
-def connectSec(compt):
-    global nrn_text_
-    srcSec = nrnName(compt)
-    context = []
-    neighbours = compt.neighbors['axial']
-    for c in neighbours:
-        for tgt in c:
-            tgtSec = nrnName(tgt)
-            context.append('connect %s(0), %s(1)' % (tgtSec, srcSec))
-    return "\n".join(context)
-
-def mooseToNrn(compts):
-    """Create a neuron script """
-    global nrn_text_, model_name_
-
-    nrn_text_['header'] = 'load_file("stdrun.hoc")'
-
-    networkText = []
-    for c in compts:
-        networkText.append(insertIntoNeuron(c))
-    nrn_text_['build_network'] = "\n".join(networkText)
-
-    connectionText = []
-    for c in compts:
-        connectionText.append(connectSec(c))
-    nrn_text_['connections'] = "\n".join(connectionText) 
-
-    with open("%s.hoc" % model_name_, "w") as f:
-        f.write(nrn_text_['header'])
-        f.write("\n")
-        f.write(nrn_text_['build_network'])
-        f.write("\n")
-        f.write(nrn_text_['connections'])
-        f.write("\n")
-
 
 def main():
     global model_name_
     swcfile = sys.argv[1]
     model_name_ = os.path.basename(swcfile)
     compts = buildMOOSE(swcfile)
-    mooseToNrn(compts)
+    #mooseToNrn(compts)
+    m2n.to_neuron('/model', outfile='%s.hoc' % model_name_)
+
 
 if __name__ == '__main__':
     main()
