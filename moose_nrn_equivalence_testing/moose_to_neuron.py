@@ -37,7 +37,7 @@ def create_section_in_neuron(mooseCompt):
         for chan in chanVec:
             mech = chan.name
             gbar, ek = chan.Gbar, chan.Ek
-            params.append('insert {0} {{ gbar = {1}, ek = {2} }}'.format(
+            params.append('insert {0} {{ gbar_{0} = {1:.4f} ek_{0} = {2:.4f} }}'.format(
                 mech
                 , float(gbar) * 1e6
                 , float(ek) * 1e3)
@@ -90,9 +90,9 @@ def to_neuron(path, **kwargs):
     for c in compts_:
         connectionText.append(connect_neuron_sections(c))
 
-    modelName = kwargs.get('outfile', 'moose_to_neuron.hoc')
-    mu.info("Writing neuron model to %s" % modelName)
-    with open("%s.hoc" % modelName, "w") as f:
+    outfile = kwargs.get('outfile', 'moose_to_neuron.hoc')
+    mu.info("Writing neuron model to %s" % outfile)
+    with open(outfile, "w") as f:
         f.write("\n".join(headerText))
         f.write("\n")
         f.write("\n".join(comptText))
