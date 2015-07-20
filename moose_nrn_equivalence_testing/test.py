@@ -46,32 +46,40 @@ def insertIntoNeuron(mooseCompt):
             soma_ = sec
         sec.nseg = 1
 
-        
         # inserting mechanism
         #for mech, gbar in [ ('na3', 120), ('kap', 36), ('pas', 0.001)]:
         #    h('%s insert %s' % (sec.hname(), mech))
         #    h('\tg_%s=%s' % (mech, gbar))
-
+        channels = {
+                'na3': 25, 'nax': 125
+                , 'kap': 30, 'kdr': 10
+                , 'hd': 0.05, 'kad': 60 
+                }
+        for chan in channels:
+            sec.insert(chan)
         
-        sec.insert('na3')
-        sec.insert('kap')
-        sec.insert('pas')
         for seg in sec:
-            seg.na3.gbar = 120
-            seg.kap.gbar = 36
-            #seg.pas.g = 0.001
+            seg.na3.gbar = 25
+            seg.nax.gbar = 125
+            seg.kap.gbar = 30
+            print dir(seg.kdr)
+            seg.kdr.gmax = 10
+            seg.hd.gmax = 0.05
+            seg.kad.gbar = 60
+            
+
         sec.L = mooseCompt.length * 1e6
         sec.diam = mooseCompt.diameter * 1e6
         nrn_segs_[mooseCompt.path] = sec
         moose_compts_[sec] = mooseCompt
         nrn_records_[nrnSecName] = h.Vector()
         nrn_records_[nrnSecName].record(sec(0.5)._ref_v)
-        
         return sec
 
 def buildNRN(mooseCompts):
     nrn_segs_ = {}
     moose_compts_ = {}
+    global soma_
     from neuron import h
     for c in mooseCompts:
         cseg = insertIntoNeuron(c)
@@ -81,15 +89,12 @@ def buildNRN(mooseCompts):
             ccseg.connect(cseg)
 
     nrn_records_['t'].record(h._ref_t)
-
-    h('access %s' % soma_.hname())
-    h('objectvar stim')
-    h('stim = new IClamp(0.5)')
-    h('stim.amp = 1')
-    h('stim.del = 0')
-    h('stim.dur = 100')
-
     h.load_file('stdrun.hoc')
+    stim = h.IClamp(0.5, sec=soma_)
+    stim.delay = 20
+    stim.amp = 1
+    stim.dur = 100
+
     h.init()
     h.tstop = 100
     h.run()

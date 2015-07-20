@@ -1,0 +1,35 @@
+create soma 
+soma {
+    nseg = 1
+    diam = 18.8
+    L = 18.8
+    Ra = 123.0
+    insert na3 { gmax = 25 }
+    insert nax { gmax = 125 }
+    insert kap { gmax = 30 }
+    insert kdr { gmax = 10 }
+    insert hd { gmax = 0.05 }
+    insert kad { gmax = 60 }
+}
+
+objref somaRec, somaF
+
+somaF = new File()
+
+somaRec = new Vector()
+somaRec.record(&soma.v(0.5))
+
+objectvar stim
+soma stim = new IClamp(0.5)
+stim.amp = 0.1
+stim.dur = 100
+stim.del = 20
+
+load_file("stdrun.hoc")
+tstop = 100
+run()
+
+// save the data
+somaF.wopen("nrn_test.dat")
+somaRec.printf(somaF)
+

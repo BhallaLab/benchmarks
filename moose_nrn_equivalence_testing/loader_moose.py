@@ -121,7 +121,11 @@ def loadModel(filename, args):
             ]
     chanDistrib = [
             [  "na3", "#", "Gbar", "1200" ]
+            , [ "nax", "#", "Gbar", "125" ]
             , [ "kap", "#", "Gbar", "360" ]
+            , [ "kdr", "#", "Gbar", "10" ]
+            , [ "hd", "#", "Gbar", "0.05" ]
+            , [ "kad", "#", "Gbar", "60" ]
             ]
 
     rdes = rd.rdesigneur( cellProto = cellProto
