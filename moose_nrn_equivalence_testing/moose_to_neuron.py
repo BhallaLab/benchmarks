@@ -106,7 +106,7 @@ def plot_text(tableList):
     for t in tableList:
         glist.append("%g")
         plotlist.append("%s.x(i)" % t)
-    plottext.append('\toutF.printf("%s", %s)' % (" ".join(glist), ",".join(plotlist)))
+    plottext.append('\toutF.printf("%s\n", %s)' % (" ".join(glist), ",".join(plotlist)))
     plottext.append("}")
     plottext.append("\n")
     return "\n".join(plottext)
