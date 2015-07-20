@@ -52,15 +52,18 @@ def plotNrn():
             break
     pylab.show()
 
-def nrnName(comptPath):
-    return comptPath.translate(None, "[]/")
+def nrnName(compt):
+    assert type(compt) != moose.vec, compt
+    path = compt.path
+    path = path.split('/')[-1]
+    return path.translate(None, "[]/")
 
 def insertIntoNeuron(mooseCompt):
     global nrn_segs_
     global moose_compts_
     global soma_
 
-    secname = nrnName(mooseCompt.path)
+    secname = nrnName(mooseCompt)
     text = [ "create %s" % secname ]
 
     params = [ "%s { " % secname ]
@@ -78,11 +81,13 @@ def insertIntoNeuron(mooseCompt):
 
 def connectSec(compt):
     global nrn_text_
-    srcSec = nrnName(compt.path)
+    srcSec = nrnName(compt)
     context = []
-    for c in compt.neighbors['axial']:
-        tgtSec = nrnName(c.path)
-        context.append('connect %s(0), %s(1)' % (srcSec, tgtSec))
+    neighbours = compt.neighbors['axial']
+    for c in neighbours:
+        for tgt in c:
+            tgtSec = nrnName(tgt)
+            context.append('connect %s(0), %s(1)' % (tgtSec, srcSec))
     return "\n".join(context)
 
 def mooseToNrn(compts):
