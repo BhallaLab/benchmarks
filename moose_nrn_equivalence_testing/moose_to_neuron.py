@@ -15,6 +15,7 @@ __status__           = "Development"
 
 import moose
 import moose.utils as mu
+import numpy as np
 
 compts_ = set()
 nrn_txt_ = {}
@@ -37,10 +38,18 @@ def create_section_in_neuron(mooseCompt):
         for chan in chanVec:
             mech = chan.name
             gbar, ek = chan.Gbar, chan.Ek
-            params.append('insert {0} {{ gbar_{0} = {1:.4f} ek_{0} = {2:.4f} }}'.format(
+            length = mooseCompt.length
+            diameter = mooseCompt.diameter
+            sarea = np.pi * diameter * length
+            gbar = gbar / sarea
+            nrn_gbar = gbar / 10.0
+            params.append('insert {0} {{gbar_{0}={1} ek_{0}={2} L={3} diam={4}}}'.format(
                 mech
-                , float(gbar) * 1e6
-                , float(ek) * 1e3)
+                , nrn_gbar
+                , float(ek) * 1e3
+                , length * 1e6
+                , diameter * 1e6
+                )
             )
     text.append("\n\t".join(params))
     text.append("}\n\n")
