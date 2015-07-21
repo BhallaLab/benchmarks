@@ -26,31 +26,42 @@ def nrn_name(compt):
     path = path.split('/')[-1]
     return path.translate(None, "[]/")
 
+def moose_compt_to_nrn_section_params(mooseCompt):
+    """Convert moose compartment properties to NEURON section propterties """
+    length = mooseCompt.length
+    diameter = mooseCompt.diameter
+    sarea = np.pi * diameter * length
+    ra = mooseCompt.Ra * (np.pi * diameter * diameter / 4.0) / length
+    props = {}
+    props['L'] = length * 1e6
+    props['diam'] = diameter * 1e6
+    props['Ra'] = ra * 1e-2
+    props['sarea'] = sarea
+    return props
+
 def create_section_in_neuron(mooseCompt):
     secname = nrn_name(mooseCompt)
     text = [ "create %s" % secname ]
     params = [ "%s { " % secname ]
     # Here we fill in the mechanism.
     params += [ "nseg = 1" ]
-
+    props = moose_compt_to_nrn_section_params(mooseCompt)
+    params += [ "%s = %s" % (p, props[p]) for p in 
+            #["L", "diam", "Ra"] 
+            ["L", "diam"] 
+            ]
+    params.append('insert pas { g_pas=0.0001  e_pas=-60.0 }')
     channels = mooseCompt.neighbors['channel']
     for chanVec in channels:
         for chan in chanVec:
             mech = chan.name
             gbar, ek = chan.Gbar, chan.Ek
-            length = mooseCompt.length
-            diameter = mooseCompt.diameter
-            sarea = np.pi * diameter * length
-            gbar = gbar / sarea
+            gbar = gbar / props['sarea']
             nrn_gbar = gbar / 10.0
-            params.append('insert {0} {{gbar_{0}={1} ek_{0}={2} L={3} diam={4}}}'.format(
-                mech
-                , nrn_gbar
-                , float(ek) * 1e3
-                , length * 1e6
-                , diameter * 1e6
+            params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
+                mech, nrn_gbar, float(ek)*1e3)
                 )
-            )
+
     text.append("\n\t".join(params))
     text.append("}\n\n")
     return "\n".join(text)
