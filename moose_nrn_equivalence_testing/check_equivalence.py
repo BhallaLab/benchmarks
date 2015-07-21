@@ -13,6 +13,7 @@ moose_compts_ = {}
 soma_ = None
 nrn_text_ = {} #defaultdict(list)
 model_name_ = None
+records_ = {}
 
 passiveDistrib_ = [ 
         [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
@@ -33,18 +34,20 @@ chanDistrib_ = [
 def buildMOOSE(swcfile):
     import loader_moose
     global chanDistrib_, passiveDistrib_
+    global records_
     records_ = loader_moose.loadModel(swcfile, chanDistrib_, passiveDistrib_)
     compts = moose.wildcardFind('/model/##[TYPE=ZombieCompartment]')
     print("Total moose compartment: %s" % len(compts))
+
+def runMOOSE():
     moose.reinit()
-    #moose.start(0.1)
-    #records = {}
-    #for i, k in enumerate(records_):
-    #    if i == 3:
-    #        break
-    #    else: records[k] = records_[k]
-    #mu.plotRecords(records)
-    return compts
+    moose.start(0.1)
+    records = {}
+    for i, k in enumerate(records_):
+        if i == 3:
+            break
+        else: records[k] = records_[k]
+    mu.plotRecords(records)
 
 def plotNrn():
     for i, k in enumerate(nrn_records_):
@@ -59,7 +62,7 @@ def main():
     swcfile = sys.argv[1]
     model_name_ = os.path.basename(swcfile)
     compts = buildMOOSE(swcfile)
-    #mooseToNrn(compts)
+    #runMOOSE()
     m2n.to_neuron('/model', outfile='%s.hoc' % model_name_)
 
 

@@ -35,8 +35,10 @@ def moose_compt_to_nrn_section_params(mooseCompt):
     props = {}
     props['L'] = length * 1e6
     props['diam'] = diameter * 1e6
-    props['Ra'] = ra * 1e-2
-    props['sarea'] = sarea
+    props['Ra'] = ra * 1e-2 # m to cm
+    props['cm'] = mooseCompt.Cm / sarea * 1e-4
+    props['Rm'] = mooseCompt.Rm * sarea / 1e-4
+    props['sarea'] = sarea 
     return props
 
 def create_section_in_neuron(mooseCompt):
@@ -46,18 +48,15 @@ def create_section_in_neuron(mooseCompt):
     # Here we fill in the mechanism.
     params += [ "nseg = 1" ]
     props = moose_compt_to_nrn_section_params(mooseCompt)
-    params += [ "%s = %s" % (p, props[p]) for p in 
-            #["L", "diam", "Ra"] 
-            ["L", "diam"] 
-            ]
+    params += [ "%s = %s" % (p, props[p]) for p in ["L", "diam", "cm", "Ra", "Rm"]]
     params.append('insert pas { g_pas=0.0001  e_pas=-60.0 }')
     channels = mooseCompt.neighbors['channel']
     for chanVec in channels:
         for chan in chanVec:
             mech = chan.name
             gbar, ek = chan.Gbar, chan.Ek
-            gbar = gbar / props['sarea']
-            nrn_gbar = gbar / 10.0
+            gbar = gbar / props['sarea'] 
+            nrn_gbar = gbar * 1e-4
             params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
                 mech, nrn_gbar, float(ek)*1e3)
                 )
@@ -108,7 +107,7 @@ def insert_record(index, table):
 def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
     mu.info(" Default sim time is 1 second. Change it in script.")
-    stimtext.append('tstop=%s' % 1000)
+    stimtext.append('tstop=%s' % 100)
     stimtext.append('cvode.active(1)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
