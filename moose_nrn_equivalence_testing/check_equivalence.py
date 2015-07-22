@@ -30,6 +30,11 @@ chanDistrib_ = [
         , [ "kad", "#", "Gbar", "60" ]
         ]
 
+#chanDistrib = []
+#for c in chanDistrib_:
+#    print c
+#    chanDistrib.append( c[0:3] + [ str(float(c[3])*15)])
+
 
 def buildMOOSE(swcfile):
     import loader_moose

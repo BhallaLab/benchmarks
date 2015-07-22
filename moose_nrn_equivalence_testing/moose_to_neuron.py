@@ -35,8 +35,8 @@ def moose_compt_to_nrn_section_params(mooseCompt):
     props = {}
     props['L'] = length * 1e6
     props['diam'] = diameter * 1e6
-    props['Ra'] = ra * 1e-2 # m to cm
-    props['cm'] = mooseCompt.Cm / sarea * 1e-4
+    props['Ra'] = ra * 1e2 # m to cm
+    props['cm'] = 1e2 * mooseCompt.Cm / sarea  # F/m^2 -> uF/cm^2
     props['Rm'] = mooseCompt.Rm * sarea / 1e-4
     props['sarea'] = sarea 
     return props
@@ -49,7 +49,7 @@ def create_section_in_neuron(mooseCompt):
     params += [ "nseg = 1" ]
     props = moose_compt_to_nrn_section_params(mooseCompt)
     params += [ "%s = %s" % (p, props[p]) for p in ["L", "diam", "cm", "Ra", "Rm"]]
-    params.append('insert pas { g_pas=0.0001  e_pas=-60.0 }')
+    params.append('insert pas { g_pas=1/Rm Ra=Ra cm=cm e_pas=-60.0 }')
     channels = mooseCompt.neighbors['channel']
     for chanVec in channels:
         for chan in chanVec:
