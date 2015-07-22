@@ -52,7 +52,7 @@ def runMOOSE():
         if i == 3:
             break
         else: records[k] = records_[k]
-    mu.plotRecords(records)
+    mu.plotRecords(records, outfile="moose_results.png")
 
 def plotNrn():
     for i, k in enumerate(nrn_records_):
@@ -67,7 +67,7 @@ def main():
     swcfile = sys.argv[1]
     model_name_ = os.path.basename(swcfile)
     compts = buildMOOSE(swcfile)
-    #runMOOSE()
+    runMOOSE()
     m2n.to_neuron('/model', outfile='%s.hoc' % model_name_)
 
 
