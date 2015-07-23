@@ -16,13 +16,14 @@ __status__           = "Development"
 import moose
 import moose.utils as mu
 import numpy as np
+import re
 
 compts_ = set()
 nrn_txt_ = {}
 
 def nrn_name(compt):
     assert type(compt) != moose.vec, compt
-    path = compt.path
+    path = re.sub('\[\d+\]', "", compt.path)
     path = path.split('/')[-1]
     return path.translate(None, "[]/")
 
