@@ -70,6 +70,5 @@ def main():
     runMOOSE()
     m2n.to_neuron('/model', outfile='%s.hoc' % model_name_)
 
-
 if __name__ == '__main__':
     main()
