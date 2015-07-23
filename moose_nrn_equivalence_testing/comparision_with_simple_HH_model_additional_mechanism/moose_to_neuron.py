@@ -109,13 +109,10 @@ def insert_pulsegen(stim):
 
 def insert_record(index, table):
     text = []
-    tableName = "%s_%s" % (nrn_name(table), index)
-    text.append('objref rect')
-    text.append('rect = new Vector()')
-    text.append('rect.record(&t)')
     for targetVecs in table.neighbors['requestOut']:
         for target in targetVecs:
             targetName = nrn_name(target)
+            tableName = "table_%s" % targetName
             text.append("objref %s" % tableName)
             text.append("%s = new Vector()" % tableName)
             text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
@@ -136,13 +133,13 @@ def plot_text(tableList):
     plottext = ["objref outF"]
     plottext.append("outF = new File()")
     plottext.append('outF.wopen("nrn_out.dat")')
-    plottext.append('outF.printf("t,%s")' % ",".join(tableList))
+    plottext.append('outF.printf("t,%s\\n")' % ",".join(tableList))
     plottext.append('for i=0,rect.size()-1 {\n')
     glist, plotlist = ["%g"], ["rect.x(i)"]
     for t in tableList:
         glist.append("%g")
         plotlist.append("%s.x(i)" % t)
-    plottext.append('\toutF.printf("%s\\n", %s)' % (" ".join(glist), ",".join(plotlist)))
+    plottext.append('\toutF.printf("%s\\n", %s)' % (",".join(glist), ",".join(plotlist)))
     plottext.append("}")
     plottext.append("\n")
     return "\n".join(plottext)
@@ -169,6 +166,11 @@ def to_neuron(path, **kwargs):
         pulsetext.append(insert_pulsegen(stim))
 
     recordText, tableList = [], []
+    text = []
+    text.append('objref rect')
+    text.append('rect = new Vector()')
+    text.append('rect.record(&t)')
+    recordText.append("\n".join(text))
     for i, table in enumerate(moose.wildcardFind('%s/##[TYPE=Table]' % path)):
         text, tableName = insert_record(i, table)
         recordText.append(text)
