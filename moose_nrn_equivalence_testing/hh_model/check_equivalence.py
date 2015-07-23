@@ -21,7 +21,6 @@ chanProto_ = [
         ['./cellMechanisms/LeakConductance/LeakConductance.xml']
         ]
 
-
 passiveDistrib_ = [ 
         [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
             "Em", "-58e-3", "initVm", "-65e-3" ]
@@ -31,7 +30,7 @@ passiveDistrib_ = [
 chanDistrib_ = [
         [  "NaConductance", "#", "Gbar", "1200" ]
         , [ "KConductance", "#", "Gbar", "360" ]
-        , [ "LeakConductance", "#", "Gbar", "0.3" ]
+        , [ "LeakConductance", "#", "Gbar", "3" ]
         ]
 
 #chanDistrib = []
