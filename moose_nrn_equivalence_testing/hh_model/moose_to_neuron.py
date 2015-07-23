@@ -51,15 +51,20 @@ def create_section_in_neuron(mooseCompt):
     params += [ "%s = %s" % (p, props[p]) for p in ["L", "diam", "cm", "Ra", "Rm"]]
     params.append('insert pas { g_pas=1/Rm Ra=Ra cm=cm e_pas=-60.0 }')
     channels = mooseCompt.neighbors['channel']
-    for chanVec in channels:
-        for chan in chanVec:
-            mech = chan.name
-            gbar, ek = chan.Gbar, chan.Ek
-            gbar = gbar / props['sarea'] 
-            nrn_gbar = gbar * 1e-4
-            params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
-                mech, nrn_gbar, float(ek)*1e3)
-                )
+    
+    # In this particular script, we just add the hh mechanism and nothing else.
+    # Make sure that MOOSE only has HH-Mehcanism loaded. Passive properties must
+    # be same as HH mehcanism.
+    params.append('insert hh')
+    #for chanVec in channels:
+    #    for chan in chanVec:
+    #        mech = chan.name
+    #        gbar, ek = chan.Gbar, chan.Ek
+    #        gbar = gbar / props['sarea'] 
+    #        nrn_gbar = gbar * 1e-4
+    #        params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
+    #            mech, nrn_gbar, float(ek)*1e3)
+    #            )
 
     text.append("\n\t".join(params))
     text.append("}\n\n")

@@ -97,7 +97,7 @@ def saveData( outfile ):
     _logger.debug("Done writing to file %s" % outfile)
 
 
-def loadModel(filename, chanDistrib, passiveDistrib):
+def loadModel(filename, chanProto, chanDistrib, passiveDistrib):
     """Load the model and insert channels """
     global modelName
     global nchans, ncompts
@@ -105,15 +105,6 @@ def loadModel(filename, chanDistrib, passiveDistrib):
     # Load in the swc file.
     modelName = "elec"
     cellProto = [ ( filename, modelName ) ]
-    chanProto = [
-            ['./chans/hd.xml'], 
-            ['./chans/kap.xml'], 
-            ['./chans/kad.xml'], 
-            ['./chans/kdr.xml'], 
-            ['./chans/na3.xml'], 
-            ['./chans/nax.xml'], 
-            ]
-
     rdes = rd.rdesigneur( cellProto = cellProto
             , combineSegments = True
             , passiveDistrib = passiveDistrib

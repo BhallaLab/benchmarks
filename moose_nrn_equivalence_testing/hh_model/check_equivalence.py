@@ -15,6 +15,13 @@ nrn_text_ = {} #defaultdict(list)
 model_name_ = None
 records_ = {}
 
+chanProto_ = [
+        ['./cellMechanisms/KConductance/KChannel_HH.xml'], 
+        ['./cellMechanisms/NaConductance/NaChannel_HH.xml'],
+        ['./cellMechanisms/LeakConductance/LeakConductance.xml']
+        ]
+
+
 passiveDistrib_ = [ 
         [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
             "Em", "-58e-3", "initVm", "-65e-3" ]
@@ -22,12 +29,9 @@ passiveDistrib_ = [
         ]
 
 chanDistrib_ = [
-        [  "na3", "#", "Gbar", "1200" ]
-        , [ "nax", "#", "Gbar", "125" ]
-        , [ "kap", "#", "Gbar", "360" ]
-        , [ "kdr", "#", "Gbar", "10" ]
-        , [ "hd", "#", "Gbar", "0.05" ]
-        , [ "kad", "#", "Gbar", "60" ]
+        [  "NaConductance", "#", "Gbar", "1200" ]
+        , [ "KConductance", "#", "Gbar", "360" ]
+        , [ "LeakConductance", "#", "Gbar", "0.3" ]
         ]
 
 #chanDistrib = []
@@ -40,7 +44,7 @@ def buildMOOSE(swcfile):
     import loader_moose
     global chanDistrib_, passiveDistrib_
     global records_
-    records_ = loader_moose.loadModel(swcfile, chanDistrib_, passiveDistrib_)
+    records_ = loader_moose.loadModel(swcfile, chanProto_, chanDistrib_, passiveDistrib_)
     compts = moose.wildcardFind('/model/##[TYPE=ZombieCompartment]')
     print("Total moose compartment: %s" % len(compts))
 
