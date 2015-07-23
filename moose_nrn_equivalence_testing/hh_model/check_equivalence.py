@@ -55,7 +55,8 @@ def runMOOSE():
         if i == 3:
             break
         else: records[k] = records_[k]
-    mu.plotRecords(records, outfile="moose_results.png")
+    mu.plotRecords(records_, outfile="moose_results.png")
+    #mu.saveRecords(records_, outfile="moose_results.csv", legend=False)
 
 def plotNrn():
     for i, k in enumerate(nrn_records_):
