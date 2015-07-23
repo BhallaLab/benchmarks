@@ -18,7 +18,8 @@ records_ = {}
 chanProto_ = [
         ['./cellMechanisms/KConductance/KChannel_HH.xml'], 
         ['./cellMechanisms/NaConductance/NaChannel_HH.xml'],
-        ['./cellMechanisms/LeakConductance/LeakConductance.xml']
+        ['./cellMechanisms/LeakConductance/LeakConductance.xml'],
+        [ '../chans/kdr.xml' ]
         ]
 
 passiveDistrib_ = [ 
@@ -31,6 +32,7 @@ chanDistrib_ = [
         [  "NaConductance", "#", "Gbar", "1200" ]
         , [ "KConductance", "#", "Gbar", "360" ]
         , [ "LeakConductance", "#", "Gbar", "3" ]
+        , [ "kdr", "#", "Gbar", "10" ]
         ]
 
 #chanDistrib = []

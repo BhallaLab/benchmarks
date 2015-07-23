@@ -41,6 +41,24 @@ def moose_compt_to_nrn_section_params(mooseCompt):
     props['sarea'] = sarea 
     return props
 
+def write_mechanism_line(chan, props):
+    mech = chan.name
+    param = {}
+    line = [ "insert %s {" % mech ]
+    gbar, ek = chan.Gbar, chan.Ek
+    gbar = gbar / props['sarea'] 
+    nrn_gbar = gbar * 1e-4
+    param['gbar_%s' % mech] = nrn_gbar
+    param['e_%s' % mech] = 1e3*float(ek)
+    if "na" in mech.lower():
+        param['e_na'] = 1e3*float(ek)
+    elif "k" in mech.lower():
+        param['e_k'] = 1e3*float(ek)
+    line += ["%s=%s" % (k, param[k]) for k in param]
+    line.append("}")
+    return " ".join(line)
+
+
 def create_section_in_neuron(mooseCompt):
     secname = nrn_name(mooseCompt)
     text = [ "create %s" % secname ]
@@ -59,13 +77,7 @@ def create_section_in_neuron(mooseCompt):
     for chanVec in channels:
         for chan in chanVec:
             mech = chan.name
-            gbar, ek = chan.Gbar, chan.Ek
-            gbar = gbar / props['sarea'] 
-            nrn_gbar = gbar * 1e-4
-            params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
-                mech, nrn_gbar, float(ek)*1e3)
-                )
-
+            params.append(write_mechanism_line(chan, props))
     text.append("\n\t".join(params))
     text.append("}\n\n")
     return "\n".join(text)
