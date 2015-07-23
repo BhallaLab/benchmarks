@@ -2,9 +2,9 @@ DATAFILE:=../../swc_models/wu/CNG_version/ko20x-07.CNG.swc
 HOCFILE:=$(shell basename $(DATAFILE).hoc)
 PYSCRIPT:= ./check_equivalence.py
 
-all : $(DATAFILE) compare $(PYSCRIPT)
+all : $(DATAFILE) $(PYSCRIPT) compare
 
-$(HOCFILE) : $(DATAFILE) $(PYSCRIPT)
+$(HOCFILE) : $(DATAFILE) $(PYSCRIPT) ./moose_to_neuron.py
 	python $(PYSCRIPT) $< 
 
 compare :  $(HOCFILE) 
