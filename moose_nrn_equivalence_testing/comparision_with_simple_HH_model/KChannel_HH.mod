@@ -1,0 +1,1 @@
+cellMechanisms/KConductance/KChannel_HH.mod

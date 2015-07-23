@@ -1,0 +1,1 @@
+cellMechanisms/NaConductance/NaChannel_HH.mod
