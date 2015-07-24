@@ -20,6 +20,9 @@ import re
 
 compts_ = set()
 nrn_txt_ = {}
+# This is output sampling time.
+dt_ = 1e3*5e-5
+plot_dt_ = 1e3*1e-4
 
 def nrn_name(compt):
     assert type(compt) != moose.vec, compt
@@ -109,6 +112,7 @@ def insert_pulsegen(stim):
     return "\n".join(text)+"\n"
 
 def insert_record(index, table):
+    global dt_, plot_dt_
     text = []
     for targetVecs in table.neighbors['requestOut']:
         for target in targetVecs:
@@ -116,14 +120,15 @@ def insert_record(index, table):
             tableName = "table_%s" % targetName
             text.append("objref %s" % tableName)
             text.append("%s = new Vector()" % tableName)
-            text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
+            text.append('%s.record(&%s.v(0.5))'%(tableName, targetName))
     return "\n".join(text), tableName
 
 def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
-    mu.info(" Default sim time is 1 second. Change it in script.")
+    mu.info(" Default sim time is 0.1 second. Change it in script.")
+    stimtext.append('dt=%s' % plot_dt_)
     stimtext.append('tstop=%s' % 100)
-    stimtext.append('cvode.active(1)')
+    #stimtext.append('cvode.active(0)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")

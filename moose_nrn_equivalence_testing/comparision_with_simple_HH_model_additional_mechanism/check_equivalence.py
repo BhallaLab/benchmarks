@@ -50,6 +50,8 @@ def buildMOOSE(swcfile):
     print("Total moose compartment: %s" % len(compts))
 
 def runMOOSE():
+    for i in range(10):
+        moose.setClock(i, 25e-6)
     moose.reinit()
     moose.start(0.1)
     records = {}
