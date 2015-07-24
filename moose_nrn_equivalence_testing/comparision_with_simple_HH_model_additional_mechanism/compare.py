@@ -23,8 +23,8 @@ data_ = {}
 def get_index(query, row):
     for i, r in enumerate(row):
         r = r.split("/")[-1]
-        if query.lower() == r.lower():
-            return i
+        if query.lower()+"[0]" == r.lower():
+            return i, r
     raise Exception
 
 def compare(mooseCsv, nrnCsv):
@@ -43,14 +43,14 @@ def compare(mooseCsv, nrnCsv):
     mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
     assert np.allclose(nrnTimeVec, mooseTimeVec), mooseTimeVec - nrnTimeVec
     for i, comptName in enumerate(nrnHeader[1:]):
+        if i == 1:
+            break 
         nrnComptName = comptName.replace("table_", "")
-        mooseComptId = get_index(nrnComptName, mooseHeader)
-        print("%s - moose equivalent %s" % (i, mooseComptId))
-        pylab.plot(nrnTimeVec, nrnData[i], label="neuron")
-        pylab.plot(mooseTimeVec, mooseData[mooseComptId], label="moose")
-        print nrnComptName, mooseComptId
-        if i == 0:
-            break
+        mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
+        print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId,
+            mooseComptName))
+        pylab.plot(nrnTimeVec, nrnData[i] - mooseData[mooseComptId],
+                label="neuron-%s, moose-%s" % (comptName, mooseComptName))
     pylab.legend(loc='best', framealpha=0.4)
     pylab.show()
 
