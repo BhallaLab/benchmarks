@@ -16,13 +16,17 @@ __status__           = "Development"
 import moose
 import moose.utils as mu
 import numpy as np
+import re
 
 compts_ = set()
 nrn_txt_ = {}
+# This is output sampling time.
+dt_ = 1e3*5e-5
+plot_dt_ = 1e3*1e-4
 
 def nrn_name(compt):
     assert type(compt) != moose.vec, compt
-    path = compt.path
+    path = re.sub('\[\d+\]', "", compt.path)
     path = path.split('/')[-1]
     return path.translate(None, "[]/")
 
@@ -41,6 +45,24 @@ def moose_compt_to_nrn_section_params(mooseCompt):
     props['sarea'] = sarea 
     return props
 
+def write_mechanism_line(chan, props):
+    mech = chan.name
+    param = {}
+    line = [ "insert %s {" % mech ]
+    gbar, ek = chan.Gbar, chan.Ek
+    gbar = gbar / props['sarea'] 
+    nrn_gbar = gbar * 1e-4
+    param['gbar_%s' % mech] = nrn_gbar
+    param['e_%s' % mech] = 1e3*float(ek)
+    if "na" in mech.lower():
+        param['e_na'] = 1e3*float(ek)
+    elif "k" in mech.lower():
+        param['e_k'] = 1e3*float(ek)
+    line += ["%s=%s" % (k, param[k]) for k in param]
+    line.append("}")
+    return " ".join(line)
+
+
 def create_section_in_neuron(mooseCompt):
     secname = nrn_name(mooseCompt)
     text = [ "create %s" % secname ]
@@ -55,17 +77,11 @@ def create_section_in_neuron(mooseCompt):
     # In this particular script, we just add the hh mechanism and nothing else.
     # Make sure that MOOSE only has HH-Mehcanism loaded. Passive properties must
     # be same as HH mehcanism.
-    #params.append('insert hh')
-    for chanVec in channels:
-        for chan in chanVec:
-            mech = chan.name
-            gbar, ek = chan.Gbar, chan.Ek
-            gbar = gbar / props['sarea'] 
-            nrn_gbar = gbar * 1e-4
-            params.append('insert {0} {{gbar_{0}={1} e_{0}={2} }}'.format(
-                mech, nrn_gbar, float(ek)*1e3)
-                )
-
+    params.append('insert hh')
+    #for chanVec in channels:
+    #    for chan in chanVec:
+    #        mech = chan.name
+    #        params.append(write_mechanism_line(chan, props))
     text.append("\n\t".join(params))
     text.append("}\n\n")
     return "\n".join(text)
@@ -96,24 +112,23 @@ def insert_pulsegen(stim):
     return "\n".join(text)+"\n"
 
 def insert_record(index, table):
+    global dt_, plot_dt_
     text = []
-    tableName = "%s_%s" % (nrn_name(table), index)
-    text.append('objref rect')
-    text.append('rect = new Vector()')
-    text.append('rect.record(&t)')
     for targetVecs in table.neighbors['requestOut']:
         for target in targetVecs:
             targetName = nrn_name(target)
+            tableName = "table_%s" % targetName
             text.append("objref %s" % tableName)
             text.append("%s = new Vector()" % tableName)
-            text.append('%s.record(&%s.v(0.5))'%(tableName, targetName)) 
+            text.append('%s.record(&%s.v(0.5))'%(tableName, targetName))
     return "\n".join(text), tableName
 
 def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
-    mu.info(" Default sim time is 1 second. Change it in script.")
+    mu.info(" Default sim time is 0.1 second. Change it in script.")
+    stimtext.append('dt=%s' % plot_dt_)
     stimtext.append('tstop=%s' % 100)
-    #stimtext.append('cvode.active(1)')
+    #stimtext.append('cvode.active(0)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")
@@ -157,6 +172,11 @@ def to_neuron(path, **kwargs):
         pulsetext.append(insert_pulsegen(stim))
 
     recordText, tableList = [], []
+    text = []
+    text.append('objref rect')
+    text.append('rect = new Vector()')
+    text.append('rect.record(&t)')
+    recordText.append("\n".join(text))
     for i, table in enumerate(moose.wildcardFind('%s/##[TYPE=Table]' % path)):
         text, tableName = insert_record(i, table)
         recordText.append(text)

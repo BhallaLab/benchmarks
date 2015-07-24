@@ -33,12 +33,6 @@ chanDistrib_ = [
         , [ "LeakConductance", "#", "Gbar", "3" ]
         ]
 
-#chanDistrib = []
-#for c in chanDistrib_:
-#    print c
-#    chanDistrib.append( c[0:3] + [ str(float(c[3])*15)])
-
-
 def buildMOOSE(swcfile):
     import loader_moose
     global chanDistrib_, passiveDistrib_
@@ -53,19 +47,7 @@ def runMOOSE():
     moose.reinit()
     moose.start(0.1)
     records = {}
-    for i, k in enumerate(records_):
-        if i == 3:
-            break
-        else: records[k] = records_[k]
     mu.saveRecords(records_, outfile="moose_results.csv")
-
-def plotNrn():
-    for i, k in enumerate(nrn_records_):
-        pylab.plot(nrn_records_['t'], nrn_records_[k])
-        if i == 5:
-            break
-    pylab.show()
-
 
 def main():
     global model_name_
