@@ -77,11 +77,10 @@ def create_section_in_neuron(mooseCompt):
     # In this particular script, we just add the hh mechanism and nothing else.
     # Make sure that MOOSE only has HH-Mehcanism loaded. Passive properties must
     # be same as HH mehcanism.
-    params.append('insert hh')
-    #for chanVec in channels:
-    #    for chan in chanVec:
-    #        mech = chan.name
-    #        params.append(write_mechanism_line(chan, props))
+    for chanVec in channels:
+        for chan in chanVec:
+            mech = chan.name
+            params.append(write_mechanism_line(chan, props))
     text.append("\n\t".join(params))
     text.append("}\n\n")
     return "\n".join(text)

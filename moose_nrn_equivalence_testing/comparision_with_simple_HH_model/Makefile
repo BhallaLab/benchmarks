@@ -9,6 +9,6 @@ $(HOCFILE) : $(DATAFILE) $(PYSCRIPT) ./moose_to_neuron.py
 
 compare :  $(HOCFILE) 
 	nrniv  $(HOCFILE)
-	./xplot.py -i ./nrn_out.dat -o nrnout.png
-	./xplot.py -i ./moose_results.csv -o moose_results.png
+	./xplot.py -i ./nrn_out.dat -o nrnout.png -t "NRN"
+	./xplot.py -i ./moose_results.csv -o moose_results.png -t "MOOSE"
 	
