@@ -113,7 +113,7 @@ def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
     mu.info(" Default sim time is 1 second. Change it in script.")
     stimtext.append('tstop=%s' % 100)
-    stimtext.append('cvode.active(1)')
+    #stimtext.append('cvode.active(1)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")
@@ -124,13 +124,13 @@ def plot_text(tableList):
     plottext = ["objref outF"]
     plottext.append("outF = new File()")
     plottext.append('outF.wopen("nrn_out.dat")')
-    plottext.append('outF.printf("t,%s")' % ",".join(tableList))
+    plottext.append('outF.printf("time,%s\\n")' % ",".join(tableList))
     plottext.append('for i=0,rect.size()-1 {\n')
     glist, plotlist = ["%g"], ["rect.x(i)"]
     for t in tableList:
         glist.append("%g")
         plotlist.append("%s.x(i)" % t)
-    plottext.append('\toutF.printf("%s\\n", %s)' % (" ".join(glist), ",".join(plotlist)))
+    plottext.append('\toutF.printf("%s\\n", %s)' % (",".join(glist), ",".join(plotlist)))
     plottext.append("}")
     plottext.append("\n")
     return "\n".join(plottext)
