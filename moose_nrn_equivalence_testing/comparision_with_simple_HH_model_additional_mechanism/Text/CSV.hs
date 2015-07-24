@@ -1,8 +1,10 @@
-module Text.CSV (parseCSV) where 
+module Text.CSV (parseCSV, pack) where 
 
 import qualified Data.Map  as DM
 import System.FilePath
 import qualified Data.ByteString.Lazy.Char8 as DBC
+
+pack = DBC.pack 
 
 getColumn index [] = []
 getColumn index (r:rs) = r!!index : getColumn index rs

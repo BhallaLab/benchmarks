@@ -15,6 +15,7 @@ __status__           = "Development"
 
 import sys
 import csv
+import numpy as np
 
 data_ = {}
 
