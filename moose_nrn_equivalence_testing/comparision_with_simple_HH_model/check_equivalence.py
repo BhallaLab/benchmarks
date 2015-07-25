@@ -24,7 +24,7 @@ chanProto_ = [
 passiveDistrib_ = [ 
         [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
             "Em", "-58e-3", "initVm", "-65e-3" ]
-        , [ ".", "#axon#", "RA", "0.5" ] 
+        , [ ".", "#axon#", "RA", "1.5" ] 
         ]
 
 chanDistrib_ = [
@@ -42,8 +42,8 @@ def buildMOOSE(swcfile):
     print("Total moose compartment: %s" % len(compts))
 
 def runMOOSE():
-    for i in range(10):
-        moose.setClock(i, 25e-6)
+    #for i in range(10):
+    #    moose.setClock(i, 25e-6)
     moose.reinit()
     moose.start(0.1)
     records = {}

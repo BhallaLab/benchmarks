@@ -21,7 +21,7 @@ import re
 compts_ = set()
 nrn_txt_ = {}
 # This is output sampling time.
-dt_ = 1e3*5e-5
+dt_ = 1e3*50e-5
 plot_dt_ = 1e3*1e-4
 
 def nrn_name(compt):
@@ -53,11 +53,14 @@ def write_mechanism_line(chan, props):
     gbar = gbar / props['sarea'] 
     nrn_gbar = gbar * 1e-4
     param['gbar_%s' % mech] = nrn_gbar
+    param['gmax_%s' % mech] = nrn_gbar
     param['e_%s' % mech] = 1e3*float(ek)
-    if "na" in mech.lower():
-        param['e_na'] = 1e3*float(ek)
-    elif "k" in mech.lower():
-        param['e_k'] = 1e3*float(ek)
+    if "na" == mech[0:1].lower():
+        param['ena'] = 1e3*float(ek)
+    elif "k" == mech[0].lower():
+        param['ek'] = 1e3*float(ek)
+    else:
+        param['e_%s' % mech] = 1e3*float(ek)
     line += ["%s=%s" % (k, param[k]) for k in param]
     line.append("}")
     return " ".join(line)
@@ -77,6 +80,7 @@ def create_section_in_neuron(mooseCompt):
     # In this particular script, we just add the hh mechanism and nothing else.
     # Make sure that MOOSE only has HH-Mehcanism loaded. Passive properties must
     # be same as HH mehcanism.
+    #params.append('insert hh')
     for chanVec in channels:
         for chan in chanVec:
             mech = chan.name
@@ -127,7 +131,7 @@ def stimulus_text():
     mu.info(" Default sim time is 0.1 second. Change it in script.")
     stimtext.append('dt=%s' % plot_dt_)
     stimtext.append('tstop=%s' % 100)
-    #stimtext.append('cvode.active(0)')
+    #stimtext.append('cvode.active(1)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")
