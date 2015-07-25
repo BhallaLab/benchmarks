@@ -27,6 +27,15 @@ def get_index(query, row):
             return i, r
     raise Exception
 
+def zip_with_time(timevec, datavecs):
+    data = []
+    for d in datavecs:
+        data.append(zip(timevec, d))
+    return data
+
+def get_moose_val(t, mooseTimeVec, mooseVec):
+    return np.interp(t, mooseTimeVec, mooseVec)
+    
 def compare(mooseCsv, nrnCsv):
     mooseData = None
     nrnData = None
@@ -41,31 +50,24 @@ def compare(mooseCsv, nrnCsv):
 
     nrnTimeVec, nrnData = nrnData[0], nrnData[1:]
     mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
-    assert np.allclose(nrnTimeVec, mooseTimeVec), mooseTimeVec - nrnTimeVec
     for i, comptName in enumerate(nrnHeader[1:]):
-        if i == 1:
-            break 
         nrnComptName = comptName.replace("table_", "")
         mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
         print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId,
             mooseComptName))
-        pylab.plot(nrnTimeVec, nrnData[i] - mooseData[mooseComptId],
-                label="neuron-%s, moose-%s" % (comptName, mooseComptName))
+        nrnvec = nrnData[i]
+        moosevec = []
+        xvec = []
+        for i, (t, v) in enumerate(zip(nrnTimeVec,nrnvec)):
+            mooseVal = get_moose_val(t, mooseTimeVec, mooseData[mooseComptId])
+            xvec.append(t)
+            moosevec.append(mooseVal)
+        pylab.plot(xvec, moosevec - nrnvec) #, label="MOOSE-NRN")
+
+    pylab.title("MOOSE - NEURON")
     pylab.legend(loc='best', framealpha=0.4)
+    pylab.savefig("comparision_moose_nrn.png")
     pylab.show()
-
-
-#   mooseList = mooseHeader.split(",")
-    #for i, row in enumerate(nrnHeader.split(",")):
-        #comptID = row.replace("table_", "")
-        #mooseId = get_index(comptID, mooseList)
-        #mooseVec = get_vector(mooseId, mooseData)
-        #nrnVec = get_vector(i, nrnData)
-        #data_[comptID] = (mooseVec, nrnVec)
-
-    #for k in data_:
-        #mooseVec, nrnVec = data_[k]
-        #print len(mooseVec), len(nrnVec)
 
 def main():
     mooseFile = sys.argv[1]
