@@ -131,7 +131,7 @@ def stimulus_text():
     mu.info(" Default sim time is 0.1 second. Change it in script.")
     stimtext.append('dt=%s' % plot_dt_)
     stimtext.append('tstop=%s' % 100)
-    #stimtext.append('cvode.active(1)')
+    stimtext.append('cvode.active(1)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")
