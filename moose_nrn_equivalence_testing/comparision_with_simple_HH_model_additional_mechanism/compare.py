@@ -54,8 +54,7 @@ def compare(mooseCsv, nrnCsv):
     for i, comptName in enumerate(nrnHeader[1:]):
         nrnComptName = comptName.replace("table_", "")
         mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
-        outFile.write('<{0} format="csv" moose_id="{1}" nrn_id="{2}
-                header="time,moose,neuron"">\n'.format(
+        outFile.write('<{0} format="csv" moose_id="{1}" nrn_id="{2}">\n'.format(
             nrnComptName, mooseComptName, nrnComptName))
         print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId
             , mooseComptName))
@@ -64,9 +63,10 @@ def compare(mooseCsv, nrnCsv):
         xvec = []
         for i, (t, v) in enumerate(zip(nrnTimeVec,nrnvec)):
             mooseVal = get_moose_val(t, mooseTimeVec, mooseData[mooseComptId])
-            outFile.write("{0},
-
+            outFile.write("{0},{1},{2}\n".format(t, mooseVal, v))
+        outFile.write("</{}>\n".format(nrnComptName))
     outFile.close()
+    print("Done writing data to {0}".format(outFile.name))
 
 def main():
     mooseFile = sys.argv[1]
