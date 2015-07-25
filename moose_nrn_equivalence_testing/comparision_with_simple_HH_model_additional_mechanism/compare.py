@@ -17,8 +17,16 @@ import sys
 import csv
 import numpy as np
 import pylab
+import lxml.etree as ET
+import datetime
 
-data_ = {}
+dataFile_ = 'comparision_data.xml'
+dataXml_ = ET.Element("comparision_data")
+dataXml_.attrib['date'] =  datetime.datetime.now().isoformat()
+dataXml_.attrib['format'] = 'numpy.ndarray'
+
+def to_csv_string(array):
+    return ','.join(['%.8f' % num for num in array])
 
 def get_index(query, row):
     for i, r in enumerate(row):
@@ -35,8 +43,14 @@ def zip_with_time(timevec, datavecs):
 
 def get_moose_val(t, mooseTimeVec, mooseVec):
     return np.interp(t, mooseTimeVec, mooseVec)
+
+def plot(xmlFile):
+    with open(xmlFile, "r") as f:
+        xmlData = f.read()
+
     
 def compare(mooseCsv, nrnCsv):
+    global dataXml_
     mooseData = None
     nrnData = None
     with open(mooseCsv, "r") as f:
@@ -50,23 +64,29 @@ def compare(mooseCsv, nrnCsv):
 
     nrnTimeVec, nrnData = nrnData[0], nrnData[1:]
     mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
-    outFile = open("comparision_data.xml", "w")
     for i, comptName in enumerate(nrnHeader[1:]):
         nrnComptName = comptName.replace("table_", "")
         mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
-        outFile.write('<{0} format="csv" moose_id="{1}" nrn_id="{2}">\n'.format(
-            nrnComptName, mooseComptName, nrnComptName))
         print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId
             , mooseComptName))
-        nrnvec = nrnData[i]
-        moosevec = []
-        xvec = []
-        for i, (t, v) in enumerate(zip(nrnTimeVec,nrnvec)):
+        nrnVec = nrnData[i]
+        mooseArray = np.zeros(len(nrnVec))
+        for i, (t, v) in enumerate(zip(nrnTimeVec,nrnVec)):
             mooseVal = get_moose_val(t, mooseTimeVec, mooseData[mooseComptId])
-            outFile.write("{0},{1},{2}\n".format(t, mooseVal, v))
-        outFile.write("</{}>\n".format(nrnComptName))
-    outFile.close()
-    print("Done writing data to {0}".format(outFile.name))
+            mooseArray[i] = mooseVal
+        elem = ET.SubElement(dataXml_
+                , "compartment"
+                , attrib = { "moose" : str(mooseComptId), "neuron" : nrnComptName }
+                )
+        timeXml = ET.SubElement(dataXml_, "time", attrib = { "name" : "time", "unit" : "second" } )
+        timeXml.text = to_csv_string(nrnTimeVec)
+        mooseXml = ET.SubElement(elem, "moose", attrib = { "unit" : "volt" })
+        mooseXml.text = to_csv_string(mooseArray)
+        nrnXml = ET.SubElement(elem, "nrn", attrib = { "unit" : "volt" })
+        nrnXml.text = to_csv_string(nrnVec)
+
+    with open(dataFile_, "w") as f:
+        f.write(ET.tostring(dataXml_, pretty_print=True))
 
 def main():
     mooseFile = sys.argv[1]
