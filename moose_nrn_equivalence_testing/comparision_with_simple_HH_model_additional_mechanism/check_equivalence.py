@@ -14,6 +14,7 @@ soma_ = None
 nrn_text_ = {} #defaultdict(list)
 model_name_ = None
 records_ = {}
+dt_ = 50e-6
 
 chanProto_ = [
         ['./cellMechanisms/KConductance/KChannel_HH.xml'], 
@@ -35,12 +36,6 @@ chanDistrib_ = [
         , [ "kdr", "#", "Gbar", "10" ]
         ]
 
-#chanDistrib = []
-#for c in chanDistrib_:
-#    print c
-#    chanDistrib.append( c[0:3] + [ str(float(c[3])*15)])
-
-
 def buildMOOSE(swcfile):
     import loader_moose
     global chanDistrib_, passiveDistrib_
@@ -50,24 +45,13 @@ def buildMOOSE(swcfile):
     print("Total moose compartment: %s" % len(compts))
 
 def runMOOSE():
-    for i in range(10):
-        moose.setClock(i, 25e-6)
+    global dt_
+    hsolve = moose.HSolve('/hsolve')
+    hsolve.dt = dt_
+    hsolve.target = '/model'
     moose.reinit()
     moose.start(0.1)
-    records = {}
-    for i, k in enumerate(records_):
-        if i == 3:
-            break
-        else: records[k] = records_[k]
     mu.saveRecords(records_, outfile="moose_results.csv")
-
-def plotNrn():
-    for i, k in enumerate(nrn_records_):
-        pylab.plot(nrn_records_['t'], nrn_records_[k])
-        if i == 5:
-            break
-    pylab.show()
-
 
 def main():
     global model_name_

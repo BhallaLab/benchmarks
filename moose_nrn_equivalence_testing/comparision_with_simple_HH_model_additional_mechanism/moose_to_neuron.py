@@ -77,7 +77,6 @@ def create_section_in_neuron(mooseCompt):
     # In this particular script, we just add the hh mechanism and nothing else.
     # Make sure that MOOSE only has HH-Mehcanism loaded. Passive properties must
     # be same as HH mehcanism.
-    #params.append('insert hh')
     for chanVec in channels:
         for chan in chanVec:
             mech = chan.name
@@ -126,9 +125,9 @@ def insert_record(index, table):
 def stimulus_text():
     stimtext = [ 'load_file("stdrun.hoc")' ]
     mu.info(" Default sim time is 0.1 second. Change it in script.")
-    stimtext.append('dt=%s' % plot_dt_)
+    #stimtext.append('dt=%s' % plot_dt_)
     stimtext.append('tstop=%s' % 100)
-    #stimtext.append('cvode.active(0)')
+    stimtext.append('cvode.active(1)')
     stimtext.append('finitialize()')
     stimtext.append('run()')
     stimtext.append("\n")
