@@ -50,24 +50,23 @@ def compare(mooseCsv, nrnCsv):
 
     nrnTimeVec, nrnData = nrnData[0], nrnData[1:]
     mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
+    outFile = open("comparision_data.xml", "w")
     for i, comptName in enumerate(nrnHeader[1:]):
         nrnComptName = comptName.replace("table_", "")
         mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
-        print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId,
-            mooseComptName))
+        outFile.write('<{0} format="csv" moose_id="{1}" nrn_id="{2}
+                header="time,moose,neuron"">\n'.format(
+            nrnComptName, mooseComptName, nrnComptName))
+        print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId
+            , mooseComptName))
         nrnvec = nrnData[i]
         moosevec = []
         xvec = []
         for i, (t, v) in enumerate(zip(nrnTimeVec,nrnvec)):
             mooseVal = get_moose_val(t, mooseTimeVec, mooseData[mooseComptId])
-            xvec.append(t)
-            moosevec.append(mooseVal)
-        pylab.plot(xvec, moosevec - nrnvec) #, label="MOOSE-NRN")
+            outFile.write("{0},
 
-    pylab.title("MOOSE - NEURON")
-    pylab.legend(loc='best', framealpha=0.4)
-    pylab.savefig("comparision_moose_nrn.png")
-    pylab.show()
+    outFile.close()
 
 def main():
     mooseFile = sys.argv[1]
