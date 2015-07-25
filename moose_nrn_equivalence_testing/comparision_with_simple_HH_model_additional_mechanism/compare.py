@@ -44,12 +44,32 @@ def zip_with_time(timevec, datavecs):
 def get_moose_val(t, mooseTimeVec, mooseVec):
     return np.interp(t, mooseTimeVec, mooseVec)
 
-def plot(xmlFile):
-    with open(xmlFile, "r") as f:
-        xmlData = f.read()
+def plot():
+    dataXml_ = ET.parse(dataFile_).getroot()
+    for elem in dataXml_:
+        comptName = elem.attrib['neuron']
+        t, moose, nrn = elem[0], elem[1], elem[2]
+        tVec = np.fromstring(t.text, sep=",")
+        mooseVec = np.fromstring(moose.text, sep=",")
+        nrnVec = np.fromstring(nrn.text, sep=",")
+        ax1 = pylab.subplot(2, 1, 1)
+        pylab.plot(tVec, mooseVec - nrnVec)
+        ax2 = pylab.subplot(2, 1, 2)
+        pylab.plot(tVec[1:], np.diff(mooseVec) - np.diff(nrnVec))
+    ax1.set_title("MOOSE - NEURON")
+    ax2.set_title("diff(MOOSE) - diff(NEURON)")
+    pylab.legend(loc='best', framealpha=0.4)
+    outfile = "./comparision_moose_nrn.png"
+    print("Plotting diff results to : %s" % outfile)
+    pylab.savefig(outfile)
+        
 
-    
+
 def compare(mooseCsv, nrnCsv):
+    #writeDataToXml(mooseCsv, nrnCsv)
+    plot()
+
+def writeDataToXml(mooseCsv, nrnCsv):
     global dataXml_
     mooseData = None
     nrnData = None
@@ -76,9 +96,10 @@ def compare(mooseCsv, nrnCsv):
             mooseArray[i] = mooseVal
         elem = ET.SubElement(dataXml_
                 , "compartment"
-                , attrib = { "moose" : str(mooseComptId), "neuron" : nrnComptName }
+                , attrib = { "moose" : str(mooseComptName), "neuron" : nrnComptName }
                 )
-        timeXml = ET.SubElement(dataXml_, "time", attrib = { "name" : "time", "unit" : "second" } )
+        timeXml = ET.SubElement(elem
+                , "time", attrib = { "name" : "time", "unit" : "second" } )
         timeXml.text = to_csv_string(nrnTimeVec)
         mooseXml = ET.SubElement(elem, "moose", attrib = { "unit" : "volt" })
         mooseXml.text = to_csv_string(mooseArray)
@@ -87,12 +108,12 @@ def compare(mooseCsv, nrnCsv):
 
     with open(dataFile_, "w") as f:
         f.write(ET.tostring(dataXml_, pretty_print=True))
+    print("Done writing data to %s" % dataFile_)
 
 def main():
     mooseFile = sys.argv[1]
     nrnrFile = sys.argv[2]
     compare(mooseFile, nrnrFile)
-
 
 if __name__ == '__main__':
     main()
