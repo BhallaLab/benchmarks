@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """plot_benchmark_runtime_vs_compt.py: 
 
     Plot benchmark.
