@@ -1,5 +1,17 @@
 #!/usr/bin/env python
+"""
+Usage: check_equivalence.py -f SWC_MODEL_FILE [ -hv ] 
 
+Arguments:
+    SWC_MODEL_FILE  Model file in swc format.
+
+Options:
+    -f --model-file     SWC model file
+    -h --help           Show this screen
+    -v --version        Show version
+"""
+
+from docopt import docopt
 import os
 import moose
 import moose.utils as mu
@@ -36,8 +48,9 @@ chanDistrib_ = [
         , [ "kdr", "#", "Gbar", "10" ]
         ]
 
-def buildMOOSE(swcfile):
+def buildMOOSE(args):
     import loader_moose
+    swcfile = args['SWC_MODEL_FILE']
     global chanDistrib_, passiveDistrib_
     global records_
     records_ = loader_moose.loadModel(swcfile, chanProto_, chanDistrib_, passiveDistrib_)
@@ -55,9 +68,12 @@ def runMOOSE():
 
 def main():
     global model_name_
-    swcfile = sys.argv[1]
-    model_name_ = os.path.basename(swcfile)
-    compts = buildMOOSE(swcfile)
+    args = docopt(__doc__, version='check_equivalence 0.1.0')
+    print args
+    if not args:
+        print(__doc__)
+        sys.exit()
+    compts = buildMOOSE(args)
     runMOOSE()
     m2n.to_neuron('/model', outfile='%s.hoc' % model_name_)
 
