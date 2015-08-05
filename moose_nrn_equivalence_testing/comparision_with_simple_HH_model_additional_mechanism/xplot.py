@@ -22,6 +22,7 @@ import pylab
 import numpy as np
 
 data_ = {}
+header_ = {}
 modifier_ = {}
 
 def parseModifier(modFile):
@@ -42,26 +43,37 @@ def splitLine(line, delimiter=None):
     else:
         return line.split(delimiter)
 
-def modifyData(filename, headers, data):
+def modifyData(filename):
+    print("Applying modifier on %s" % filename)
     global modifier_
+    global data_, header_
     if not modifier_:
         return data
-    for i, h in enumerate(headers):
+    header = header_[filename]
+    data = header_[filename]
+    for i, h in enumerate(header):
         key = "%s#%s" % (filename, h)
         if key in modifier_:
+            expr, input_ =  modifier_[key]
+            # create input.
+            f, variable = expr.split('#')
+            mat = data_[f.strip()]
+            print mat
+            print input_
+            print eval(expr)
             print "%s in modifier_" % key
             print data, data.shape
             print "col: %s" % i
             print data[:,i]
 
-def buildData( file, args ):
+def buildData( fl, args ):
     global data_ 
-    with open(file, "r") as f:
+    with open(fl, "r") as f:
         lines = f.read().split('\n')
     header = lines[0].split(',')
     d = np.genfromtxt(file, delimiter=',', skip_header=True)
-    d = modifyData(file, header, d)
-    data_[file] = d
+    data_[fl] = d
+    header_[fl] = header
 
 def zipIt(ys):
     """ Zip an n-dims vector.
@@ -117,4 +129,5 @@ if __name__ == "__main__":
     if args.modifier:
         parseModifier(args.modifier)
     [ buildData(f, args) for f in args.file ]
+    [ modifyData(f) for f in args.file ]
     #plotData( args )
