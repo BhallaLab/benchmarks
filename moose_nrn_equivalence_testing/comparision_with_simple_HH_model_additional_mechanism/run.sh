@@ -9,4 +9,6 @@ nrniv ./ko20x-07.CNG.swc.hoc
 ./xplot.py -i ./nrn_out.dat -o ./nrnout.png
 # just get soma value
 echo "Plotting moose soma against nrn soma"
+~/Scripts/csv_extract_columns.py -in ./moose_results.csv -c time -c "soma\[0\]" -out moose_soma.csv
+~/Scripts/csv_extract_columns.py -in ./nrn_out.dat -c time -c ".*table_soma$" -out nrn_soma.csv
 
