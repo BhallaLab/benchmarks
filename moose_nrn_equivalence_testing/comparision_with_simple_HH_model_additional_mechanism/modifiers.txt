@@ -1,0 +1,2 @@
+nrn_soma.csv#time <- \ x -> 1e-3 * x $ nrn_soma.csv#time
+nrn_soma.csv#table_soma <- \ x -> 1e-3 * x $ nrn_soma.csv#table_soma
