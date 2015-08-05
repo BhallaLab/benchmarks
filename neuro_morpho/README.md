@@ -7,3 +7,5 @@
    in step 2. This plot show model on x-axis, and on y-axis comparison of
    different simulator.
 
+4. Run ./plot_benchmark_runtime_vs_compt.py to generate csv file from data.
+   These files can be compared in Excel or OpenOffice.
