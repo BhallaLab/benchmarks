@@ -1,6 +1,16 @@
-"""compare.py: 
+"""
 
     Pass two csv file, first moose and second neuron.
+
+    The first column in each file is time vector which is our reference column
+    for further processing.
+
+    This script assumes that columns of both files have been sorted in a way
+    that each column in one file has its equivalent in second file at the same
+    index.
+
+
+    For automatic comparision see ./compare.py file.
 
 """
     
@@ -17,13 +27,7 @@ import sys
 import csv
 import numpy as np
 import pylab
-import lxml.etree as ET
 import datetime
-
-dataFile_ = 'comparision_data.xml'
-dataXml_ = ET.Element("comparision_data")
-dataXml_.attrib['date'] =  datetime.datetime.now().isoformat()
-dataXml_.attrib['format'] = 'numpy.ndarray'
 
 def to_csv_string(array):
     return ','.join(['%.8f' % num for num in array])
@@ -45,71 +49,84 @@ def get_moose_val(t, mooseTimeVec, mooseVec):
     return np.interp(t, mooseTimeVec, mooseVec)
 
 def plot():
-    dataXml_ = ET.parse(dataFile_).getroot()
-    for elem in dataXml_:
-        comptName = elem.attrib['neuron']
-        t, moose, nrn = elem[0], elem[1], elem[2]
-        tVec = np.fromstring(t.text, sep=",")
-        mooseVec = np.fromstring(moose.text, sep=",")
-        nrnVec = np.fromstring(nrn.text, sep=",")
-        ax0 = pylab.subplot(3, 1, 1)
-        pylab.plot(tVec, mooseVec, label='moose')
-        pylab.plot(tVec, nrnVec, label='nrn')
-        ax1 = pylab.subplot(3, 1, 2)
-        pylab.plot(tVec, mooseVec - nrnVec)
-        ax2 = pylab.subplot(3, 1, 3)
-        pylab.plot(tVec[1:], np.diff(mooseVec) - np.diff(nrnVec))
-    ax1.set_title("MOOSE - NEURON")
-    ax2.set_title("diff(MOOSE) - diff(NEURON)")
-    pylab.legend(loc='best', framealpha=0.4)
-    outfile = "./comparision_moose_nrn.png"
-    print("Plotting diff results to : %s" % outfile)
-    pylab.savefig(outfile)
+    pass
 
 def compare(mooseCsv, nrnCsv):
-    writeDataToXml(mooseCsv, nrnCsv)
+    rewrite_data(mooseCsv, nrnCsv)
     plot()
 
-def writeDataToXml(mooseCsv, nrnCsv):
+def reformat(dataA, dataB, scaleB, offsetB = 0.0):
+    """Reformat matrix with given scaling function.
+
+    y = scaleB * x + offsetB
+
+    """
+    # Before we can stack these data together, we need to scale one of the data
+    # matrix. 
+
+    swapped = False
+    if dataA.shape > dataB.shape:
+        print("[DEBUG] Swapping matrix since A.shape > B.shape")
+        swapped = True
+        dataX, dataY = dataB, np.vectorize(lambda y : (y-offsetB)/scaleB)(dataA)
+    else:
+        dataX, dataY = dataA, np.vectorize(lambda y : y*scaleB+offsetB)(dataB)
+
+    # First column in both X and Y are x-axis of plot. They should match for
+    # doing any comparision. In following loop, we use linear interpolation to
+    # recompute Y at each value of xxVec.
+    xVec = dataX.T[0]
+    x_yVec = dataY.T[0]
+
+    newData = np.ndarray(shape=dataX.shape)
+    newData[:,0] = xVec
+    for i, colY in enumerate(dataY.T[1:]):
+        # For each column of Y, recompute the values of y at x given in
+        # referenceVec (which is the first column of dataX).
+        newY = np.vectorize(lambda x : np.interp(x, x_yVec, colY))(xVec)
+        newData[:,i+1] = newY
+
+
+    if swapped:
+        return newData, dataX
+    else:
+        return dataX, newData
+
+
+def rewrite_data(mooseCsv, nrnCsv):
     global dataXml_
     mooseData = None
     nrnData = None
     with open(mooseCsv, "r") as f:
         mooseTxt = f.read().split("\n")
         mooseHeader, mooseData = mooseTxt[0].split(","), np.genfromtxt(mooseTxt[1:],
-                delimiter=',').T
+                delimiter=',')
     with open(nrnCsv, "r") as f:
         nrnTxt = f.read().split("\n")
-        nrnHeader, nrnData = nrnTxt[0].split(','), 1e-3*np.genfromtxt(nrnTxt[1:],
-                delimiter=',').T
+        nrnHeader, nrnData = nrnTxt[0].split(','), np.genfromtxt(nrnTxt[1:],
+                delimiter=',')
 
-    nrnTimeVec, nrnData = nrnData[0], nrnData[1:]
-    mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
-    for i, comptName in enumerate(nrnHeader[1:]):
-        nrnComptName = comptName.replace("table_", "")
-        mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
-        print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId
-            , mooseComptName))
-        nrnVec = nrnData[i]
-        mooseArray = np.zeros(len(nrnVec))
-        for i, (t, v) in enumerate(zip(nrnTimeVec,nrnVec)):
-            mooseVal = get_moose_val(t, mooseTimeVec, mooseData[mooseComptId])
-            mooseArray[i] = mooseVal
-        elem = ET.SubElement(dataXml_
-                , "compartment"
-                , attrib = { "moose" : str(mooseComptName), "neuron" : nrnComptName }
+    try:
+        nrnData, mooseData = reformat(nrnData, mooseData, scaleB = 1e3)
+    except Exception as e:
+        print("[WARNING] The function you use is very senesitive to data format"
+                "Check the input format or fix the code."
+                "It worked at the last commit with default input file"
+                " mentioned in Makefile. "
                 )
-        timeXml = ET.SubElement(elem
-                , "time", attrib = { "name" : "time", "unit" : "second" } )
-        timeXml.text = to_csv_string(nrnTimeVec)
-        mooseXml = ET.SubElement(elem, "moose", attrib = { "unit" : "volt" })
-        mooseXml.text = to_csv_string(mooseArray)
-        nrnXml = ET.SubElement(elem, "nrn", attrib = { "unit" : "volt" })
-        nrnXml.text = to_csv_string(nrnVec)
+        raise e
 
-    with open(dataFile_, "w") as f:
-        f.write(ET.tostring(dataXml_, pretty_print=True))
-    print("Done writing data to %s" % dataFile_)
+    # write new data to csv file.
+    mooseOutFile = "%s_out.csv" % mooseCsv
+    with open(mooseOutFile, "w") as mooseF:
+        print("[INFO] Writing to %s" % mooseOutFile)
+        np.savetxt(mooseOutFile, mooseData, header=",".join(mooseHeader), delimiter=',')
+    nrnOutfile = "%s_out.csv" % nrnCsv
+    with open(nrnOutfile, "w") as nrnF:
+        print("[INFO] Writing to %s" % nrnOutfile)
+        np.savetxt(nrnOutfile, nrnData, header=",".join(nrnHeader),
+                delimiter=",")
+    print("... Done")
 
 def main():
     mooseFile = sys.argv[1]
