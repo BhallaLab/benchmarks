@@ -21,7 +21,7 @@ plot : $(MOOSEOUT) $(NRNOUT)
 somaplot : $(MOOSEOUT) $(NRNOUT) $(OPTIONAL_SCRIPTS)
 	./csv_extract_columns.py -in $(MOOSEOUT) -c time -c "soma\[0\]" -out moose_soma.csv
 	./csv_extract_columns.py -in $(NRNOUT) -c time -c "table_soma$$" -out nrn_soma.csv
-	./plot_csv.py -in moose_soma.csv
+	python ./compare_moose_nrn_single_vector.py moose_soma.csv nrn_soma.csv
 
 clean:
 	git clean -fxd

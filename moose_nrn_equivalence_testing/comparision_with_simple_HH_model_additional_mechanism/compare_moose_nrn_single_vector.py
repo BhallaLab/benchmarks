@@ -52,9 +52,12 @@ def plot():
         tVec = np.fromstring(t.text, sep=",")
         mooseVec = np.fromstring(moose.text, sep=",")
         nrnVec = np.fromstring(nrn.text, sep=",")
-        ax1 = pylab.subplot(2, 1, 1)
+        ax0 = pylab.subplot(3, 1, 1)
+        pylab.plot(tVec, mooseVec, label='moose')
+        pylab.plot(tVec, nrnVec, label='nrn')
+        ax1 = pylab.subplot(3, 1, 2)
         pylab.plot(tVec, mooseVec - nrnVec)
-        ax2 = pylab.subplot(2, 1, 2)
+        ax2 = pylab.subplot(3, 1, 3)
         pylab.plot(tVec[1:], np.diff(mooseVec) - np.diff(nrnVec))
     ax1.set_title("MOOSE - NEURON")
     ax2.set_title("diff(MOOSE) - diff(NEURON)")
@@ -62,11 +65,9 @@ def plot():
     outfile = "./comparision_moose_nrn.png"
     print("Plotting diff results to : %s" % outfile)
     pylab.savefig(outfile)
-        
-
 
 def compare(mooseCsv, nrnCsv):
-    #writeDataToXml(mooseCsv, nrnCsv)
+    writeDataToXml(mooseCsv, nrnCsv)
     plot()
 
 def writeDataToXml(mooseCsv, nrnCsv):
