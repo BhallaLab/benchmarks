@@ -2,9 +2,9 @@
 
 """xplot.py: 
 
-    This program uses matplotlib to plot xplot like data_.
+    This program uses matplotlib to plot xplot like data.
 
-Last modified: Wed Aug 05, 2015  06:23PM
+Last modified: Fri May 23, 2014  01:40AM
 
 """
     
@@ -19,61 +19,29 @@ __status__           = "Development"
 
 import sys
 import pylab
-import numpy as np
 
-data_ = {}
-header_ = {}
-modifier_ = {}
+data = {}
 
-def parseModifier(modFile):
-    global modifier_
-    print("[INFO] Parsing modifier file %s" % modFile)
-    modText = modFile.read()
-    for modline in modText.split("\n"):
-        if not modline:
-            continue
-        lhs, rhs = modline.split('<-')
-        output = lhs
-        expr, input = rhs.split('$')
-        modifier_[output.strip()] = (expr.strip(), input.strip())
-
-def splitLine(line, delimiter=None):
-    if not delimiter:
-        return line.split()
-    else:
-        return line.split(delimiter)
-
-def modifyData(filename):
-    print("Applying modifier on %s" % filename)
-    global modifier_
-    global data_, header_
-    if not modifier_:
-        return data
-    header = header_[filename]
-    data = header_[filename]
-    for i, h in enumerate(header):
-        key = "%s#%s" % (filename, h)
-        if key in modifier_:
-            expr, input_ =  modifier_[key]
-            # create input.
-            f, variable = expr.split('#')
-            mat = data_[f.strip()]
-            print mat
-            print input_
-            print eval(expr)
-            print "%s in modifier_" % key
-            print data, data.shape
-            print "col: %s" % i
-            print data[:,i]
-
-def buildData( fl, args ):
-    global data_ 
-    with open(fl, "r") as f:
-        lines = f.read().split('\n')
-    header = lines[0].split(',')
-    d = np.genfromtxt(file, delimiter=',', skip_header=True)
-    data_[fl] = d
-    header_[fl] = header
+def buildData( file ):
+    global data 
+    with open(file, "r") as f:
+        xvec = []
+        yvec = []
+        for line in f:
+            if line[0] == ';' or line[0] == '#':
+                continue
+            line = line.strip()
+            if "," in line:
+                line = line.split(",")
+            else:
+                line = line.split()
+            try:
+                xvec.append(float(line[0]))
+                yvec.append(line[1:])
+            except:
+                pass
+        assert len(xvec) == len(yvec)
+        data[file] = (xvec, yvec)
 
 def zipIt(ys):
     """ Zip an n-dims vector.
@@ -85,20 +53,18 @@ def zipIt(ys):
             result[i].append(e)
     return result
 
-def plotData( args ):
-    outFile = args.output
-    global data_ 
-    for file in data_:
-        xvec, yx = data_[file]
+def plotData( outFile = None ):
+    global data 
+    for file in data:
+        xvec, yx = data[file]
         try:
             yvecs = zipIt(yx)
         except Exception as e:
             print("[FATAL] Failed to zip the given elements")
             sys.exit(0)
         for yvec in yvecs:
-            pylab.plot(xvec, yvec)
-    if args.title:
-        pylab.title(str(args.title))
+            pylab.plot(xvec, yvec, label='%s' % file)
+    pylab.legend(loc='best', framealpha=0.4)
     if not outFile:
         pylab.show()
     else:
@@ -116,18 +82,6 @@ if __name__ == "__main__":
             , default = None
             , help = "Output file to store plot"
             )
-    parser.add_argument("-t", "--title"
-            , default = ""
-            , help = "Title of the plot"
-            )
-    parser.add_argument('-m', '--modifier'
-            , default = None
-            , type = argparse.FileType('r')
-            , help = "Preprocessing macros on data_. [Draft]"
-            )
     args = parser.parse_args()
-    if args.modifier:
-        parseModifier(args.modifier)
-    [ buildData(f, args) for f in args.file ]
-    [ modifyData(f) for f in args.file ]
-    #plotData( args )
+    [ buildData(file) for file in args.file ]
+    plotData( outFile = args.output )
