@@ -31,6 +31,7 @@ def main(args):
     for i, h in enumerate(header):
         for c in args['col']:
             if re.search(r'%s' % c, h):
+                print("[INFO] Found header for query %s, %s" % (c, h))
                 colsToExtract.append(i)
                 newHeader.append(h)
 

@@ -3,7 +3,7 @@ MOOSEOUT=moose_results.csv
 HOCOUT=$(shell basename $(SWCFILE)).hoc
 NRNOUT=nrn_out.dat
 PYSCRIPTS= ./check_equivalence.py ./loader_moose.py ./moose_to_neuron.py
-OPTIONAL_SCRIPTS = ./xplot.py
+#OPTIONAL_SCRIPTS = ./xplot.py
 
 all: $(MOOSEOUT) $(NRNOUT) somaplot
 
@@ -19,9 +19,9 @@ plot : $(MOOSEOUT) $(NRNOUT)
 	./xplot.py -i $(NRNOUT) -o nrn_out.png
 
 somaplot : $(MOOSEOUT) $(NRNOUT) $(OPTIONAL_SCRIPTS)
-	./csv_extract_columns.py -in $(MOOSEOUT) -c time -c "some\[0\]" -out moose_soma.csv
-	./csv_extract_columns.py -in $(NRNOUT) -c time -c ".+table_soma$$" -out moose_soma.csv
-	./xplot.py -i moose_soma.csv nrn_soma.csv -m ./modifiers.txt
+	./csv_extract_columns.py -in $(MOOSEOUT) -c time -c "soma\[0\]" -out moose_soma.csv
+	./csv_extract_columns.py -in $(NRNOUT) -c time -c "table_soma$$" -out nrn_soma.csv
+	./plot_csv.py -in moose_soma.csv
 
 clean:
 	git clean -fxd
