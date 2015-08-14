@@ -18,7 +18,7 @@ PLOT="$2"
 function runMOOSE 
 {
     echo "Executing model $1"
-    $PYC ./swc_loader.py -f $1 -s moose -t 1 \
+    $PYC ./swc_loader.py -f $1 -s moose -t 10.0 \
         -i 0.0000000008 \
         -c "hd;#dend#,#apical#;Gbar;5e-2*(1+(p*3e4))" \
         -c "kdr;#;Gbar;100" \
