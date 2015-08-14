@@ -11,7 +11,7 @@ function runNRN
 {
     echo "Recompiling NEURON mechanism libraries"
     nrnivmodl chans &> nrnivmodel.log 
-    ./test_nrn.sh "$file" || echo "+ [WARN] Could not run NEURON on file $file"
+    ./test_nrn.sh "$1" || echo "+ [WARN] Could not run NEURON on file $1"
 }
 
 function runMOOSE
@@ -24,7 +24,7 @@ SWCFILES=`find -L ../swc_models -type f -name "*.swc"`
 declare -i i
 i=0
 for file in $SWCFILES; do
-    #runNRN $file
+    runNRN $file
     runMOOSE $file
     i=$((i+1))
     if [[ $i = $TOTAL ]]; then
