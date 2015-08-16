@@ -38,8 +38,10 @@ def rowCompare(mooseData, nrnData):
     """Since moose runtime scales linearly, in this comparision we scale moose
     time according to compartments created in neurons.
     """
-    mooseRunTime = np.mean([ x['run_time'] for x in mooseData])
-    nrnRunTime = np.mean([ x['run_time'] for x in nrnData])
+
+    # Time taken for 1 unit time simulation. 
+    mooseRunTime = np.mean([ x['run_time'] / x['simulation_time'] for x in mooseData])
+    nrnRunTime = np.mean([ 1000 * x['run_time'] / x['simulation_time'] for x in nrnData])
 
     mooseCompts = np.mean([x['number_of_compartments'] for x in mooseData])
     nrnCompts = np.mean([x['number_of_compartments'] for x in nrnData])
