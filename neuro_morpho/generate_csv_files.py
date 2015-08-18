@@ -18,6 +18,12 @@ __status__           = "Development"
 import os
 import sys
 import sqlite3 as sql 
+import time
+
+month = time.strftime("%Y%m")
+tableName = 'table%s' % month
+print("Selecting table: %s" % tableName)
+
 
 def dict_factory(cursor, row):
     d = {}
@@ -32,8 +38,8 @@ db.row_factory = dict_factory
 curr = db.cursor()
 
 def getSIM(simname = 'moose'):
-    query = """SELECT * FROM table201507 WHERE
-    simulator='{}' ORDER BY number_of_compartments""".format(simname)
+    query = """SELECT * FROM {0} WHERE
+    simulator='{1}' ORDER BY number_of_compartments""".format(tableName, simname)
     result = []
     for row in curr.execute(query):
         result.append(row)
@@ -41,6 +47,7 @@ def getSIM(simname = 'moose'):
     header = ['number_of_compartments'
             , 'number_of_channels'
             , 'run_time'
+            , 'simulation_time'
             , 'dt'
             , 'number_of_spikes'
             , 'mean_spike_interval'
