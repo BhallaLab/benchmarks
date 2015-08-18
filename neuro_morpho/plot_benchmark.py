@@ -92,6 +92,13 @@ def plot_with_models_on_x_axis():
             nrnVec.append(nrnTime)
             mooseVec.append(mooseTime)
 
+    print("[INFO] Writing to %s" % "nrn_moose_compare_1_sec.csv")
+    with open("nrn_moose_compare_1_sec.csv", "w") as f:
+        f.write("compartments,neuron,moose\n")
+        for i, s in enumerate(segVec):
+            line = "%s,%s,%s\n" % (s, nrnVec[i], mooseVec[i])
+            f.write(line)
+
     pylab.plot(segVec, nrnVec, '.', label="Neuron")
     pylab.plot(segVec, mooseVec, '*', label="MOOSE")
     pylab.legend(loc='best', framealpha=0.4)

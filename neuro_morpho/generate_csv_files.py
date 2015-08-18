@@ -37,6 +37,9 @@ db.row_factory = dict_factory
 
 curr = db.cursor()
 
+def compare(simA, simB):
+    pass
+
 def getSIM(simname = 'moose'):
     query = """SELECT * FROM {0} WHERE
     simulator='{1}' ORDER BY number_of_compartments""".format(tableName, simname)
@@ -66,16 +69,18 @@ def getSIM(simname = 'moose'):
                     print("Key %s not found" % h)
                     print(r.keys())
             f.write("{}\n".format(",".join(line)))
+    return result
      
 def getMOOSE():
-    getSIM('moose')
+    return getSIM('moose')
 
 def getNRN():
-    getSIM('neuron')
+    return getSIM('neuron')
 
 def main():
     moose = getMOOSE()
     nrn = getNRN()
+    compare(nrn, moose)
 
 if __name__ == '__main__':
     main()
