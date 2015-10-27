@@ -41,8 +41,6 @@ def compare(mooseCsv, nrnCsv):
 
     nrnTimeVec, nrnData = nrnData[0], nrnData[1:]
     mooseTimeVec, mooseData = mooseData[0], mooseData[1:]
-    print nrnTimeVec
-    assert np.allclose(nrnTimeVec, mooseTimeVec), mooseTimeVec - nrnTimeVec
     for i, comptName in enumerate(nrnHeader[1:]):
         if i == 1:
             break 
@@ -50,23 +48,11 @@ def compare(mooseCsv, nrnCsv):
         mooseComptId, mooseComptName = get_index(nrnComptName, mooseHeader[1:])
         print("%s %s- moose equivalent %s %s" % (i, nrnComptName, mooseComptId,
             mooseComptName))
-        pylab.plot(nrnTimeVec, nrnData[i] - mooseData[mooseComptId],
-                label="neuron-%s, moose-%s" % (comptName, mooseComptName))
+        pylab.plot(mooseTimeVec, mooseData[ mooseComptId ], label = "Neuron: " + nrnComptName)
+        pylab.plot(nrnTimeVec, nrnData[i], label = "MOOSE: " + mooseComptName)
     pylab.legend(loc='best', framealpha=0.4)
     pylab.show()
 
-
-#   mooseList = mooseHeader.split(",")
-    #for i, row in enumerate(nrnHeader.split(",")):
-        #comptID = row.replace("table_", "")
-        #mooseId = get_index(comptID, mooseList)
-        #mooseVec = get_vector(mooseId, mooseData)
-        #nrnVec = get_vector(i, nrnData)
-        #data_[comptID] = (mooseVec, nrnVec)
-
-    #for k in data_:
-        #mooseVec, nrnVec = data_[k]
-        #print len(mooseVec), len(nrnVec)
 
 def main():
     mooseFile = sys.argv[1]
