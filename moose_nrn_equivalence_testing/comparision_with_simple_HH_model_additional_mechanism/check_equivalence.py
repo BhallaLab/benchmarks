@@ -20,7 +20,7 @@ chanProto_ = [
         ['./cellMechanisms/KConductance/KChannel_HH.xml'], 
         ['./cellMechanisms/NaConductance/NaChannel_HH.xml'],
         ['./cellMechanisms/LeakConductance/LeakConductance.xml'],
-        [ '../chans/kdr.xml' ]
+        [ './chans/kdr.xml' ]
         ]
 
 passiveDistrib_ = [ 
