@@ -17,3 +17,5 @@ NOTICE: While neuron saves Vm from all compartment, we have configured MOOSE to
 store Vm from few compartments. You have to search in nrn_out.dat file for
 equivalent section. Also MOOSE uses SI units while NEURON uses milli-seconds and
 milli-volts."
+
+python ./compare_data.py moose_out.csv nrn_out.csv
