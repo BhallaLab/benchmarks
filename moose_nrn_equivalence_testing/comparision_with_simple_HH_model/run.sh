@@ -2,7 +2,7 @@
 set -e
 set -x
 rm -rf ./moose_results.csv ./nrn_out.dat
-nrnivmodl *.mod chans
+nrnivmodl *.mod ./chans/kdr.mod
 #export PYTHONPATH=/opt/moose/python
 MODELFILE=ko20x-07.CNG.swc
 python ./check_equivalence.py $MODELFILE

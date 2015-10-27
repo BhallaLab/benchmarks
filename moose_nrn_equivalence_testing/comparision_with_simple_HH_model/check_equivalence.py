@@ -19,19 +19,21 @@ dt_ = 50e-6
 chanProto_ = [
         ['./cellMechanisms/KConductance/KChannel_HH.xml'], 
         ['./cellMechanisms/NaConductance/NaChannel_HH.xml'],
-        ['./cellMechanisms/LeakConductance/LeakConductance.xml']
+        ['./cellMechanisms/LeakConductance/LeakConductance.xml'],
+        [ './chans/kdr.xml' ]
         ]
 
 passiveDistrib_ = [ 
         [ ".", "#", "RM", "2.8", "CM", "0.01", "RA", "1.5",  
             "Em", "-58e-3", "initVm", "-65e-3" ]
-        , [ ".", "#axon#", "RA", "1.5" ] 
+        , [ ".", "#axon#", "RA", "0.5" ] 
         ]
 
 chanDistrib_ = [
         [  "NaConductance", "#", "Gbar", "1200" ]
         , [ "KConductance", "#", "Gbar", "360" ]
         , [ "LeakConductance", "#", "Gbar", "3" ]
+        , [ "kdr", "#", "Gbar", "10" ]
         ]
 
 def buildMOOSE(swcfile):
