@@ -1,6 +1,6 @@
 #!/bin/bash
 nrnivmodl chans
-MODELFILE=../swc_models/wu/CNG_version/ko20x-01.CNG.swc
+MODELFILE=ko20x-01.CNG.swc
 FILENAME=`basename $MODELFILE`
 HOCFILE=$FILENAME.hoc
 
