@@ -10,7 +10,7 @@ python ./check_equivalence.py $MODELFILE
 echo "Running generated $HOCFILE"
 nrniv $HOCFILE
 
-echo "You should have nrn_out.dat and moose_out.csv files in the current 
+echo "You should have nrn_out.csv and moose_out.csv files in the current 
 working directory. 
 
 NOTICE: While neuron saves Vm from all compartment, we have configured MOOSE to

@@ -118,14 +118,14 @@ def stimulus_text():
 def plot_text(tableList):
     plottext = ["objref outF"]
     plottext.append("outF = new File()")
-    plottext.append('outF.wopen("nrn_out.dat")')
-    plottext.append('outF.printf("t,%s")' % ",".join(tableList))
+    plottext.append('outF.wopen("nrn_out.csv")')
+    plottext.append('outF.printf("t,%s\\n")' % ",".join(tableList))
     plottext.append('for i=0,rect.size()-1 {\n')
     glist, plotlist = ["%g"], ["rect.x(i)"]
     for t in tableList:
         glist.append("%g")
         plotlist.append("%s.x(i)" % t)
-    plottext.append('\toutF.printf("%s\\n", %s)' % (" ".join(glist), ",".join(plotlist)))
+    plottext.append('\toutF.printf("%s\\n", %s)' % (",".join(glist), ",".join(plotlist)))
     plottext.append("}")
     plottext.append("\n")
     return "\n".join(plottext)
