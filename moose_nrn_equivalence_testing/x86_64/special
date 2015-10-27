@@ -1,13 +1,13 @@
 #!/bin/sh
 if test "x${NRNHOME}" = "x" ; then
-	NRNHOME="/usr/local/nrn"
+	NRNHOME="/usr"
 fi
 if test "x${NRNBIN}" = "x" ; then
-	NRNBIN="/usr/local/nrn/x86_64/bin/"
+	NRNBIN="/usr/x86_64/bin/"
 fi
 if test "" = "yes" ; then
 	NRNIV="${NRNBIN}nrniv.app/Contents/MacOS/nrniv"
 else
 	NRNIV="${NRNBIN}nrniv"
 fi
-"${NRNIV}" -dll "/home/dilawar/Work/BhallaLab/benchmarks/moose_nrn_equivalence_testing/x86_64/.libs/libnrnmech.so" "$@"
+"${NRNIV}" -dll "/home_local/dilawars/Work/BhallaLab/benchmarks/moose_nrn_equivalence_testing/x86_64/.libs/libnrnmech.so" "$@"

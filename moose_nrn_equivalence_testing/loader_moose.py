@@ -21,7 +21,6 @@ from moose import neuroml
 from PyQt4 import Qt, QtCore, QtGui
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('/opt/moose/Demos/util')
 import rdesigneur as rd
 import os
 from moose.neuroml.ChannelML import ChannelML
@@ -45,7 +44,9 @@ logging.basicConfig(level=logging.DEBUG,
     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
     datefmt='%m-%d %H:%M',
     filename='moose.log',
-    filemode='w')
+    filemode='w'
+    )
+
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
@@ -195,5 +196,6 @@ def main(args):
     db_query_['model_name'] = args.swc_file
     countSpike()
     dbEntry(db_query_)
-    saveData(outfile="_data/moose.csv")
-
+    outfile = 'moose_out.csv'
+    print("Writing data to %s" % outfile)
+    saveData(outfile=outfile)

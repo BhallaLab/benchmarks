@@ -1,1 +1,1 @@
-../chans//*.inc
+../chans/*.inc
