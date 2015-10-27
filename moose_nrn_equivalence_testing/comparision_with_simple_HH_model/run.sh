@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
+set -x
 rm -rf ./moose_results.csv ./nrn_out.dat
+nrnivmodl chans
 export PYTHONPATH=/opt/moose/python
 python ./check_equivalence.py ../../swc_models/wu/CNG_version/ko20x-07.CNG.swc
 nrniv ./ko20x-07.CNG.swc.hoc

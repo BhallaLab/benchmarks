@@ -47,7 +47,7 @@ def runMOOSE():
         moose.setClock(i, dt_)
     hsolve = moose.HSolve('/hsolve')
     hsolve.dt = dt_
-    hsolve.target = '/model'
+    hsolve.target = '/model/##'
     moose.reinit()
     moose.start(0.1)
     records = {}
