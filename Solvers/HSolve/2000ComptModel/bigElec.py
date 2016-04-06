@@ -141,7 +141,7 @@ def buildPlots( rdes ):
     moose.connect( somaNaGkTab, 'requestOut', path, 'getGk' )
 
 def saveAndClearPlots( name ):
-    print 'saveAndClearPlots( ', name, ' )'
+    print('saveAndClearPlots( ', name, ' )')
     for i in moose.wildcardFind( "/graphs/#" ):
         #print i
         #plot stuff
@@ -154,21 +154,21 @@ def main():
     numpy.random.seed( 1234 )
     rdes = buildRdesigneur()
     for i in elecFileNames:
-        print i
+        print(i)
         rdes.cellProtoList = [ ['./cells/' + i, 'elec'] ]
         rdes.buildModel( '/model' )
         rdes.soma.inject = inject
         assert( moose.exists( '/model' ) )
         synSpineList = moose.wildcardFind( "/model/elec/#head#/glu,/model/elec/#head#/NMDA" )
         temp = set( moose.wildcardFind( "/model/elec/#/glu,/model/elec/#/NMDA" ) )
-
         synDendList = list( temp - set( synSpineList ) )
+        print("[INFO] reinitialzing")
         moose.reinit()
         buildPlots( rdes )
         # Run for baseline, tetanus, and post-tetanic settling time 
         t1 = time.time()
         moose.start( runtime )
-        print 'runtime = ', runtime, '; real time = ', time.time() - t1
+        print('runtime = ', runtime, '; real time = ', time.time() - t1)
 
         saveAndClearPlots( "bigElec" )
         moose.delete( '/model' )
