@@ -42,3 +42,21 @@ if(WITH_OPENMP)
         LINK_FLAGS "${OpenMP_CXX_FLAGS}" 
         )
 endif()
+
+FILE(GLOB LATEX_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.tex)
+
+add_custom_target( docs 
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/report.pdf
+    SOURCES ${LATEX_SRCS}
+    VERBATIM
+    )
+
+add_custom_command( 
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/report.pdf
+    COMMAND xelatex -output-directory=${CMAKE_CURRENT_BINARY_DIR} 
+        ${CMAKE_CURRENT_SOURCE_DIR}/report.tex
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${LATEX_SRCS}
+    VERBATIM
+    )
+
