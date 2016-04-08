@@ -18,18 +18,22 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+set -e
 
 BUILD_DIR=`pwd`/_build
 
 mkdir -p $BUILD_DIR
+echo "Doing with GSL"
 (
+    echo "Compilation flags: $@"
     cd $BUILD_DIR
-    cmake ..
+    cmake "$@" ..
     make -j2
     echo "[INFO] I am done compiling required binaries using cmake."
 )
 
-for i in {2,4,8,16,18}; do
+rm -f *.csv
+for i in {1,2,3,4,5,6,7,8,16,24,32}; do
     echo "[INFO] Running with $i threads"
     OPENMP_NUM_THREADS=$i $BUILD_DIR/benchmark_rng_openmp
 done
