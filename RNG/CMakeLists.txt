@@ -4,6 +4,7 @@ option(WITH_MPI "Enable OpenMPI" ON)
 option(WITH_OPENMP "Enable OpenMPI" ON)
 option(WITH_GSL "Use gsl RNG" OFF)
 option(WITH_BOOST "Use boost RNG" OFF)
+set(CMAKE_BUILD_TYPE Release)
 
 add_definitions( -std=c++11 )
 
@@ -21,6 +22,12 @@ if(WITH_GSL)
     target_link_libraries( benchmark_rng_mpi ${GSL_LIBRARIES} )
     target_link_libraries( benchmark_rng_openmp ${GSL_LIBRARIES} )
     add_definitions( -DUSE_GSL )
+elseif(WITH_BOOST)
+    find_package(Boost REQUIRED COMPONENTS random)
+    add_definitions( -DUSE_BOOST )
+    target_link_libraries( benchmark_rng_openmp ${BOOST_LIBRARIES} )
+    target_link_libraries( benchmark_rng_mpi ${BOOST_LIBRARIES} )
+    include_directories( ${BOOST_INCLUDE_DIRS} )
 endif(WITH_GSL)
 
 

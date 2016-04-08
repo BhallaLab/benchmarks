@@ -21,7 +21,11 @@
 
 #include <vector>
 
+#ifdef  USE_GSL
 #include <gsl/gsl_rng.h>
+#else      /* -----  not USE_GSL  ----- */
+
+#endif     /* -----  not USE_GSL  ----- */
 
 #include <mpi.h>
 
@@ -57,6 +61,7 @@ int main(int argc, char *argv[])
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
+#ifdef  USE_GSL
     gsl_rng* r;
     const gsl_rng_type * T;
     gsl_rng_env_setup(); // b default it assumes mt19937 with seed 0.
@@ -190,10 +195,13 @@ int main(int argc, char *argv[])
     int i,j,k;
     MPI_Finalize();
     return 0;
+#else      /* -----  not USE_GSL  ----- */
+
+#endif     /* -----  not USE_GSL  ----- */
 
 #if 0
 
-    struct timespec t1, t2, t3, t4;
+        struct timespec t1, t2, t3, t4;
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t1);
 

@@ -23,6 +23,8 @@
 
 #ifdef  USE_GSL
 #include <gsl/gsl_rng.h>
+#elif defined(USE_BOOST)
+#include <boost/random.hpp>
 #else      /* -----  not USE_GSL  ----- */
 #include <random>
 #endif     /* -----  not USE_GSL  ----- */
@@ -39,12 +41,6 @@
 
 using namespace std;
 using namespace std::chrono;
-
-
-double d_t (struct timespec t1, struct timespec t2)
-{
-    return (t2.tv_sec-t1.tv_sec)+(double)(t2.tv_nsec-t1.tv_nsec)/1000000.0;
-}
 
 tuple<double, double> mean_and_std( vector<double>& v )
 {
@@ -65,7 +61,7 @@ void generate_random_nums( T rng, long int& sum, double& time )
 #if USE_GSL
         gsl_rng_get( rng );
 #else
-        rng();                                  /* Just generate, do nothing */
+         rng();                                 /* for both boost/stl */
 #endif
     }
     time = (omp_get_wtime() - start) * 1000;
@@ -107,6 +103,9 @@ int main(int argc, char *argv[])
     gsl_rng_env_setup();
     vector<gsl_rng*> rngVec( numThreads );
     runTimeInfo << "GSL,";
+#elif defined(USE_BOOST)
+    vector<boost::mt19937> rngVec( numThreads );
+    runTimeInfo << "BOOST,";
 #else
     vector<mt19937> rngVec(numThreads);
     runTimeInfo << "STL,";
@@ -120,11 +119,14 @@ int main(int argc, char *argv[])
         printf("[INFO] Created gsl RNG : %p, seed = %d\n"
                 , rngVec[i], gsl_rng_get(rngVec[i]) 
               );
-#else 
-        std::mt19937 r;
-        r.seed(seed*i);
+#elif defined(USE_BOOST)
+        boost::mt19937 r( seed * i );
         rngVec[i] = r;
-//        printf("[INFO] Created stl RNG : %p, seed = %d\n" , &rngVec[i], seed*i );
+        printf("[INFO] Created BOOST RNG : %p, seed = %d\n" , &rngVec[i], seed*i );
+#else 
+        std::mt19937 r( seed * i );
+        rngVec[i] = r;
+        printf("[INFO] Created STL RNG : %p, seed = %d\n" , &rngVec[i], seed*i );
 #endif
     }
 
@@ -138,20 +140,23 @@ int main(int argc, char *argv[])
     for (int i = 0; i < nn; i++)  {
 #if USE_GSL
         printf(" %lu,", gsl_rng_get(rngVec[0]) );
-#else
+#else                                           /* For both boost/stl */
         printf(" %lu,", rngVec[0]() );
 #endif
     }
     printf("\n");
-    for (int i = 0; i < nn; i++) { 
+    if( numThreads > 1)
+    {
+        for (int i = 0; i < nn; i++) { 
 #if USE_GSL
-        printf(" %lu,", gsl_rng_get(rngVec[1]) );
-#else
-        printf(" %lu,", rngVec[1]() );
+            printf(" %lu,", gsl_rng_get(rngVec[1]) );
+#else                                           /* for both boost/stl */
+            printf(" %lu,", rngVec[1]() );
 #endif
 
+        }
+        printf("\n");
     }
-    printf("\n");
 
     /*-----------------------------------------------------------------------------
      *  Now we do the benchmarking.
@@ -167,6 +172,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < nn; i++) {
 #if USE_GSL
         generate_random_nums<gsl_rng*>( rngVec[0], sum, timeTaken);
+#elif defined(USE_BOOST)
+        generate_random_nums<boost::mt19937>( rngVec[0], sum, timeTaken);
 #else
         generate_random_nums<mt19937>( rngVec[0], sum, timeTaken);
 #endif
@@ -190,6 +197,8 @@ int main(int argc, char *argv[])
         tid = omp_get_thread_num();
 #if USE_GSL
         generate_random_nums<gsl_rng*>( rngVec[tid], sum, threadTime);
+#elif defined(USE_BOOST)
+        generate_random_nums<boost::mt19937>( rngVec[tid], sum, threadTime);
 #else
         generate_random_nums<mt19937>( rngVec[tid], sum, threadTime);
 #endif
@@ -200,7 +209,7 @@ int main(int argc, char *argv[])
     auto paralleRes = mean_and_std( parallelTime );
     runTimeInfo <<  get<0>(paralleRes) << "," << get<1>(paralleRes) << "," ;
 
-    //free random number generator
+    // free random number generator
 #if USE_GSL
     for (int i = 0; i < numThreads; i++) {
         gsl_rng_free(rngVec[i]);

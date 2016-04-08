@@ -31,9 +31,9 @@ echo "Doing with GSL"
     make -j2
     echo "[INFO] I am done compiling required binaries using cmake."
 )
-
-rm -f *.csv
-for i in {2,3,4,5,6,7,8,16,24,32}; do
+NOW=$(date +"%Y_%m_%d__%H_%M_%S")
+mv ./benchmarkdata.csv ./_data/benchmarkdata_${NOW}.csv
+for i in {1,2,3,4,5,6,7,8,16,24,32}; do
     echo "[INFO] Running with $i threads"
     OPENMP_NUM_THREADS=$i $BUILD_DIR/benchmark_rng_openmp
 done
