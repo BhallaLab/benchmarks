@@ -58,4 +58,3 @@ add_custom_command(
     DEPENDS ${LATEX_SRCS}
     VERBATIM
     )
-
