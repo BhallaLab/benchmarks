@@ -1,0 +1,44 @@
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.3863,54.4633,1,82.647,0,2258.19
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.4336,54.5299,2,110.268,0.957563,2288.74
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.3903,54.4765,3,113.654,0.730618,2290.3
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.6735,53.6887,4,113.16,2.1615,2262.23
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.5611,53.5739,5,137.731,23.5552,2317.46
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.6178,53.6265,6,152.993,24.8043,2323.6
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.6601,53.672,7,177.774,26.9843,2353.98
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.313,54.3947,8,211.979,22.123,2411.56
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.0901,54.0977,16,404.092,51.6243,2654.16
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.5645,53.578,24,637.189,34.5819,2850.87
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.725,53.7341,32,800.509,178.338,3083.1
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.2278,54.3889,1,107.162,0,2276.38
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.7169,53.7317,2,110.228,0.00716455,2259.07
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,55.0575,55.3826,3,103.157,11.9649,2314.15
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.6074,53.6207,4,108.508,13.0865,2262.09
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.535,53.544,5,123.408,25.7272,2301.94
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.3101,54.3875,6,151.127,24.3765,2352.75
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.5906,53.6017,7,181.797,26.9702,2353.6
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.4215,53.4287,8,223.813,5.76716,2377.43
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,54.238,54.3151,16,394.217,79.7925,2633.7
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.5566,53.5667,24,602.41,63.5696,2846.45
+#RNG,Number of samples, serial mean, serial std,Number of threads,threaded mean, threaded std,total clock time,
+BOOST,1e+08,53.517,53.5255,32,781.701,190.562,3072.18
