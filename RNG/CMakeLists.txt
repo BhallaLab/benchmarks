@@ -5,8 +5,6 @@ option(WITH_OPENMP "Enable OpenMPI" ON)
 option(WITH_GSL "Use gsl RNG" OFF)
 option(WITH_BOOST "Use boost RNG" OFF)
 
-set(CMAKE_BUILD_TYPE Release)
-
 add_definitions( -std=c++11 )
 
 add_executable( benchmark_rng_mpi 

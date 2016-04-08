@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     const gsl_rng_type *rng_t;
     rng_t = gsl_rng_default;                    /* mersenne twister 19377mt */
     gsl_rng_env_setup();
-    vector<gsl_rng*> rngVec;
+    vector<gsl_rng*> rngVec( numThreads );
     runTimeInfo << "GSL,";
 #else
     vector<mt19937> rngVec(numThreads);
